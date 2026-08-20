@@ -1,0 +1,40 @@
+name: Standard improvement
+description: Propose a new or changed quality requirement or shared template
+title: "[Proposal]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Repository problem
+      description: What maintainer or contributor problem is not covered today?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe the observable result and durable evidence, not only a preferred implementation.
+    validations:
+      required: true
+  - type: dropdown
+    id: profile
+    attributes:
+      label: Affected profile
+      multiple: true
+      options:
+        - Baseline
+        - Public
+        - Software
+        - Deployable
+        - Package
+        - Documentation
+        - Archived
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and migration
+      description: Which repositories or existing practices would need to change?
