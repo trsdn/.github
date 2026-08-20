@@ -1,40 +1,25 @@
-name: Standard improvement
-description: Propose a new or changed quality requirement or shared template
-title: "[Proposal]: "
+name: Feature request
+description: Propose a change or a new capability
+title: "[Feature]: "
 labels:
   - enhancement
 body:
   - type: textarea
     id: problem
     attributes:
-      label: Repository problem
-      description: What maintainer or contributor problem is not covered today?
+      label: Problem or use case
+      description: What are you trying to do, and what makes it hard today?
     validations:
       required: true
   - type: textarea
     id: outcome
     attributes:
       label: Desired outcome
-      description: Describe the observable result and durable evidence, not only a preferred implementation.
-    validations:
-      required: true
-  - type: dropdown
-    id: profile
-    attributes:
-      label: Affected profile
-      multiple: true
-      options:
-        - Baseline
-        - Public
-        - Software
-        - Deployable
-        - Package
-        - Documentation
-        - Archived
+      description: Describe the result you want, not only one possible implementation.
     validations:
       required: true
   - type: textarea
-    id: compatibility
+    id: alternatives
     attributes:
-      label: Compatibility and migration
-      description: Which repositories or existing practices would need to change?
+      label: Alternatives and impact
+      description: Which workarounds exist today, and who is affected by the change?

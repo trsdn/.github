@@ -1,19 +1,31 @@
 # Security Policy
 
-## Supported content
+This policy applies to `trsdn` projects that do not publish their own security
+policy.
 
-The current default branch is supported. Superseded templates and historical
-revisions are not maintained unless a repository explicitly adopts them.
+## Supported versions
+
+The latest release and the current default branch are supported. Older releases
+are not patched unless the project states otherwise.
 
 ## Report a vulnerability privately
 
-Use [GitHub private vulnerability reporting](https://github.com/trsdn/.github/security/advisories/new)
-for vulnerabilities in these shared files or in the standard itself. For a
-vulnerability in another project, use that repository's security policy.
+Use the affected repository's **Security** tab and choose **Report a
+vulnerability**. This opens a private advisory that only maintainers can see.
+If private reporting is unavailable there, open an issue asking for a private
+channel and leave out exploit details.
 
-Include the affected file or control, impact, reproduction details, and a safe
-way to validate a fix. Do not open a public issue, include working secrets, or
-publish sensitive findings before remediation is coordinated.
+Please include:
 
-Reports will be acknowledged through the private advisory. Triage determines
-scope, severity, affected repositories, and the remediation and disclosure plan.
+- the affected version, commit, or release;
+- impact and a realistic attack scenario;
+- minimal reproduction steps or a proof of concept;
+- a suggested fix, if you have one.
+
+Do not disclose details publicly before a fix is available, and never include
+working credentials, tokens, or personal data in a report.
+
+## What to expect
+
+Reports are triaged privately. Confirmed issues are fixed on a timeline that
+matches their severity, and reporters are credited on request once a fix ships.

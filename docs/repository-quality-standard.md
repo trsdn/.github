@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-Version: 1.0  
-Last reviewed: 2026-08-21
+- Version: 1.1
+- Last reviewed: 2026-08-21
 
 This document is the public source of truth for repository quality across
 projects maintained by `trsdn`. It defines outcomes and evidence, not a mandatory
@@ -97,6 +97,30 @@ Apply the baseline to every active repository, then add every matching profile.
 | R04 | Tag, package version, and release title are consistent | Release workflow validation |
 | R05 | Built artifacts are smoke-tested in a clean environment | CI or release workflow |
 | R06 | Release notes describe meaningful changes and upgrade concerns | GitHub release or changelog |
+
+## Product Identity
+
+Apply these requirements to anything a user installs, runs, or downloads:
+applications, installers, binaries, container images, published packages, and
+hosted sites. They make a shipped artifact traceable back to its source without
+guesswork.
+
+| ID | Requirement | Expected evidence |
+|---|---|---|
+| I01 | The built artifact embeds its product name and exact version | Bundle manifest, package manifest, image label, or binary metadata |
+| I02 | The built artifact embeds its repository URL and issue tracker URL | Manifest, label, or metadata field resolved from the release build |
+| I03 | The built artifact embeds its license identifier and copyright holder | Manifest, label, or metadata field, plus the bundled license text where required |
+| I04 | The running product shows its version and links to the repository and issue tracker | About window, `--version` and `--help` output, site footer, or equivalent |
+| I05 | A product icon is embedded in the artifact and reused across installer, store, and site surfaces | Icon asset in the built artifact and on published surfaces |
+| I06 | Embedded identity metadata is produced by the build, not maintained by hand | Release workflow or build script deriving values from the tag and repository |
+
+Example for a macOS application bundle: `CFBundleName`,
+`CFBundleShortVersionString`, `NSHumanReadableCopyright`, and `CFBundleIconFile`
+are set in `Info.plist`; repository and issue URLs are added as custom keys or
+shown in the About window; the release workflow injects the version from the
+tag. Equivalent fields exist for other ecosystems, such as `pyproject.toml`
+project URLs, npm `repository` and `bugs`, and OCI image labels
+`org.opencontainers.image.source` and `org.opencontainers.image.licenses`.
 
 ## Documentation Repositories
 

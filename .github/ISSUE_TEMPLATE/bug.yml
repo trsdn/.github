@@ -1,17 +1,17 @@
-name: Problem report
-description: Report a defect in the shared standard or community files
-title: "[Problem]: "
+name: Bug report
+description: Report something that does not work as documented
+title: "[Bug]: "
 labels:
   - bug
 body:
   - type: markdown
     attributes:
-      value: Do not report vulnerabilities, credentials, or private data here. Follow SECURITY.md instead.
+      value: Do not report vulnerabilities here and do not include credentials or personal data. Use the security policy instead.
   - type: textarea
     id: expected
     attributes:
       label: Expected result
-      description: What should the standard or template require or produce?
+      description: What did you expect to happen?
     validations:
       required: true
   - type: textarea
@@ -25,14 +25,16 @@ body:
     id: reproduce
     attributes:
       label: Reproduction
-      description: Provide minimal steps and identify the affected file or criterion.
+      description: Provide the minimal steps, commands, or input needed to reproduce the problem.
     validations:
       required: true
   - type: input
     id: environment
     attributes:
-      label: Repository and environment
-      description: Include the consuming repository, relevant version, operating system, runtime, or GitHub feature.
+      label: Version and environment
+      description: Include the product version or commit, operating system, and relevant runtime versions.
+    validations:
+      required: true
   - type: textarea
     id: evidence
     attributes:

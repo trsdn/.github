@@ -17,6 +17,6 @@ participation, or permanently ban participants when behavior threatens a safe
 and productive project environment. Enforcement decisions should be
 proportionate, documented privately, and protect reporters from retaliation.
 
-Report conduct concerns privately through
-[GitHub private vulnerability reporting](https://github.com/trsdn/.github/security/advisories/new).
-Do not include sensitive conduct reports in public issues.
+Report conduct concerns privately to the maintainer of the affected repository,
+for example through that repository's private reporting channel. Do not post
+sensitive conduct reports in public issues or pull requests.

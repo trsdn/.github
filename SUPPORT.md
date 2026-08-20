@@ -1,12 +1,11 @@
 # Support
 
-Use the affected repository's issue forms for reproducible bugs and feature
-requests. Include the project version, environment, expected and actual result,
-minimal reproduction steps, and sanitized logs where relevant.
+These projects are maintained on a best-effort basis.
 
-Do not use public support channels for vulnerabilities, credentials, personal
-data, or private incident details. Follow the affected repository's
-`SECURITY.md` instead.
+Start with the project's `README.md`, then search open and closed issues. If the
+question is still unanswered, open an issue in the affected repository and
+include the version, environment, expected and actual result, minimal
+reproduction steps, and sanitized logs.
 
-This repository accepts issues about the shared quality standard and default
-community files only. It does not provide general GitHub or product support.
+Do not use public issues for vulnerabilities, credentials, personal data, or
+other sensitive details. Follow the security policy instead.

@@ -1,35 +1,37 @@
 # Contributing
 
-Contributions that improve the public repository standard or shared templates
-are welcome.
+Thanks for contributing. This guide applies to `trsdn` projects that do not
+publish their own contributing guide.
 
-Changes must preserve the outcomes and evidence model in the
-[Repository Quality Standard](docs/repository-quality-standard.md).
+## Before you start
 
-## Propose a change
+Open an issue for bugs, new capabilities, or anything that changes behavior, so
+the approach can be agreed before implementation. Small, focused pull requests
+are reviewed faster than broad ones.
 
-1. Open an issue describing the repository problem or use case.
-2. Create a focused branch and update the standard or template.
-3. Run the documented validation command from a clean checkout.
-4. Open a pull request with the evidence requested by the template.
+## Make the change
 
-Keep requirements outcome-focused and technology-neutral. A new requirement
-must identify durable evidence and must not assume access to private systems.
-Repository-specific requirements belong in that repository.
+1. Branch from the default branch.
+2. Follow the setup instructions in the project's `README.md`.
+3. Match the existing structure and style of the project.
+4. Add or update tests when behavior changes.
+5. Update documentation and the changelog when the change is user-visible.
 
-## Validation
+## Validate before review
 
-```sh
-npx --yes markdownlint-cli2@0.18.1 "**/*.md"
-```
+Run the project's documented validation command from a clean checkout and make
+sure it succeeds. If the project documents no command, describe in the pull
+request how you verified the change.
 
-The command must exit successfully before review. Update affected examples and
-templates with the standard so they do not drift.
+## Open a pull request
 
-## Review expectations
+- Describe the problem, the change, and how it was verified.
+- Link the related issue.
+- Call out user-visible, operational, security, or compatibility impact.
+- Never include secrets, credentials, personal data, or internal-only details.
 
-- Link the issue or rationale for the change.
-- Explain compatibility or migration impact.
-- Do not include secrets, private repository details, personal data, or private
-  incident information.
-- Record material semantic changes in the pull request description.
+Maintainers review for correctness, security, maintainability, and scope. A pull
+request may be asked to shrink, split, or add evidence before it is merged.
+
+The quality expectations behind these projects are described in the
+[Repository Quality Standard](https://github.com/trsdn/.github/blob/main/docs/repository-quality-standard.md).

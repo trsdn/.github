@@ -2,16 +2,18 @@
 
 ## Summary
 
-Describe the repository-quality problem and the outcome of this change.
+Describe the problem and what this change does.
 
 ## Related issue
 
-Link the issue or decision that explains the change.
+Link the issue or decision this change implements.
 
 ## Validation
 
-- [ ] `npx --yes markdownlint-cli2@0.18.1 "**/*.md"`
-- [ ] Examples and affected templates agree with the standard
+- [ ] The project's documented validation command succeeds locally
+- [ ] Tests were added or updated for behavior changes
+
+How the change was verified:
 
 ## Impact
 
@@ -21,5 +23,4 @@ Link the issue or decision that explains the change.
 
 ## Documentation
 
-- [ ] Public guidance is updated
-- [ ] Material semantic changes are called out in this pull request
+- [ ] README, docs, and changelog are updated where the change is user-visible
