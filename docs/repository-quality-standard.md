@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.1
+- Version: 1.2
 - Last reviewed: 2026-08-21
 
 This document is the public source of truth for repository quality across
@@ -113,6 +113,9 @@ guesswork.
 | I04 | The running product shows its version and links to the repository and issue tracker | About window, `--version` and `--help` output, site footer, or equivalent |
 | I05 | A product icon is embedded in the artifact and reused across installer, store, and site surfaces | Icon asset in the built artifact and on published surfaces |
 | I06 | Embedded identity metadata is produced by the build, not maintained by hand | Release workflow or build script deriving values from the tag and repository |
+| I07 | Every application and website has a reachable About surface | About window, About page, or `--version` output, linked from primary navigation, menu, or footer |
+| I08 | The About surface states the product name, version, copyright holder and year, and license | About surface content plus the bundled or linked license text |
+| I09 | The About surface links to the source repository and to a way to report an issue | Repository URL and issue tracker or security-reporting link on the About surface |
 
 Example for a macOS application bundle: `CFBundleName`,
 `CFBundleShortVersionString`, `NSHumanReadableCopyright`, and `CFBundleIconFile`
@@ -121,6 +124,38 @@ shown in the About window; the release workflow injects the version from the
 tag. Equivalent fields exist for other ecosystems, such as `pyproject.toml`
 project URLs, npm `repository` and `bugs`, and OCI image labels
 `org.opencontainers.image.source` and `org.opencontainers.image.licenses`.
+
+### About Surface
+
+Every application and website must expose an About surface. It is the one place
+a user can reach without private context to learn what they are running, who
+owns it, and where to report a problem.
+
+An About surface is reachable in at most two steps from the product's primary
+surface: an application menu or settings entry, a site footer or navigation
+link, or a documented `--version` and `--help` flag for a command-line tool.
+
+It must state:
+
+- the product name and the exact released version, matching the artifact
+  metadata required by `I01`;
+- the copyright holder and year, and the license name, with the full license
+  text bundled or linked;
+- a link to the source repository; and
+- a link to report an issue, such as the repository issue tracker, plus the
+  private security-reporting path when one exists.
+
+It may also state build metadata such as the commit or build date, third-party
+notices and attributions, and links to support or privacy documentation.
+
+Values shown on the About surface must come from the same build-generated
+metadata as `I06`, so a released product can never display a version, license,
+or repository link that disagrees with its artifact.
+
+Example for a website or web application: a footer, present on every page, shows
+`Product 1.4.2`, `(c) 2026 Torsten Mahr - MIT License`, a `Source` link to the
+repository, and a `Report an issue` link to the issue tracker, with the version
+injected at build time from the release tag.
 
 ## Documentation Repositories
 
