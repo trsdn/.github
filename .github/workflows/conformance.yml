@@ -1,0 +1,71 @@
+name: Conformance
+
+# Reusable conformance check for repositories that adopt the Repository Quality
+# Standard. Call it from a repository that holds a .github/conformance.yml:
+#
+#   jobs:
+#     conformance:
+#       uses: trsdn/.github/.github/workflows/conformance.yml@main
+
+on:
+  workflow_call:
+    inputs:
+      record:
+        description: Path to the conformance record
+        type: string
+        default: .github/conformance.yml
+      standard-ref:
+        description: Tag of the standard to validate against
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Conformance record
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the calling repository
+        uses: actions/checkout@v7
+        with:
+          path: repository
+
+      - name: Read the standard version from the record
+        id: record
+        run: |
+          set -euo pipefail
+          record="repository/${{ inputs.record }}"
+          if [ ! -f "$record" ]; then
+            echo "conformance: no record at $record" >&2
+            exit 1
+          fi
+          version="$(sed -n 's/^standard_version:[[:space:]]*"\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' "$record")"
+          if [ -z "$version" ]; then
+            echo "conformance: record declares no standard_version" >&2
+            exit 1
+          fi
+          ref="${{ inputs.standard-ref }}"
+          if [ -z "$ref" ]; then
+            ref="v$version"
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+          echo "conformance: validating against standard $ref"
+
+      # The record names the version it was assessed against, so the catalog and
+      # the checker are taken from that exact tag. Validating against the moving
+      # default branch would silently change what a recorded result means.
+      - name: Check out the standard at the recorded version
+        uses: actions/checkout@v7
+        with:
+          repository: trsdn/.github
+          ref: ${{ steps.record.outputs.ref }}
+          path: standard
+
+      - name: Verify record and badge
+        run: |
+          set -euo pipefail
+          python3 standard/scripts/conformance.py --check \
+            --repository repository \
+            --catalog standard/standard.yml
