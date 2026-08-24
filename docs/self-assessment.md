@@ -1,14 +1,14 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.2.0
+- Standard version: 1.3.0
 - Assessed on: 2026-08-24
 - State: **Needs work**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
 
 This repository publishes the standard, so it assesses itself against it. The
-result is deliberately not `Healthy`: four criteria are partial. Publishing a
-green badge over known gaps would make every other badge in the estate
-worthless.
+result is deliberately not `Healthy`: one criterion fails and four criteria are
+partial. Publishing a green badge over known gaps would make every other badge in
+the estate worthless.
 
 ## Profiles
 
@@ -22,6 +22,13 @@ worthless.
 | Archived | No | Actively maintained |
 
 ## Gaps
+
+### P09 — Repository activity is shown from a self-hosted source — `fail`
+
+The reusable workflow, generator, documentation, and example SVGs exist in this
+repository, but this repository's own README does not yet display its repository
+activity card. The criterion requires the card to be shown, not merely that the
+tooling exists.
 
 ### S03 — Static checks run automatically — `partial`
 
