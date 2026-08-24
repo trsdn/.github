@@ -6,6 +6,17 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.3.0 - 2026-08-24
+
+- Added the public criterion `P09` and the Repository Statistics section,
+  requiring repository activity to be shown from a self-hosted generated card
+  rather than a third-party image service.
+- Added a self-hosted statistics generator, a reusable workflow that renders and
+  commits a per-repository card, account-level cards for the profile README,
+  copy-paste templates, documentation, and tests.
+- Updated this repository's conformance record for `P09` and aligned the
+  statistics tests with the standard-library `unittest` convention.
+
 ## 1.2.0 - 2026-08-22
 
 - Added a versioning and compatibility policy, the append-only rule for

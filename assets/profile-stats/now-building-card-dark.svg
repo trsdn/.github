@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="270" viewBox="0 0 820 270" role="img">
+<defs>
+  <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+    <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.16"/>
+  </filter>
+  <style>
+    .title { font: 700 20px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; fill: #e5e7eb; }
+    .subtitle { font: 500 12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; fill: #94a3b8; }
+    .label { font: 600 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; fill: #94a3b8; text-transform: uppercase; letter-spacing: .06em; }
+    .value { font: 700 17px ui-monospace,SFMono-Regular,Menlo,monospace; fill: #e5e7eb; }
+    .small { font: 500 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; fill: #94a3b8; }
+    .mono { font: 650 12px ui-monospace,SFMono-Regular,Menlo,monospace; fill: #e5e7eb; }
+  </style>
+</defs><rect x="1" y="1" width="818" height="268" rx="12" fill="#111827" stroke="#263247" filter="url(#shadow)"><animate attributeName="opacity" from="0" to="1" dur="420ms" fill="freeze"/></rect><text x="28" y="44" class="title">Now building</text><text x="28" y="68" class="subtitle">The three repositories with the most recent commits</text><circle cx="38" cy="105" r="7" fill="#178600"/><text x="56" y="100" class="mono">trsdn/mcp-server-word</text><text x="56" y="122" class="small">5m ago · docs: document running the server from the MCP registry (#58)</text><circle cx="38" cy="159" r="7" fill="#F05138"/><text x="56" y="154" class="mono">trsdn/OpenLens</text><text x="56" y="176" class="small">9m ago · docs: say why test files must not import the app module</text><circle cx="38" cy="213" r="7" fill="#f1e05a"/><text x="56" y="208" class="mono">trsdn/agent-trestle</text><text x="56" y="230" class="small">11m ago · chore(release): Agent Trestle 0.2.0</text><text x="792" y="244" text-anchor="end" class="small">auto-generated · 2026-08-24T17:33:41+00:00</text></svg>

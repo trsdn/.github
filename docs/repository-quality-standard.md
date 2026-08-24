@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.2.0
-- Last reviewed: 2026-08-22
+- Version: 1.3.0
+- Last reviewed: 2026-08-24
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across
@@ -145,6 +145,7 @@ assessment backlog.
 | <a id="p06"></a>P06 | Community health files are recognized by GitHub | Community Standards page |
 | <a id="p07"></a>P07 | Metadata supports discovery | Description, topics, and a maintained homepage where useful |
 | <a id="p08"></a>P08 | README status badges follow the badge convention | [Status Badges](#status-badges) |
+| <a id="p09"></a>P09 | Repository activity is shown from a self-hosted, generated source rather than a third-party image service | [Repository Statistics](#repository-statistics) |
 
 ## Software Repositories
 
@@ -355,6 +356,39 @@ Rules:
 
 A hardcoded `Swift 5.9` badge beside a manifest that has moved to 6.0 is the
 failure this section exists to prevent.
+
+## Repository Statistics
+
+Badges report state. A statistics card reports activity: commit volume, when the
+repository was last touched, the current release, contributor count, language
+mix. A reader uses it to judge whether a project is alive before reading any
+code.
+
+`P09` applies the same rule the badge section applies to values: the card is
+generated from an authoritative source and committed to the repository. It is
+not fetched from a third-party rendering service at read time.
+
+The reason is `Y02`. A README image served from an external host observes every
+visitor, including their address and referrer, and does so on a page the
+maintainer controls. A self-hosted card removes that observation, and it also
+removes an availability dependency: a card committed as an SVG cannot break
+because someone else's free tier expired.
+
+Rules:
+
+- The card is generated, never hand-edited. A committed SVG that no workflow
+  reproduces is a `Fail`.
+- Generation runs on a schedule, so the card cannot silently age past the
+  repository it describes.
+- Light and dark variants are published as separate files and selected with a
+  `<picture>` element. A `prefers-color-scheme` query inside the SVG has no
+  effect through GitHub's image proxy.
+- The card embeds no external references: no remote fonts, no `<image href>` to
+  another host. It is self-contained or it reintroduces the problem it solves.
+
+The shared implementation is the reusable workflow described in
+[Repository Stats](repo-stats.md). A repository may generate the card another
+way; the criterion is about the property, not the tool.
 
 ## Conformance Records
 
