@@ -33,6 +33,11 @@ on:
         required: false
         type: string
         default: ""
+      generator-ref:
+        description: Ref of trsdn/.github holding the generator to run.
+        required: false
+        type: string
+        default: main
     secrets:
       STATS_TOKEN:
         description: Optional token for private repositories or higher API limits.
@@ -61,7 +66,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: trsdn/.github
-          ref: ${{ github.action_ref || 'main' }}
+          ref: ${{ inputs.generator-ref }}
           token: ${{ secrets.STATS_TOKEN || github.token }}
           path: stats-source
       - name: Set up Python
