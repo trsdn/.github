@@ -2,7 +2,8 @@
 
 Copy the block below into the README of a repository that runs the
 [repository stats workflow](../../docs/repo-stats.md). Adjust the paths if the
-workflow writes to a directory other than `.github/stats`.
+workflow writes to a directory other than `.github/stats`. Showing this card is
+the README evidence for criterion `P09`.
 
 The `<picture>` element is required: GitHub serves README images through its
 image proxy, so a `prefers-color-scheme` media query inside the SVG itself has

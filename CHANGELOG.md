@@ -14,6 +14,8 @@ Versions follow the compatibility policy in the
 - Added a self-hosted statistics generator, a reusable workflow that renders and
   commits a per-repository card, account-level cards for the profile README,
   copy-paste templates, documentation, and tests.
+- Updated this repository's conformance record for `P09` and aligned the
+  statistics tests with the standard-library `unittest` convention.
 
 ## 1.2.0 - 2026-08-22
 

@@ -5,8 +5,9 @@
 [![Standard](https://github.com/trsdn/.github/actions/workflows/standard.yml/badge.svg)](https://github.com/trsdn/.github/actions/workflows/standard.yml)
 [![Conformance](.github/badges/conformance.svg)](docs/self-assessment.md)
 
-This repository contains the public repository quality standard and default
-community health files for projects maintained by `trsdn`.
+This repository contains the public repository quality standard, default
+community health files, and self-hosted statistics tooling for projects
+maintained by `trsdn`.
 
 Its language is English, and it ships no localized content. See `L01` and `L03`.
 
@@ -19,12 +20,16 @@ requirements may be stricter, but must not silently weaken this baseline.
 [`standard.yml`](standard.yml) is the same content in machine-readable form,
 generated from the document and kept in sync by a required check.
 
+Repository statistics for `P09` are documented in
+[Repository stats](docs/repo-stats.md), and account-level cards are documented in
+[Profile statistics](docs/profile-stats.md).
+
 ### Citing a criterion
 
 Cite the pinned form, never the default branch:
 
 ```text
-https://github.com/trsdn/.github/blob/v1.2.0/docs/repository-quality-standard.md#s05
+https://github.com/trsdn/.github/blob/v1.3.0/docs/repository-quality-standard.md#p09
 ```
 
 Criterion identifiers are append-only and are never reused, so a citation keeps
@@ -87,6 +92,10 @@ repositories. Those controls must be enabled and verified per repository.
 
 - [`templates/AGENTS.md`](templates/AGENTS.md) — starting point for the agent
   readiness criteria `G01` to `G08`.
+- [`templates/repo-stats/`](templates/repo-stats/) — caller workflow and README
+  snippet for the `P09` repository statistics card.
+- [`templates/profile-readme/`](templates/profile-readme/) — starter README for the
+  future `trsdn/trsdn` profile repository.
 
 ## Contributing
 
@@ -96,23 +105,26 @@ Agent and contributor guidance for this repository is in
 
 ## Validation
 
-From a clean checkout, run all four:
+From a clean checkout, run the repository validation commands:
 
 ```sh
 python3 scripts/standard.py --check
 python3 scripts/conformance.py --check
-python3 -m unittest discover -s tests
+python3 -m unittest discover -s tests -v
 npx --yes markdownlint-cli2@0.18.1 "**/*.md"
 ```
 
-The scripts and their tests use the Python standard library only. Markdown
-linting pins its tool version.
+The standard and conformance scripts, and their tests, use the Python standard
+library only. The statistics generator is separate runtime tooling and installs
+`requests` from `requirements.txt` when its workflows run. Markdown linting pins
+its tool version.
 
 ## Privacy
 
-This repository collects nothing and stores no user data. Its only outbound
-network access is continuous integration resolving `markdownlint-cli2` from the
-npm registry. See `Y01` and `Y02`.
+This repository collects nothing and stores no user data. Routine validation only
+resolves `markdownlint-cli2` from the npm registry. The optional statistics
+generator contacts the GitHub API to render repository and account SVG cards. See
+`Y01` and `Y02`.
 
 ## License
 

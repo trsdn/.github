@@ -4,23 +4,27 @@ Read this before changing anything in this repository.
 
 ## What this repository is
 
-`trsdn/.github` publishes two things:
+`trsdn/.github` publishes three things:
 
 1. the **Repository Quality Standard** in `docs/repository-quality-standard.md`,
    which is the canonical set of criteria that other `trsdn` repositories are
    assessed against; and
 2. the **default community health files** that GitHub applies to public `trsdn`
-   repositories which do not ship their own.
+   repositories which do not ship their own; and
+3. the **self-hosted statistics generator** and reusable workflow used for the
+   `P09` repository activity card.
 
-Both are consumed from outside this repository. A change here can alter the
+All three are consumed from outside this repository. A change here can alter the
 assessment result of repositories that are not in this checkout, and can change
 the contributing, security, and conduct guidance shown to people in repositories
 that have never been touched. Treat every change as a public interface change.
 
 ## What this repository is not
 
-It is not a product, it does not deploy anywhere, and it ships no runtime code.
-The scripts under `scripts/` exist to validate this repository's own content.
+It is not a product and it does not deploy anywhere. The validation scripts
+under `scripts/` exist to validate this repository's own content;
+`scripts/profile_stats/` is reusable runtime tooling for generated SVG
+statistics cards.
 
 ## Layout
 
@@ -32,7 +36,8 @@ The scripts under `scripts/` exist to validate this repository's own content.
 | `docs/self-assessment.md` | This repository's own assessment, with per-criterion notes. |
 | `docs/decisions/` | Architectural decision records. |
 | `templates/AGENTS.md` | Starting point published for other repositories. |
-| `scripts/` | Validation and generation tooling, Python standard library only. |
+| `scripts/standard.py`, `scripts/conformance.py` | Validation and generation tooling for the standard, Python standard library only. |
+| `scripts/profile_stats/` | Self-hosted GitHub statistics generator; runtime dependency is `requests`. |
 | `tests/` | Tests for the tooling in `scripts/`, run via `unittest`. |
 | `.github/conformance.yml` | This repository's conformance record. |
 | `.github/badges/` | Generated badge output. Never hand-edit. |
@@ -45,7 +50,7 @@ Run all four. They are the complete validation for this repository:
 ```sh
 python3 scripts/standard.py --check
 python3 scripts/conformance.py --check
-python3 -m unittest discover -s tests
+python3 -m unittest discover -s tests -v
 npx --yes markdownlint-cli2@0.18.1 "**/*.md"
 ```
 
@@ -102,7 +107,8 @@ ecosystem, or build tool.
 - Do not change a conformance record to make a badge look better. The record
   follows the evidence; the badge follows the record.
 - Do not renumber existing criteria, including to "tidy up" a gap.
-- Do not add dependencies. The scripts use the Python standard library, and
+- Do not add dependencies to the standard and conformance validation scripts.
+  The statistics generator may use its documented runtime dependency, and
   Markdown linting runs through `npx` with a pinned version.
 
 ## Attribution
