@@ -1,14 +1,14 @@
 # Self-Assessment: trsdn/.github
 
 - Standard version: 1.2.0
-- Assessed on: 2026-08-22
+- Assessed on: 2026-08-24
 - State: **Needs work**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
 
 This repository publishes the standard, so it assesses itself against it. The
-result is deliberately not `Healthy`: one criterion fails and four are partial.
-Publishing a green badge over known gaps would make every other badge in the
-estate worthless.
+result is deliberately not `Healthy`: four criteria are partial. Publishing a
+green badge over known gaps would make every other badge in the estate
+worthless.
 
 ## Profiles
 
@@ -23,20 +23,6 @@ estate worthless.
 
 ## Gaps
 
-### S02 — Automated tests cover important behavior and failure paths — `fail`
-
-`scripts/standard.py` and `scripts/conformance.py` are the checks that everything
-else relies on, and neither has a single test. Their failure paths — a duplicated
-identifier, an unclaimed prefix, a missing criterion, a stale record — are
-exactly the cases that must work, and today they are only known to work because
-they were run by hand once.
-
-An unverified checker gives a false sense of safety, which is worse than no
-checker. This is the highest-priority gap in the repository.
-
-Remediation: table-driven tests over crafted inputs for each failure path, run
-in CI.
-
 ### S03 — Static checks run automatically — `partial`
 
 Markdown is linted in CI. The Python scripts are not linted, formatted, or
@@ -48,10 +34,10 @@ Branch protection is in place and is stronger than the baseline requires: linear
 history, no force pushes, no deletions, required conversation resolution, and
 required status checks that must be current before merge.
 
-It is `partial` only because the two new checks added in this version —
-`Standard consistency` and `Conformance record` — are not yet in the required
-set. Until they are, the checks that guard the standard's integrity can be
-merged past.
+It is `partial` only because the three checks added in this version —
+`Standard consistency`, `Conformance record`, and `Script tests` — are not yet in
+the required set. Until they are, the checks that guard the standard's integrity
+can be merged past.
 
 ### P04 — Issue and pull-request intake is structured — `partial`
 
@@ -108,9 +94,18 @@ environment.
 - `G01`-`G08` — the agent readiness criteria are satisfied by `AGENTS.md`, a
   Copilot configuration that defers to it instead of duplicating it, generated
   paths marked explicitly, and a single documented validation command.
+- `S02` — `tests/` covers both validation scripts through their command line,
+  asserting the exit code *and* the specific diagnostic for every rejection path.
+  Each check was verified to be load-bearing by disabling it in the script and
+  confirming the suite goes red; a test that passes whether or not the code works
+  is not coverage. Writing these tests found a real defect: ageing only failed
+  `--check` when the badge also disagreed with the record, so regenerating the
+  badge silenced the reminder without anyone reassessing. That is fixed and
+  pinned by a test.
 
 ## Reassessment
 
-Due by 2027-02-22, six months after the assessment date. The conformance check
-fails once the record ages past that point, and the badge must then be
-regenerated to render as stale.
+Due by 2027-02-24, six months after the assessment date. The conformance check
+fails once the record ages past that point and stays red until the repository is
+reassessed. Regenerating the badge makes it render as stale, which keeps the
+public signal honest, but does not clear the check.

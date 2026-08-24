@@ -33,17 +33,19 @@ The scripts under `scripts/` exist to validate this repository's own content.
 | `docs/decisions/` | Architectural decision records. |
 | `templates/AGENTS.md` | Starting point published for other repositories. |
 | `scripts/` | Validation and generation tooling, Python standard library only. |
+| `tests/` | Tests for the tooling in `scripts/`, run via `unittest`. |
 | `.github/conformance.yml` | This repository's conformance record. |
 | `.github/badges/` | Generated badge output. Never hand-edit. |
 | `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `SUPPORT.md` | Inherited by other repositories. Write them for *any* repository, never about this one. |
 
 ## Validate before proposing a change
 
-Run all three. They are the complete validation for this repository:
+Run all four. They are the complete validation for this repository:
 
 ```sh
 python3 scripts/standard.py --check
 python3 scripts/conformance.py --check
+python3 -m unittest discover -s tests
 npx --yes markdownlint-cli2@0.18.1 "**/*.md"
 ```
 
@@ -55,7 +57,13 @@ with the changelog.
 `scripts/conformance.py --check` fails when the badge disagrees with the
 conformance record, when a criterion is missing from the record, or when the
 record has aged past the review cadence. A red check from ageing is intentional
-and means reassessment is due; regenerate the badge so it renders as stale.
+and means reassessment is due. Regenerating the badge makes it render as stale
+but does not clear the check, because only a fresh assessment can.
+
+`tests/` covers both scripts through their command line, asserting the exit code
+and the specific diagnostic for each rejection path. When you add or change a
+check, add the test that proves it rejects — then disable the check and confirm
+the suite goes red. A test that passes either way is not coverage.
 
 ## Rules specific to the standard
 

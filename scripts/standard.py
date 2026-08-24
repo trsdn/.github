@@ -20,9 +20,9 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-STANDARD_MD = ROOT / "docs" / "repository-quality-standard.md"
-CATALOG = ROOT / "standard.yml"
-CHANGELOG = ROOT / "CHANGELOG.md"
+STANDARD_MD = pathlib.Path("docs/repository-quality-standard.md")
+CATALOG = pathlib.Path("standard.yml")
+CHANGELOG = pathlib.Path("CHANGELOG.md")
 
 CRITERION_ROW = re.compile(
     r'^\| <a id="(?P<anchor>[a-z]\d{2})"></a>(?P<id>[A-Z]\d{2}) \| '
@@ -50,8 +50,8 @@ def group_by_prefix(criteria: list[dict]) -> dict[str, list[str]]:
     return grouped
 
 
-def parse() -> tuple[dict, list[str]]:
-    text = STANDARD_MD.read_text()
+def parse(repository: pathlib.Path) -> tuple[dict, list[str]]:
+    text = (repository / STANDARD_MD).read_text()
     errors: list[str] = []
 
     version_match = VERSION_LINE.search(text)
@@ -116,7 +116,8 @@ def parse() -> tuple[dict, list[str]]:
             )
 
     document_version = version_match.group("version") if version_match else "0.0.0"
-    changelog_match = CHANGELOG_HEADING.search(CHANGELOG.read_text())
+    changelog_text = (repository / CHANGELOG).read_text()
+    changelog_match = CHANGELOG_HEADING.search(changelog_text)
     if not changelog_match:
         errors.append("changelog has no versioned heading")
     elif changelog_match.group("version") != document_version:
@@ -162,15 +163,24 @@ def render(catalog: dict) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
+    parser.add_argument(
+        "--repository",
+        type=pathlib.Path,
+        default=ROOT,
+        help="repository to operate on; defaults to the one holding this script",
+    )
     arguments = parser.parse_args()
 
-    catalog, errors = parse()
+    repository = arguments.repository.resolve()
+    catalog_path = repository / CATALOG
+
+    catalog, errors = parse(repository)
     rendered = render(catalog)
 
     if arguments.check:
-        if not CATALOG.exists():
+        if not catalog_path.exists():
             errors.append("standard.yml is missing; run scripts/standard.py")
-        elif CATALOG.read_text() != rendered:
+        elif catalog_path.read_text() != rendered:
             errors.append(
                 "standard.yml is out of date; run scripts/standard.py and "
                 "commit the result"
@@ -184,8 +194,11 @@ def main() -> int:
 
     for error in errors:
         fail(error)
-    CATALOG.write_text(rendered)
-    print(f"standard: wrote {CATALOG.name} with {len(catalog['criteria'])} criteria")
+    catalog_path.write_text(rendered)
+    print(
+        f"standard: wrote {catalog_path.name} with "
+        f"{len(catalog['criteria'])} criteria"
+    )
     return 1 if errors else 0
 
 

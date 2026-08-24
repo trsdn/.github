@@ -28,6 +28,13 @@ Versions follow the compatibility policy in the
   convention.
 - Added the conformance record format, a reusable badge workflow, and this
   repository's own self-assessment.
+- Added `tests/`, covering both validation scripts through their command line and
+  asserting the specific diagnostic for every rejection path, run in CI as
+  `Script tests`.
+- Fixed ageing in `scripts/conformance.py --check`: a record older than the
+  review cadence previously only failed when the badge also disagreed, so
+  regenerating the badge silenced the reminder without a reassessment. Ageing is
+  now an independent failure that only a fresh assessment clears.
 
 ## 1.1.0 - 2026-08-21
 

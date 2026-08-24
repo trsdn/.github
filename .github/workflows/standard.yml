@@ -27,3 +27,12 @@ jobs:
         uses: actions/checkout@v7
       - name: Verify record and badge
         run: python3 scripts/conformance.py --check
+
+  tests:
+    name: Script tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Run the validation script tests
+        run: python3 -m unittest discover -s tests -v

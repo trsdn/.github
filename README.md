@@ -96,16 +96,17 @@ Agent and contributor guidance for this repository is in
 
 ## Validation
 
-From a clean checkout, run all three:
+From a clean checkout, run all four:
 
 ```sh
 python3 scripts/standard.py --check
 python3 scripts/conformance.py --check
+python3 -m unittest discover -s tests
 npx --yes markdownlint-cli2@0.18.1 "**/*.md"
 ```
 
-The scripts use the Python standard library only. Markdown linting pins its
-tool version.
+The scripts and their tests use the Python standard library only. Markdown
+linting pins its tool version.
 
 ## Privacy
 

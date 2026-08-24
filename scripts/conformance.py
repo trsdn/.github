@@ -226,16 +226,21 @@ def main() -> int:
         if not badge_path.exists():
             fail("badge is missing; run scripts/conformance.py")
             return 1
+        problems: list[str] = []
         if badge_path.read_text() != rendered:
-            fail(
+            problems.append(
                 "badge does not match the record; run scripts/conformance.py and "
                 "commit the result"
             )
-            if stale:
-                fail(
-                    "the record is older than the review cadence, so the badge "
-                    "must now render as stale"
-                )
+        if stale:
+            problems.append(
+                f"the record was assessed on {scalars['assessed_on']}, which is "
+                f"older than the review cadence of {STALE_AFTER_DAYS} days; "
+                "reassess the repository and update the record"
+            )
+        for problem in problems:
+            fail(problem)
+        if problems:
             return 1
         print(f"conformance: {scalars['state']} ({summary_text}), badge in sync")
         return 0
@@ -243,6 +248,11 @@ def main() -> int:
     badge_path.parent.mkdir(parents=True, exist_ok=True)
     badge_path.write_text(rendered)
     print(f"conformance: wrote badge for {scalars['state']} ({summary_text})")
+    if stale:
+        fail(
+            "the badge now renders as stale, but regenerating it does not refresh "
+            "the assessment; --check stays red until the repository is reassessed"
+        )
     return 0
 
 

@@ -47,7 +47,13 @@ standard.
   behind after a criterion was retired;
 - a result is outside the defined vocabulary;
 - `state` is `Healthy` while any criterion is `fail`;
-- the committed badge does not match what the record renders to.
+- the committed badge does not match what the record renders to;
+- the record has aged past the review cadence.
+
+The last one cannot be cleared by regenerating the badge. Ageing means the
+assessment is overdue, not that the badge is wrong, so only a fresh assessment
+resolves it. The badge does render as stale in the meantime, so the public
+signal stays honest while the check stays red.
 
 ## Completeness is the point
 

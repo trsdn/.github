@@ -21,6 +21,7 @@ scripts:
     command: >-
       python3 scripts/standard.py --check &&
       python3 scripts/conformance.py --check &&
+      python3 -m unittest discover -s tests &&
       npx --yes markdownlint-cli2@0.18.1 "**/*.md"
   - name: Regenerate
     command: python3 scripts/standard.py && python3 scripts/conformance.py
