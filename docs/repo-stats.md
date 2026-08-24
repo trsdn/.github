@@ -17,7 +17,13 @@ name: Repository stats
 on:
   workflow_dispatch:
   schedule:
-    - cron: "23 */6 * * *"
+    - cron: "23 5 * * *"
+  push:
+    branches:
+      # Change this if the repository's default branch is not `main`.
+      - main
+    paths:
+      - .github/workflows/stats.yml
 
 permissions:
   contents: write
@@ -32,6 +38,10 @@ jobs:
     secrets:
       STATS_TOKEN: ${{ secrets.STATS_TOKEN }}
 ```
+
+Adjust the `push` branch filter to the repository's default branch. The
+`schedule` and `workflow_dispatch` triggers only ever run on the default branch,
+so a workflow that has not been merged there yet cannot be dispatched.
 
 For public repositories, the caller repository `GITHUB_TOKEN` is usually enough.
 For private repositories or higher API limits, create a fine-grained PAT and
