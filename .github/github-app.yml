@@ -1,0 +1,31 @@
+# Repository configuration for the GitHub Copilot app.
+#
+# The authoritative instructions for this repository are in AGENTS.md. This file
+# points at them rather than restating them, so the two cannot drift apart.
+
+instructions: |
+  Read AGENTS.md in the repository root and follow it. It is the authoritative
+  guidance for this repository.
+
+  The two rules that are most often broken:
+
+  1. Criterion identifiers in the standard are append-only. Never renumber,
+     reuse, or repurpose one, including to close a gap.
+  2. standard.yml and everything under .github/badges/ are generated. Change the
+     source and regenerate; never hand-edit them.
+
+  Validate with the Validate script before proposing any change.
+
+scripts:
+  - name: Validate
+    command: >-
+      python3 scripts/standard.py --check &&
+      python3 scripts/conformance.py --check &&
+      python3 -m unittest discover -s tests &&
+      npx --yes markdownlint-cli2@0.18.1 "**/*.md"
+  - name: Regenerate
+    command: python3 scripts/standard.py && python3 scripts/conformance.py
+
+automation:
+  auto_issue_session: true
+  remote_control: false
