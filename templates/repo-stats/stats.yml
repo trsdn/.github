@@ -3,12 +3,11 @@ name: Repository stats
 on:
   workflow_dispatch:
   schedule:
-    - cron: "23 */6 * * *"
+    - cron: "23 5 * * *"
   push:
     branches:
       - main
     paths:
-      - README.md
       - .github/workflows/stats.yml
 
 permissions:

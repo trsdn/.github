@@ -25,12 +25,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           token: ${{ secrets.STATS_TOKEN || github.token }}
-          fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
           cache: pip
@@ -46,10 +45,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet -- assets/profile-stats; then
+          git add -A -- assets/profile-stats
+          if git diff --cached --quiet -- assets/profile-stats; then
             echo "No profile stats changes."
             exit 0
           fi
-          git add assets/profile-stats
           git commit -m "chore(stats): update profile stats"
           git push
