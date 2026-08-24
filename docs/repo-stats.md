@@ -38,7 +38,8 @@ Required token access:
 
 ## Add the README snippet
 
-Copy `templates/repo-stats/README-snippet.md` into the target README:
+Copy the block from `templates/repo-stats/README-snippet.md` into the target
+README:
 
 ```md
 <picture>
