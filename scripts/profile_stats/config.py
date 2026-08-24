@@ -5,8 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import yaml
-
 DEFAULT_CONFIG: dict[str, Any] = {
     "username": "trsdn",
     "top_n": 12,
@@ -30,11 +28,77 @@ def _merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def _scalar(value: str) -> Any:
+    value = value.strip()
+    if value in {"[]", ""}:
+        return [] if value == "[]" else ""
+    if value.lower() == "true":
+        return True
+    if value.lower() == "false":
+        return False
+    if value.startswith('"') and value.endswith('"'):
+        return value[1:-1]
+    try:
+        return int(value)
+    except ValueError:
+        return value
+
+
+def _parse_simple_yaml(text: str) -> dict[str, Any]:
+    """Parse the restricted YAML shape used by profile_stats/config.yml."""
+    lines = [
+        (number, raw)
+        for number, raw in enumerate(text.splitlines(), start=1)
+        if raw.strip() and not raw.lstrip().startswith("#")
+    ]
+    root: dict[str, Any] = {}
+    stack: list[tuple[int, dict[str, Any] | list[Any]]] = [(-1, root)]
+
+    for index, (number, raw) in enumerate(lines):
+        indent = len(raw) - len(raw.lstrip(" "))
+        line = raw.strip()
+        while stack and indent <= stack[-1][0]:
+            stack.pop()
+        parent = stack[-1][1]
+        if line.startswith("- "):
+            if not isinstance(parent, list):
+                raise ValueError(f"line {number}: list item without list parent")
+            parent.append(_scalar(line[2:]))
+            continue
+        if ":" not in line or isinstance(parent, list):
+            raise ValueError(f"line {number}: cannot parse configuration")
+        key, value = line.split(":", 1)
+        key = key.strip()
+        value = value.strip()
+        if value:
+            parent[key] = _scalar(value)
+            continue
+        next_is_list = False
+        if index + 1 < len(lines):
+            _, next_raw = lines[index + 1]
+            next_indent = len(next_raw) - len(next_raw.lstrip(" "))
+            next_is_list = next_indent > indent and next_raw.strip().startswith("- ")
+        container: dict[str, Any] | list[Any] = [] if next_is_list else {}
+        parent[key] = container
+        stack.append((indent, container))
+
+    return root
+
+
+def _fix_empty_lists(config: dict[str, Any]) -> dict[str, Any]:
+    for section, keys in {"repo": ("include", "exclude"), "cards": ("repo", "account")}.items():
+        if isinstance(config.get(section), dict):
+            for key in keys:
+                if config[section].get(key) == {}:
+                    config[section][key] = []
+    return config
+
+
 def load_config(path: str | Path | None = None) -> dict[str, Any]:
     cfg = dict(DEFAULT_CONFIG)
     config_path = Path(path) if path else Path(__file__).with_name("config.yml")
     if config_path.exists():
-        loaded = yaml.safe_load(config_path.read_text()) or {}
+        loaded = _fix_empty_lists(_parse_simple_yaml(config_path.read_text()))
         if not isinstance(loaded, dict):
             raise ValueError("configuration root must be a mapping")
         cfg = _merge(cfg, loaded)

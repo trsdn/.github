@@ -1,5 +1,13 @@
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+
 from datetime import UTC, datetime
 from xml.etree import ElementTree
+import unittest
 
 from profile_stats.models import AccountStats, ContributionDay, LanguageShare, ReleaseStats, RepoStats
 from profile_stats.render.account import render_activity_card, render_language_card, render_now_building_card, render_overview_card, render_repos_table_card
@@ -24,23 +32,27 @@ def account_stats():
     return AccountStats('trsdn', datetime(2026, 8, 24, tzinfo=UTC), [repo_stats()], 99, 12, 7, 8, 9, 10, 1, days, 2, 8, [LanguageShare('Python', 90, '#3572A5')])
 
 
-def assert_well_formed(svg):
-    ElementTree.fromstring(svg)
-    assert '<script' not in svg
-    assert '<foreignObject' not in svg
+class RenderTests(unittest.TestCase):
+    def assert_well_formed(self, svg: str) -> None:
+        ElementTree.fromstring(svg)
+        self.assertNotIn('<script', svg)
+        self.assertNotIn('<foreignObject', svg)
+
+    def test_repo_card_is_well_formed(self) -> None:
+        self.assert_well_formed(render_repo_card(repo_stats(), LIGHT, datetime(2026, 8, 24, tzinfo=UTC)))
+
+    def test_account_cards_are_well_formed(self) -> None:
+        stats = account_stats()
+        for svg in [
+            render_overview_card(stats, LIGHT),
+            render_activity_card(stats, LIGHT),
+            render_language_card(stats, LIGHT),
+            render_repos_table_card(stats, LIGHT),
+            render_now_building_card(stats, LIGHT),
+        ]:
+            with self.subTest(svg=svg[:40]):
+                self.assert_well_formed(svg)
 
 
-def test_repo_card_is_well_formed():
-    assert_well_formed(render_repo_card(repo_stats(), LIGHT, datetime(2026, 8, 24, tzinfo=UTC)))
-
-
-def test_account_cards_are_well_formed():
-    stats = account_stats()
-    for svg in [
-        render_overview_card(stats, LIGHT),
-        render_activity_card(stats, LIGHT),
-        render_language_card(stats, LIGHT),
-        render_repos_table_card(stats, LIGHT),
-        render_now_building_card(stats, LIGHT),
-    ]:
-        assert_well_formed(svg)
+if __name__ == "__main__":
+    unittest.main()

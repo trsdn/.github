@@ -1,28 +1,33 @@
-from datetime import date
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+
+import unittest
 
 from profile_stats.collect import collect_account_stats, collect_repo_stats
 
 
 class FakeClient:
-    def __init__(self):
-        self.pages = []
-
     def graphql(self, query, variables):
         if 'RepoStats' in query:
             return {'repository': repo_node('trsdn/OpenLens')}
-        return {'user': {
-            'login': 'trsdn',
-            'followers': {'totalCount': 7},
-            'contributionsCollection': {'contributionCalendar': {'weeks': [
-                {'contributionDays': [
-                    {'date': '2026-08-21', 'contributionCount': 1},
-                    {'date': '2026-08-22', 'contributionCount': 0},
-                    {'date': '2026-08-23', 'contributionCount': 2},
-                    {'date': '2026-08-24', 'contributionCount': 3},
-                ]}
-            ]}},
-            'repositories': {'pageInfo': {'hasNextPage': False, 'endCursor': None}, 'nodes': [repo_node('trsdn/OpenLens'), repo_node('trsdn/fork', is_fork=True)]},
-        }}
+        if 'AccountProfile' in query:
+            return {'user': {
+                'login': 'trsdn',
+                'followers': {'totalCount': 7},
+                'contributionsCollection': {'contributionCalendar': {'weeks': [
+                    {'contributionDays': [
+                        {'date': '2026-08-21', 'contributionCount': 1},
+                        {'date': '2026-08-22', 'contributionCount': 0},
+                        {'date': '2026-08-23', 'contributionCount': 2},
+                        {'date': '2026-08-24', 'contributionCount': 3},
+                    ]}
+                ]}},
+            }}
+        return {'user': {'repositories': {'pageInfo': {'hasNextPage': False, 'endCursor': None}, 'nodes': [repo_node('trsdn/OpenLens'), repo_node('trsdn/fork', is_fork=True)]}}}
 
     def count_paginated(self, path, params=None):
         return 3
@@ -60,21 +65,25 @@ def repo_node(full_name, is_fork=False):
     }
 
 
-def test_collect_repo_stats_maps_fields():
-    stats = collect_repo_stats(FakeClient(), 'trsdn/OpenLens')
-    assert stats.full_name == 'trsdn/OpenLens'
-    assert stats.commits == 42
-    assert stats.contributors == 3
-    assert stats.latest_release.asset_downloads == 9
-    assert stats.commit_activity == [0, 1, 2]
+class CollectTests(unittest.TestCase):
+    def test_collect_repo_stats_maps_fields(self) -> None:
+        stats = collect_repo_stats(FakeClient(), 'trsdn/OpenLens')
+        self.assertEqual(stats.full_name, 'trsdn/OpenLens')
+        self.assertEqual(stats.commits, 42)
+        self.assertEqual(stats.contributors, 3)
+        self.assertEqual(stats.latest_release.asset_downloads, 9)
+        self.assertEqual(stats.commit_activity, [0, 1, 2])
+
+    def test_collect_account_stats_filters_forks_and_builds_language_weights(self) -> None:
+        stats = collect_account_stats(FakeClient(), 'trsdn')
+        self.assertEqual(len(stats.repos), 1)
+        self.assertEqual(stats.total_commits, 42)
+        self.assertEqual(stats.total_stars, 5)
+        self.assertEqual(stats.followers, 7)
+        self.assertEqual(stats.current_streak, 2)
+        self.assertEqual(stats.longest_streak, 2)
+        self.assertEqual(stats.weighted_languages[0].name, 'Python')
 
 
-def test_collect_account_stats_filters_forks_and_builds_language_weights():
-    stats = collect_account_stats(FakeClient(), 'trsdn')
-    assert len(stats.repos) == 1
-    assert stats.total_commits == 42
-    assert stats.total_stars == 5
-    assert stats.followers == 7
-    assert stats.current_streak == 2
-    assert stats.longest_streak == 2
-    assert stats.weighted_languages[0].name == 'Python'
+if __name__ == "__main__":
+    unittest.main()

@@ -8,7 +8,6 @@ from collections.abc import Iterator
 from datetime import datetime
 from typing import Any
 
-import requests
 
 
 class GitHubApiError(RuntimeError):
@@ -20,6 +19,8 @@ class GitHubClient:
         self.token = token or os.getenv("STATS_TOKEN") or os.getenv("GITHUB_TOKEN")
         self.timeout = timeout
         self.retries = retries
+        import requests
+
         self.session = requests.Session()
         self.session.headers.update({
             "Accept": "application/vnd.github+json",
@@ -79,9 +80,9 @@ class GitHubClient:
         data = self.get_json("/search/issues", params={"q": query, "per_page": 1})
         return int(data.get("total_count", 0)) if isinstance(data, dict) else 0
 
-    def _request(self, method: str, url: str, *, accept_202: bool = False, **kwargs: Any) -> requests.Response:
+    def _request(self, method: str, url: str, *, accept_202: bool = False, **kwargs: Any) -> Any:
         delay = 1.0
-        last_response: requests.Response | None = None
+        last_response: Any | None = None
         for attempt in range(self.retries + 1):
             response = self.session.request(method, url, timeout=self.timeout, **kwargs)
             last_response = response
@@ -102,11 +103,11 @@ class GitHubClient:
         raise GitHubApiError(f"{method} {url} failed with {last_response.status_code}: {last_response.text[:300]}")
 
     @staticmethod
-    def _rate_limited(response: requests.Response) -> bool:
+    def _rate_limited(response: Any) -> bool:
         return response.status_code == 403 and response.headers.get("X-RateLimit-Remaining") == "0"
 
     @staticmethod
-    def _retry_after(response: requests.Response, fallback: float) -> float:
+    def _retry_after(response: Any, fallback: float) -> float:
         retry_after = response.headers.get("Retry-After")
         if retry_after:
             try:
