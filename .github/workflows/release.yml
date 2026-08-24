@@ -1,0 +1,59 @@
+name: Release
+
+# A tag publishes a release of the standard. The notes come from CHANGELOG.md so
+# that the changelog stays the single place a change is described, and the
+# consistency check guarantees the tag, the document version, and the changelog
+# agree before anything is published.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Verify catalog, identifiers, and version
+        run: python3 scripts/standard.py --check
+
+      - name: Verify the tag matches the declared version
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME#v}"
+          declared="$(sed -n 's/^version: "\(.*\)"$/\1/p' standard.yml)"
+          if [ "$tag" != "$declared" ]; then
+            echo "release: tag v$tag does not match declared version $declared" >&2
+            exit 1
+          fi
+
+      - name: Extract release notes for this version
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          awk -v version="$version" '
+            $0 ~ "^## " version " - " { capture = 1; next }
+            capture && /^## / { exit }
+            capture { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "release: no changelog entry for $version" >&2
+            exit 1
+          fi
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file release-notes.md \
+            standard.yml \
+            docs/repository-quality-standard.md
