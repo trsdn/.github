@@ -9,6 +9,11 @@ The [Repository Quality Standard](docs/repository-quality-standard.md) defines
 the evidence required for maintainable public repositories. Repository-specific
 requirements may be stricter, but must not silently weaken this baseline.
 
+## Statistics
+
+- [Profile statistics](docs/profile-stats.md) describes the self-hosted account cards rendered for `trsdn`.
+- [Repository stats](docs/repo-stats.md) explains how an individual repository adds its generated stats card.
+
 ## Default community files
 
 GitHub can use the governance and contribution files in this repository for

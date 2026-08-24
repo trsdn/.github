@@ -3,6 +3,11 @@
 All material changes to the public standard and shared community files are
 recorded here.
 
+## 1.2.0 - 2026-08-24
+
+- Added the self-hosted repository and profile statistics generator, reusable repository workflow, templates, documentation, tests, and generated example SVG cards.
+- Added repository statistics cards to the baseline quality standard.
+
 ## 1.1.0 - 2026-08-21
 
 - Added the Product Identity requirements `I01`-`I06`, covering embedded

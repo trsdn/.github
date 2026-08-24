@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.1
-- Last reviewed: 2026-08-21
+- Version: 1.2
+- Last reviewed: 2026-08-24
 
 This document is the public source of truth for repository quality across
 projects maintained by `trsdn`. It defines outcomes and evidence, not a mandatory
@@ -48,6 +48,7 @@ Apply the baseline to every active repository, then add every matching profile.
 | B08 | User-facing or operational changes have durable history | Changelog, releases, ADRs, or linked issues |
 | B09 | Visibility, topics, homepage, and archive state are intentional | GitHub metadata |
 | B10 | Ownership and maintenance status are clear | `CODEOWNERS`, contributing guide, or README |
+| B11 | A self-hosted repository statistics card is visible where README presentation matters | README `<picture>` entry plus generated `.github/stats/` SVGs from the shared reusable workflow |
 
 ## Public Repositories
 
@@ -207,9 +208,13 @@ CHANGELOG.md
   dependabot.yml
   ISSUE_TEMPLATE/
   pull_request_template.md
+  stats/
+    repo-card.svg
+    repo-card-dark.svg
   workflows/
     ci.yml
     release.yml
+    stats.yml
 docs/
 tests/
 ```
