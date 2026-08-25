@@ -124,6 +124,13 @@ class RenderTests(unittest.TestCase):
             yield render_now_building_card(stats, theme)
             yield render_repo_card(repo_stats(), theme, datetime(2026, 8, 24, tzinfo=UTC))
 
+    def test_repo_card_states_missing_commit_activity(self) -> None:
+        stats = replace(repo_stats(), commit_activity=[])
+        svg = render_repo_card(stats, LIGHT, datetime(2026, 8, 24, tzinfo=UTC))
+        self.assertIn('Not available yet', svg)
+        self.assert_content_inside_card(svg)
+        self.assertNotIn('Not available yet', render_repo_card(repo_stats(), LIGHT, datetime(2026, 8, 24, tzinfo=UTC)))
+
     def test_repo_card_is_well_formed(self) -> None:
         self.assert_well_formed(render_repo_card(repo_stats(), LIGHT, datetime(2026, 8, 24, tzinfo=UTC)))
 
