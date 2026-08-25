@@ -12,7 +12,6 @@ cards:
     - activity
     - language
     - repos-table
-    - now-building
 themes:
   light:
     accent: "#6d5dfc"

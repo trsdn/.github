@@ -12,7 +12,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "repo": {"include": [], "exclude": []},
     "cards": {
         "repo": ["repo-card"],
-        "account": ["overview", "activity", "language", "repos-table", "now-building"],
+        "account": ["overview", "activity", "language", "repos-table"],
     },
     "themes": {},
 }

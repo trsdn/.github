@@ -48,15 +48,23 @@ def account_command(args: argparse.Namespace) -> None:
         exclude=repo_cfg.get("exclude", []),
     )
     top_n = args.top_n or int(config.get("top_n", 12))
+    selected = config.get("cards", {}).get("account") or []
+    renderers = {
+        "overview": lambda theme: render_overview_card(stats, theme),
+        "activity": lambda theme: render_activity_card(stats, theme),
+        "language": lambda theme: render_language_card(stats, theme),
+        "repos-table": lambda theme: render_repos_table_card(stats, theme, top_n=top_n),
+        "now-building": lambda theme: render_now_building_card(stats, theme),
+    }
+    unknown = [name for name in selected if name not in renderers]
+    if unknown:
+        raise SystemExit(f"unknown account card(s): {', '.join(sorted(unknown))}")
     out = Path(args.out)
     for theme_name in _themes(args.theme, config):
         suffix = "-dark" if theme_name == "dark" else ""
         theme = from_config(theme_name, config)
-        _write(out / f"overview-card{suffix}.svg", render_overview_card(stats, theme))
-        _write(out / f"activity-card{suffix}.svg", render_activity_card(stats, theme))
-        _write(out / f"language-card{suffix}.svg", render_language_card(stats, theme))
-        _write(out / f"repos-table-card{suffix}.svg", render_repos_table_card(stats, theme, top_n=top_n))
-        _write(out / f"now-building-card{suffix}.svg", render_now_building_card(stats, theme))
+        for name in selected:
+            _write(out / f"{name}-card{suffix}.svg", renderers[name](theme))
 
 
 def build_parser() -> argparse.ArgumentParser:

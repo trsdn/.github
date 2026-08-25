@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from .svg import bytesize, esc, iso_date, n, relative_time, svg_root, truncate
+from .svg import bytesize, esc, footer, iso_date, n, relative_time, svg_root, truncate
 from .theme import Theme, card_bg, defs
 from ..models import RepoStats
 from ..languages import color_for
@@ -21,7 +21,7 @@ def _language_bar(stats: RepoStats, x: int, y: int, width: int) -> str:
     offset = 0.0
     for lang in stats.languages[:8]:
         w = max(2.0, width * lang.size / stats.language_total)
-        parts.append(f'<rect x="{x + offset:.2f}" y="{y}" width="{w:.2f}" height="10" rx="5" fill="{color_for(lang.name, lang.color)}"><animate attributeName="width" from="0" to="{w:.2f}" dur="600ms" fill="freeze"/></rect>')
+        parts.append(f'<rect x="{x + offset:.2f}" y="{y}" width="{w:.2f}" height="10" rx="5" fill="{color_for(lang.name, lang.color)}"><title>{esc(lang.name)}</title></rect>')
         offset += w
     legend = []
     lx = x
@@ -46,7 +46,7 @@ def _activity_bars(stats: RepoStats, x: int, y: int, width: int, height: int, th
         bx = x + i * (bar_w + gap)
         by = y + height - h
         opacity = .35 + .65 * (value / max_value if max_value else 0)
-        parts.append(f'<rect x="{bx:.2f}" y="{by:.2f}" width="{bar_w:.2f}" height="{h:.2f}" rx="2" fill="{theme.accent}" opacity="{opacity:.2f}"><animate attributeName="height" from="0" to="{h:.2f}" dur="700ms" fill="freeze"/><animate attributeName="y" from="{y + height}" to="{by:.2f}" dur="700ms" fill="freeze"/></rect>')
+        parts.append(f'<rect x="{bx:.2f}" y="{by:.2f}" width="{bar_w:.2f}" height="{h:.2f}" rx="2" fill="{theme.accent}" opacity="{opacity:.2f}"></rect>')
     return "".join(parts)
 
 
@@ -82,5 +82,5 @@ def render_repo_card(stats: RepoStats, theme: Theme, generated_at: datetime | No
     body.append(_language_bar(stats, 28, 342, 764))
     body.append(f'<text x="28" y="410" class="label">Commit activity · 52 weeks</text>')
     body.append(_activity_bars(stats, 28, 424, 764, 30, theme))
-    body.append(f'<text x="792" y="466" text-anchor="end" class="small">auto-generated · {generated_at.replace(microsecond=0).isoformat()}</text>')
+    body.append(footer(792, 466, generated_at))
     return svg_root(width, height, "".join(body))

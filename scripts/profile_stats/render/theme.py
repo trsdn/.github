@@ -77,10 +77,14 @@ def defs(theme: Theme) -> str:
     .label {{ font: 600 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; fill: {theme.muted}; text-transform: uppercase; letter-spacing: .06em; }}
     .value {{ font: 700 17px ui-monospace,SFMono-Regular,Menlo,monospace; fill: {theme.text}; }}
     .small {{ font: 500 11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; fill: {theme.muted}; }}
+    .tiny {{ font: 500 10px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; fill: {theme.muted}; }}
     .mono {{ font: 650 12px ui-monospace,SFMono-Regular,Menlo,monospace; fill: {theme.text}; }}
   </style>
 </defs>'''
 
 
 def card_bg(width: int, height: int, theme: Theme) -> str:
-    return f'<rect x="1" y="1" width="{width - 2}" height="{height - 2}" rx="12" fill="{theme.panel}" stroke="{theme.border}" filter="url(#shadow)"><animate attributeName="opacity" from="0" to="1" dur="420ms" fill="freeze"/></rect>'
+    return (
+        f'<rect x="1" y="1" width="{width - 2}" height="{height - 2}" rx="12" '
+        f'fill="{theme.panel}" stroke="{theme.border}" filter="url(#shadow)"/>'
+    )
