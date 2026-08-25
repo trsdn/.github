@@ -86,15 +86,18 @@ does not use `<script>`, `<foreignObject>`, external fonts, or external images.
 
 ## Profile README
 
-GitHub renders [`profile/README.md`](../profile/README.md) from this repository
-on the `trsdn` account profile, so no separate `trsdn/trsdn` repository is
-needed.
+GitHub renders the account profile from a repository named after the account, so
+the page lives in [`trsdn/trsdn`](https://github.com/trsdn/trsdn) and not here.
+A `profile/README.md` in a `.github` repository only works for organization
+accounts; GitHub advertises it on personal `.github` repositories too, where it
+has no effect.
 
-That page embeds the account cards from raw URLs pinned to the `stats` branch
-rather than from `main`. The reason is branch protection: `main` rejects pushes
-from `GITHUB_TOKEN`, so a workflow that committed generated cards to `main`
-would fail with `GH006`. Publishing to a separate generated branch keeps the
-protection rule intact and keeps generated output out of the reviewed history.
+That page embeds the account cards from raw URLs pinned to the `stats` branch of
+this repository rather than from `main`. The reason is branch protection: `main`
+rejects pushes from `GITHUB_TOKEN`, so a workflow that committed generated cards
+to `main` would fail with `GH006`. Publishing to a separate generated branch
+keeps the protection rule intact and keeps generated output out of the reviewed
+history.
 
 The `stats` branch is force-pushed on every run and holds no reviewed content.
 Never base work on it.
