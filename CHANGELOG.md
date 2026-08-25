@@ -6,6 +6,14 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.3.2 - 2026-08-25
+
+- Stopped tracking generated statistics cards on `main`, where stale copies
+  survived every run and were carried onto the `stats` branch.
+- Fixed the repository card drawing a row of minimum-height bars when GitHub
+  has not computed commit activity yet, which read as a broken chart rather
+  than as missing data.
+
 ## 1.3.1 - 2026-08-25
 
 - Fixed generated statistics cards sizing themselves from hard-coded heights,

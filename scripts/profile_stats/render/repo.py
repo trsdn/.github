@@ -34,19 +34,30 @@ def _language_bar(stats: RepoStats, x: int, y: int, width: int) -> str:
 
 
 def _activity_bars(stats: RepoStats, x: int, y: int, width: int, height: int, theme: Theme) -> str:
+    track = f'<rect x="{x}" y="{y}" width="{width}" height="{height}" rx="6" fill="{theme.track}" opacity=".42"/>'
     values = (stats.commit_activity or [])[-52:]
-    if not values:
-        values = [0] * 52
-    max_value = max(values) or 1
+    if not any(values):
+        # GitHub computes commit activity lazily and answers 202 until it is
+        # ready, so the series is genuinely absent for young or quiet
+        # repositories. A row of minimum-height bars would read as a broken
+        # chart rather than as missing data.
+        return track + (
+            f'<text x="{x + width / 2:.0f}" y="{y + height / 2 + 4:.0f}" '
+            f'text-anchor="middle" class="small">Not available yet</text>'
+        )
+    max_value = max(values)
     gap = 2
     bar_w = (width - gap * (len(values) - 1)) / len(values)
-    parts = [f'<rect x="{x}" y="{y}" width="{width}" height="{height}" rx="6" fill="{theme.track}" opacity=".42"/>']
+    parts = [track]
     for i, value in enumerate(values):
         h = max(2, height * value / max_value) if value else 2
         bx = x + i * (bar_w + gap)
         by = y + height - h
-        opacity = .35 + .65 * (value / max_value if max_value else 0)
-        parts.append(f'<rect x="{bx:.2f}" y="{by:.2f}" width="{bar_w:.2f}" height="{h:.2f}" rx="2" fill="{theme.accent}" opacity="{opacity:.2f}"></rect>')
+        opacity = .35 + .65 * (value / max_value)
+        parts.append(
+            f'<rect x="{bx:.2f}" y="{by:.2f}" width="{bar_w:.2f}" height="{h:.2f}" rx="2" '
+            f'fill="{theme.accent}" opacity="{opacity:.2f}"><title>{value}</title></rect>'
+        )
     return "".join(parts)
 
 
