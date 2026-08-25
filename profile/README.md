@@ -23,7 +23,6 @@ and stay out of the way. Most of it is open source under MIT.
   <img alt="Recently active repositories" src="https://raw.githubusercontent.com/trsdn/.github/stats/assets/profile-stats/repos-table-card.svg">
 </picture>
 
-
 ## How these cards work
 
 They are not fetched from a statistics service. A scheduled workflow in
