@@ -6,6 +6,21 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.3.1 - 2026-08-25
+
+- Fixed generated statistics cards sizing themselves from hard-coded heights,
+  which pushed the twelfth repository row and the footer outside the card.
+- Fixed the repository table overflowing its right edge and truncating language
+  names.
+- Removed the animations from every card so they render identically in browsers
+  and in renderers that snapshot the first frame.
+- Added month, weekday and intensity labels to the contribution graph, placed
+  days by their real weekday, and replaced the multi-hue heat scale with an
+  ordered single-hue ramp.
+- Fixed `cards.account` being ignored, so configuring the card list now works.
+- Changed relative minutes from `m` to `min`, which was indistinguishable from
+  months, and shortened the generated timestamp to minute precision.
+
 ## 1.3.0 - 2026-08-24
 
 - Added the public criterion `P09` and the Repository Statistics section,

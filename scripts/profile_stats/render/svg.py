@@ -58,7 +58,7 @@ def relative_time(then: datetime | None, now: datetime | None = None) -> str:
         then = then.replace(tzinfo=UTC)
     delta = now - then
     seconds = max(0, int(delta.total_seconds()))
-    units = (("y", 31536000), ("mo", 2592000), ("w", 604800), ("d", 86400), ("h", 3600), ("m", 60))
+    units = (("y", 31536000), ("mo", 2592000), ("w", 604800), ("d", 86400), ("h", 3600), ("min", 60))
     for label, size in units:
         if seconds >= size:
             return f"{seconds // size}{label} ago"
@@ -69,6 +69,22 @@ def iso_date(value: datetime | None) -> str:
     if value is None:
         return "—"
     return value.date().isoformat()
+
+
+def stamp(value: datetime | None) -> str:
+    """Render a generation timestamp at minute precision in UTC."""
+    if value is None:
+        return "—"
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=UTC)
+    return value.astimezone(UTC).strftime("%Y-%m-%d %H:%M UTC")
+
+
+def footer(right: int, y: int, generated_at: datetime | None) -> str:
+    return (
+        f'<text x="{right}" y="{y}" text-anchor="end" class="small">'
+        f"auto-generated · {esc(stamp(generated_at))}</text>"
+    )
 
 
 def svg_root(width: int, height: int, body: str) -> str:
