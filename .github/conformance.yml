@@ -6,7 +6,7 @@
 # The badge in .github/badges/ is generated from this file. Change the evidence
 # first, then this record, then regenerate. Never the other way round.
 
-standard_version: "1.3.2"
+standard_version: "1.3.3"
 assessed_on: "2026-08-25"
 state: "Needs work"
 evidence: "docs/self-assessment.md"

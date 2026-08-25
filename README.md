@@ -29,7 +29,7 @@ Repository statistics for `P09` are documented in
 Cite the pinned form, never the default branch:
 
 ```text
-https://github.com/trsdn/.github/blob/v1.3.2/docs/repository-quality-standard.md#p09
+https://github.com/trsdn/.github/blob/v1.3.3/docs/repository-quality-standard.md#p09
 ```
 
 Criterion identifiers are append-only and are never reused, so a citation keeps

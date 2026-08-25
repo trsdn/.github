@@ -14,7 +14,7 @@ criterion `B11` and is the only source the conformance badge renders.
 ## Shape
 
 ```yaml
-standard_version: "1.3.2"
+standard_version: "1.3.3"
 assessed_on: "2026-08-22"
 state: "Needs work"
 evidence: "docs/self-assessment.md"
