@@ -6,3 +6,6 @@ __pycache__/
 .pytest_cache/
 out/
 *.pyc
+
+# Generated statistics cards. The published copies live on the stats branch.
+assets/profile-stats/
