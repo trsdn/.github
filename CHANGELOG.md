@@ -6,6 +6,13 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.3.3 - 2026-08-25
+
+- The account overview now reports the repository count as `sources / all`, for
+  example `68 / 79`. The cards deliberately ignore forks, but GitHub's profile
+  page counts them, so the bare source count looked like a miscount. The second
+  figure is omitted when the account owns no forks.
+
 ## 1.3.2 - 2026-08-25
 
 - Stopped tracking generated statistics cards on `main`, where stale copies

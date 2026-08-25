@@ -29,6 +29,19 @@ def _metric(x: int, y: int, label: str, value: object) -> str:
     )
 
 
+def _repo_count(stats: AccountStats) -> str:
+    """Sources over everything the account owns.
+
+    The rendered cards describe sources only, because forks say nothing about
+    the account's own work. GitHub's own profile counts forks, so showing the
+    bare source count invites the reader to conclude the card is wrong.
+    """
+    sources = len(stats.repos)
+    if stats.total_repos <= sources:
+        return n(sources)
+    return f"{n(sources)} / {n(stats.total_repos)}"
+
+
 def render_overview_card(stats: AccountStats, theme: Theme) -> str:
     width = 820
     rows = (116, 196)
@@ -38,7 +51,7 @@ def render_overview_card(stats: AccountStats, theme: Theme) -> str:
 
     body = [defs(theme), card_bg(width, height, theme)]
     body.append(f'<text x="28" y="44" class="title">{esc(stats.username)} account overview</text>')
-    body.append('<text x="28" y="68" class="subtitle">Public GitHub activity and repository health snapshot</text>')
+    body.append('<text x="28" y="68" class="subtitle">Public GitHub activity. Repositories reads sources / all; the difference is forks.</text>')
     metrics = [
         (28, rows[0], "Total commits", n(stats.total_commits)),
         (188, rows[0], "Stars", n(stats.total_stars)),
@@ -49,7 +62,7 @@ def render_overview_card(stats: AccountStats, theme: Theme) -> str:
         (188, rows[1], "Active repos", n(stats.active_repos)),
         (328, rows[1], "Current streak", f"{stats.current_streak}d"),
         (488, rows[1], "Longest streak", f"{stats.longest_streak}d"),
-        (638, rows[1], "Repositories", n(len(stats.repos))),
+        (638, rows[1], "Repositories", _repo_count(stats)),
     ]
     body.extend(_metric(*m) for m in metrics)
     body.append(footer(width - MARGIN, footer_y, stats.generated_at))

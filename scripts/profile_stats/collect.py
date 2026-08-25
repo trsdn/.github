@@ -188,6 +188,7 @@ def collect_account_stats(client: GitHubClient, username: str, *, include_privat
     contribution_days: list[ContributionDay] = []
     followers = 0
     cursor = None
+    total_repos = 0
     include_set = set(include or [])
     exclude_set = set(exclude or [])
     profile = client.graphql(_ACCOUNT_PROFILE_QUERY, {"login": username, "from": since.isoformat(), "to": generated_at.isoformat()})["user"]
@@ -199,14 +200,17 @@ def collect_account_stats(client: GitHubClient, username: str, *, include_privat
         data = client.graphql(_ACCOUNT_REPOS_QUERY, {"login": username, "cursor": cursor})["user"]
         page = data["repositories"]
         for node in page["nodes"]:
+            if node.get("isPrivate") and not include_private:
+                continue
+            # Counted before the fork and include/exclude filters, so it stays
+            # comparable to the repository count GitHub shows on the profile.
+            total_repos += 1
             if node.get("isFork"):
                 continue
             full_name = node["nameWithOwner"]
             if include_set and full_name not in include_set and node["name"] not in include_set:
                 continue
             if full_name in exclude_set or node["name"] in exclude_set:
-                continue
-            if node.get("isPrivate") and not include_private:
                 continue
             repos.append(_repo_from_node(node))
         if not page["pageInfo"]["hasNextPage"]:
@@ -226,4 +230,4 @@ def collect_account_stats(client: GitHubClient, username: str, *, include_privat
     merged_prs = client.search_count(f"author:{username} type:pr is:merged")
     authored_issues = client.search_count(f"author:{username} type:issue")
     code_reviews = client.search_count(f"reviewed-by:{username} type:pr")
-    return AccountStats(username, generated_at, repos, total_commits, total_stars, merged_prs, authored_issues, code_reviews, followers, active_repos, contribution_days, current_streak, longest_streak, weighted_languages)
+    return AccountStats(username, generated_at, repos, total_commits, total_stars, merged_prs, authored_issues, code_reviews, followers, active_repos, total_repos, contribution_days, current_streak, longest_streak, weighted_languages)

@@ -36,7 +36,13 @@ the generator; the `stats` branch holds its output.
 Account mode renders light and dark variants for:
 
 - `overview-card.svg`: total commits, stars, merged PRs, authored issues, code
-  reviews, followers, active repositories, and streaks.
+  reviews, followers, active repositories, streaks, and the repository count.
+  That count reads `sources / all`, for example `68 / 79`. Every other figure on
+  every card ignores forks, because a fork says nothing about the account's own
+  work, but GitHub's profile page counts them. Printing only the source count
+  therefore contradicts the number GitHub shows and reads as a bug; printing
+  both makes the difference self-explanatory. The second figure is dropped when
+  the account owns no forks.
 - `activity-card.svg`: last twelve months of contributions, current streak, and
   longest streak.
 - `language-card.svg`: weighted language distribution by bytes across non-fork

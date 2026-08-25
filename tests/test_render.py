@@ -49,7 +49,7 @@ def repo_stats():
 
 def account_stats():
     days = [ContributionDay(datetime(2026, 8, d, tzinfo=UTC).date(), d % 4) for d in range(1, 25)]
-    return AccountStats('trsdn', datetime(2026, 8, 24, tzinfo=UTC), [repo_stats()], 99, 12, 7, 8, 9, 10, 1, days, 2, 8, [LanguageShare('Python', 90, '#3572A5')])
+    return AccountStats('trsdn', datetime(2026, 8, 24, tzinfo=UTC), [repo_stats()], 99, 12, 7, 8, 9, 10, 1, 3, days, 2, 8, [LanguageShare('Python', 90, '#3572A5')])
 
 
 def crowded_account_stats():
@@ -79,7 +79,7 @@ def crowded_account_stats():
     languages = [LanguageShare(f'LanguageName{i}', 100 - i, '#3572A5') for i in range(14)]
     return AccountStats(
         'trsdn', datetime(2026, 8, 29, tzinfo=UTC), repos,
-        1234567, 98765, 4321, 8765, 999, 555, 66, days, 42, 365, languages,
+        1234567, 98765, 4321, 8765, 999, 555, 66, 999999, days, 42, 365, languages,
     )
 
 
@@ -161,6 +161,21 @@ class RenderTests(unittest.TestCase):
         for svg in self.all_cards(crowded_account_stats()):
             with self.subTest(svg=svg[:60]):
                 self.assertNotIn('<animate', svg)
+
+    def test_overview_reports_sources_and_total_repositories(self) -> None:
+        """Forks are excluded from the cards but not from GitHub's own count.
+
+        Showing only the source count made the card look wrong next to the
+        number GitHub prints on the profile page.
+        """
+        svg = render_overview_card(account_stats(), LIGHT)
+        self.assertIn('>1 / 3<', svg)
+        self.assertIn('the difference is forks', svg)
+
+    def test_overview_omits_the_total_when_there_are_no_forks(self) -> None:
+        svg = render_overview_card(replace(account_stats(), total_repos=1), LIGHT)
+        self.assertIn('class="value">1<', svg)
+        self.assertNotIn('>1 / ', svg)
 
     def test_relative_minutes_are_not_confusable_with_months(self) -> None:
         now = datetime(2026, 8, 24, 12, 0, tzinfo=UTC)

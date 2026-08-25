@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.3.2
+- Version: 1.3.3
 - Last reviewed: 2026-08-25
 - Review cadence: every six months, even when nothing changes
 

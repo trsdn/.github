@@ -67,6 +67,7 @@ class AccountStats:
     code_reviews: int
     followers: int
     active_repos: int
+    total_repos: int
     contribution_days: list[ContributionDay]
     current_streak: int
     longest_streak: int
