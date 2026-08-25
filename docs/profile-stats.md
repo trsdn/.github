@@ -26,6 +26,11 @@ every six hours, on manual dispatch, and after changes to the generator on
 `main`. It renders into `assets/profile-stats` and publishes the result to the
 `stats` branch, and only when a generated SVG actually changed.
 
+The rendered cards are not tracked on `main`. Committing generated output to a
+reviewed branch means it drifts from the generator that produced it, and stale
+files survive forever once a card is dropped from `cards.account`. `main` holds
+the generator; the `stats` branch holds its output.
+
 ## Cards
 
 Account mode renders light and dark variants for:

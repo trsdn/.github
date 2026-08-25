@@ -40,14 +40,20 @@ jobs:
         env:
           STATS_TOKEN: ${{ secrets.STATS_TOKEN || github.token }}
           PYTHONPATH: ${{ github.workspace }}/scripts
-        run: python -m profile_stats account --username trsdn --theme both --out assets/profile-stats
+        run: |
+          rm -rf assets/profile-stats
+          python -m profile_stats account --username trsdn --theme both --out assets/profile-stats
       - name: Publish cards to the stats branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- assets/profile-stats
-          if git diff --cached --quiet -- assets/profile-stats; then
-            echo "No profile stats changes."
+          git add -Af -- assets/profile-stats
+          # The cards are not tracked on main, so the only meaningful
+          # comparison is against what is already published on the stats
+          # branch. A first run has nothing to fetch and always publishes.
+          if git fetch --depth=1 origin stats 2>/dev/null \
+            && git diff --cached --quiet FETCH_HEAD -- assets/profile-stats; then
+            echo "Published cards are already current."
             exit 0
           fi
           git checkout -B stats
