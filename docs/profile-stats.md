@@ -108,6 +108,12 @@ A `profile/README.md` in a `.github` repository only works for organization
 accounts; GitHub advertises it on personal `.github` repositories too, where it
 has no effect.
 
+This was confirmed by experiment rather than assumed. A `profile/README.md` was
+committed here alongside the existing `trsdn/trsdn/README.md`, differing in a
+single word so the two sources could be told apart in the rendered HTML. The
+profile kept serving `trsdn/trsdn` for the whole observation window, so the file
+was removed again. Do not re-add it.
+
 That page embeds the account cards from raw URLs pinned to the `stats` branch of
 this repository rather than from `main`. The reason is branch protection: `main`
 rejects pushes from `GITHUB_TOKEN`, so a workflow that committed generated cards
