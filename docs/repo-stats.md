@@ -43,6 +43,15 @@ Adjust the `push` branch filter to the repository's default branch. The
 `schedule` and `workflow_dispatch` triggers only ever run on the default branch,
 so a workflow that has not been merged there yet cannot be dispatched.
 
+If the default branch is protected, `GITHUB_TOKEN` cannot push to it and the run
+fails with `GH006: Protected branch update failed`. Point the workflow at a
+generated branch instead, and reference that branch from the README:
+
+```yaml
+    with:
+      branch: stats
+```
+
 For public repositories, the caller repository `GITHUB_TOKEN` is usually enough.
 For private repositories or higher API limits, create a fine-grained PAT and
 store it as `STATS_TOKEN`.

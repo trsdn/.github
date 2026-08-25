@@ -94,8 +94,6 @@ repositories. Those controls must be enabled and verified per repository.
   readiness criteria `G01` to `G08`.
 - [`templates/repo-stats/`](templates/repo-stats/) — caller workflow and README
   snippet for the `P09` repository statistics card.
-- [`templates/profile-readme/`](templates/profile-readme/) — starter README for the
-  future `trsdn/trsdn` profile repository.
 
 ## Contributing
 

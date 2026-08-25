@@ -41,7 +41,7 @@ jobs:
           STATS_TOKEN: ${{ secrets.STATS_TOKEN || github.token }}
           PYTHONPATH: ${{ github.workspace }}/scripts
         run: python -m profile_stats account --username trsdn --theme both --out assets/profile-stats
-      - name: Commit changed cards
+      - name: Publish cards to the stats branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -50,5 +50,6 @@ jobs:
             echo "No profile stats changes."
             exit 0
           fi
+          git checkout -B stats
           git commit -m "chore(stats): update profile stats"
-          git push
+          git push --force origin stats
