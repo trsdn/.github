@@ -23,7 +23,8 @@ newer.
 
 The default account workflow is `.github/workflows/profile-stats.yml`. It runs
 every six hours, on manual dispatch, and after changes to the generator on
-`main`. It commits only when generated SVG files changed.
+`main`. It renders into `assets/profile-stats` and publishes the result to the
+`stats` branch, and only when a generated SVG actually changed.
 
 ## Cards
 
@@ -85,6 +86,15 @@ does not use `<script>`, `<foreignObject>`, external fonts, or external images.
 
 ## Profile README
 
-The profile repository `trsdn/trsdn` does not exist yet and is not created by
-this repository. Create it manually on GitHub when needed, then start from
-`templates/profile-readme/README.md`.
+GitHub renders [`profile/README.md`](../profile/README.md) from this repository
+on the `trsdn` account profile, so no separate `trsdn/trsdn` repository is
+needed.
+
+That page embeds the account cards from raw URLs pinned to the `stats` branch
+rather than from `main`. The reason is branch protection: `main` rejects pushes
+from `GITHUB_TOKEN`, so a workflow that committed generated cards to `main`
+would fail with `GH006`. Publishing to a separate generated branch keeps the
+protection rule intact and keeps generated output out of the reviewed history.
+
+The `stats` branch is force-pushed on every run and holds no reviewed content.
+Never base work on it.
