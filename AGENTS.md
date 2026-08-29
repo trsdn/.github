@@ -36,7 +36,7 @@ statistics cards.
 | `docs/self-assessment.md` | This repository's own assessment, with per-criterion notes. |
 | `docs/decisions/` | Architectural decision records. |
 | `templates/AGENTS.md` | Starting point published for other repositories. |
-| `scripts/standard.py`, `scripts/conformance.py` | Validation and generation tooling for the standard, Python standard library only. |
+| `scripts/standard.py`, `scripts/conformance.py`, `scripts/links.py` | Validation and generation tooling for the standard, Python standard library only. |
 | `scripts/profile_stats/` | Self-hosted GitHub statistics generator; runtime dependency is `requests`. |
 | `tests/` | Tests for the tooling in `scripts/`, run via `unittest`. |
 | `.github/conformance.yml` | This repository's conformance record. |
@@ -45,13 +45,15 @@ statistics cards.
 
 ## Validate before proposing a change
 
-Run all four. They are the complete validation for this repository:
+Run all six. They are the complete validation for this repository:
 
 ```sh
 python3 scripts/standard.py --check
 python3 scripts/conformance.py --check
+python3 scripts/links.py
 python3 -m unittest discover -s tests -v
 npx --yes markdownlint-cli2@0.18.1 "**/*.md"
+pipx run ruff==0.14.5 check . && pipx run ruff==0.14.5 format --check .
 ```
 
 `scripts/standard.py --check` fails when `standard.yml` has drifted from the
@@ -64,6 +66,13 @@ conformance record, when a criterion is missing from the record, or when the
 record has aged past the review cadence. A red check from ageing is intentional
 and means reassessment is due. Regenerating the badge makes it render as stale
 but does not clear the check, because only a fresh assessment can.
+
+`scripts/links.py` fails when a relative link points at a file that does not
+exist, or at a heading or `<a id>` anchor that does not. Anchors are the reason
+it exists: criteria are cited from other repositories as `#s05`, and renaming a
+heading breaks those citations silently. External links are deliberately not
+checked, because a check that fails for reasons outside this repository is a
+check people learn to ignore.
 
 `tests/` covers both scripts through their command line, asserting the exit code
 and the specific diagnostic for each rejection path. When you add or change a
@@ -108,8 +117,9 @@ ecosystem, or build tool.
   follows the evidence; the badge follows the record.
 - Do not renumber existing criteria, including to "tidy up" a gap.
 - Do not add dependencies to the standard and conformance validation scripts.
-  The statistics generator may use its documented runtime dependency, and
-  Markdown linting runs through `npx` with a pinned version.
+  The statistics generator may use its documented runtime dependency; Markdown
+  linting runs through `npx` and Ruff through `pip`, both with a pinned version
+  and neither declared as a dependency of anything.
 
 ## Attribution
 

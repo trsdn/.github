@@ -122,6 +122,4 @@ class ScriptTestCase(unittest.TestCase):
 
     def assertAccepts(self, result: subprocess.CompletedProcess) -> None:
         output = result.stdout + result.stderr
-        self.assertEqual(
-            result.returncode, 0, msg=f"expected a zero exit. Output:\n{output}"
-        )
+        self.assertEqual(result.returncode, 0, msg=f"expected a zero exit. Output:\n{output}")

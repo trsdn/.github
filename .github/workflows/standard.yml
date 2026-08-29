@@ -36,3 +36,28 @@ jobs:
         uses: actions/checkout@v7
       - name: Run the validation script tests
         run: python3 -m unittest discover -s tests -v
+
+  links:
+    name: Link check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Verify internal links and anchors
+        run: python3 scripts/links.py
+
+  lint:
+    name: Python lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      # Ruff is pinned here rather than added to requirements.txt. It is a
+      # development tool, and the scripts must keep running from a bare Python
+      # installation with no dependencies at all.
+      - name: Install Ruff
+        run: python3 -m pip install --disable-pip-version-check ruff==0.14.5
+      - name: Lint
+        run: python3 -m ruff check .
+      - name: Check formatting
+        run: python3 -m ruff format --check .

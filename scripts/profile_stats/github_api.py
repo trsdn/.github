@@ -9,7 +9,6 @@ from datetime import datetime
 from typing import Any
 
 
-
 class GitHubApiError(RuntimeError):
     """Raised when GitHub returns a failed API response."""
 
@@ -22,11 +21,13 @@ class GitHubClient:
         import requests
 
         self.session = requests.Session()
-        self.session.headers.update({
-            "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "trsdn-profile-stats",
-        })
+        self.session.headers.update(
+            {
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+                "User-Agent": "trsdn-profile-stats",
+            }
+        )
         if self.token:
             self.session.headers["Authorization"] = f"Bearer {self.token}"
 
@@ -38,7 +39,9 @@ class GitHubClient:
             raise GitHubApiError(str(data["errors"]))
         return data["data"]
 
-    def get_json(self, path: str, *, params: dict[str, Any] | None = None, accept_202: bool = False) -> Any:
+    def get_json(
+        self, path: str, *, params: dict[str, Any] | None = None, accept_202: bool = False
+    ) -> Any:
         url = path if path.startswith("http") else f"https://api.github.com{path}"
         response = self._request("GET", url, params=params, accept_202=accept_202)
         return response.json() if response.content else None
@@ -65,6 +68,7 @@ class GitHubClient:
         if "last" in response.links:
             last_url = response.links["last"]["url"]
             from urllib.parse import parse_qs, urlparse
+
             return int(parse_qs(urlparse(last_url).query).get("page", ["1"])[0])
         data = response.json()
         return len(data) if isinstance(data, list) else 0
@@ -100,7 +104,9 @@ class GitHubClient:
                 return response
             break
         assert last_response is not None
-        raise GitHubApiError(f"{method} {url} failed with {last_response.status_code}: {last_response.text[:300]}")
+        raise GitHubApiError(
+            f"{method} {url} failed with {last_response.status_code}: {last_response.text[:300]}"
+        )
 
     @staticmethod
     def _rate_limited(response: Any) -> bool:

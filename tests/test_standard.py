@@ -53,9 +53,7 @@ class StandardTests(ScriptTestCase):
     def test_rejects_a_stale_catalog(self) -> None:
         self.generate_catalog()
         self.write_standard(
-            MINIMAL_STANDARD.replace(
-                "First baseline requirement", "Reworded baseline requirement"
-            )
+            MINIMAL_STANDARD.replace("First baseline requirement", "Reworded baseline requirement")
         )
         self.assertRejects(self.check(), "standard.yml is out of date")
 
@@ -77,26 +75,16 @@ class StandardTests(ScriptTestCase):
         self.assertRejects(self.check(), "identifier `B01` already defined")
 
     def test_rejects_a_gap_in_numbering(self) -> None:
-        self.write_standard(
-            MINIMAL_STANDARD.replace(
-                '<a id="b02"></a>B02', '<a id="b03"></a>B03'
-            )
-        )
+        self.write_standard(MINIMAL_STANDARD.replace('<a id="b02"></a>B02', '<a id="b03"></a>B03'))
         self.assertRejects(self.check(), "prefix `B` is not contiguous from 01")
 
     def test_rejects_an_unclaimed_prefix(self) -> None:
-        self.write_standard(
-            MINIMAL_STANDARD.replace(
-                '<a id="s01"></a>S01', '<a id="q01"></a>Q01'
-            )
-        )
+        self.write_standard(MINIMAL_STANDARD.replace('<a id="s01"></a>S01', '<a id="q01"></a>Q01'))
         self.assertRejects(self.check(), "prefix `Q` is not claimed")
 
     def test_rejects_an_anchor_that_does_not_match_its_identifier(self) -> None:
         self.write_standard(
-            MINIMAL_STANDARD.replace(
-                '<a id="b02"></a>B02 |', '<a id="b99"></a>B02 |'
-            )
+            MINIMAL_STANDARD.replace('<a id="b02"></a>B02 |', '<a id="b99"></a>B02 |')
         )
         self.assertRejects(self.check(), "does not match identifier")
 

@@ -109,9 +109,7 @@ def validate(
     catalog_text = catalog.read_text()
     catalog_ids = set(CATALOG_ID.findall(catalog_text))
     catalog_version_match = CATALOG_VERSION.search(catalog_text)
-    catalog_version = (
-        catalog_version_match.group("version") if catalog_version_match else ""
-    )
+    catalog_version = catalog_version_match.group("version") if catalog_version_match else ""
 
     if scalars.get("standard_version") != catalog_version:
         errors.append(
@@ -132,8 +130,7 @@ def validate(
     if state == "Healthy" and "fail" in criteria.values():
         failed = sorted(i for i, r in criteria.items() if r == "fail")
         errors.append(
-            "state `Healthy` is not consistent with failing criteria: "
-            + ", ".join(failed)
+            "state `Healthy` is not consistent with failing criteria: " + ", ".join(failed)
         )
 
     return errors, stale
@@ -181,8 +178,7 @@ def main() -> int:
     parser.add_argument(
         "--catalog",
         type=pathlib.Path,
-        help="criteria catalog to validate against; defaults to the "
-        "repository's own standard.yml",
+        help="criteria catalog to validate against; defaults to the repository's own standard.yml",
     )
     arguments = parser.parse_args()
 
@@ -190,9 +186,7 @@ def main() -> int:
     record_path = repository / DEFAULT_RECORD
     badge_path = repository / DEFAULT_BADGE
     catalog_path = (
-        arguments.catalog.resolve()
-        if arguments.catalog
-        else repository / DEFAULT_CATALOG
+        arguments.catalog.resolve() if arguments.catalog else repository / DEFAULT_CATALOG
     )
 
     if not catalog_path.exists():
@@ -229,8 +223,7 @@ def main() -> int:
         problems: list[str] = []
         if badge_path.read_text() != rendered:
             problems.append(
-                "badge does not match the record; run scripts/conformance.py and "
-                "commit the result"
+                "badge does not match the record; run scripts/conformance.py and commit the result"
             )
         if stale:
             problems.append(

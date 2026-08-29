@@ -90,9 +90,7 @@ class ConformanceTests(ScriptTestCase):
     def test_rejects_a_hand_edited_badge(self) -> None:
         self.write_record(record(state="Needs work"))
         self.generate_badge()
-        self.badge().write_text(
-            self.badge().read_text().replace("Needs work", "Healthy")
-        )
+        self.badge().write_text(self.badge().read_text().replace("Needs work", "Healthy"))
         self.assertRejects(self.check(), "badge does not match the record")
 
     def test_rejects_a_badge_without_a_record(self) -> None:
@@ -121,9 +119,7 @@ class ConformanceTests(ScriptTestCase):
         self.assertRejects(self.check(), "state `Great` is not a defined state")
 
     def test_rejects_an_undefined_result(self) -> None:
-        self.write_record(
-            record(criteria={"B01": "maybe", "B02": "pass", "S01": "pass"})
-        )
+        self.write_record(record(criteria={"B01": "maybe", "B02": "pass", "S01": "pass"}))
         self.assertRejects(self.check(), "`maybe` is not a defined result")
 
     def test_rejects_a_criterion_missing_from_the_record(self) -> None:
@@ -132,9 +128,7 @@ class ConformanceTests(ScriptTestCase):
 
     def test_rejects_a_criterion_that_is_not_in_the_catalog(self) -> None:
         self.write_record(
-            record(
-                criteria={"B01": "pass", "B02": "pass", "S01": "pass", "B09": "pass"}
-            )
+            record(criteria={"B01": "pass", "B02": "pass", "S01": "pass", "B09": "pass"})
         )
         self.assertRejects(self.check(), "B09 is not a criterion in the catalog")
 
@@ -149,9 +143,7 @@ class ConformanceTests(ScriptTestCase):
 
     def test_allows_needs_work_with_a_failing_criterion(self) -> None:
         self.write_record(
-            record(
-                state="Needs work", criteria={"B01": "fail", "B02": "pass", "S01": "pass"}
-            )
+            record(state="Needs work", criteria={"B01": "fail", "B02": "pass", "S01": "pass"})
         )
         self.generate_badge()
         self.assertAccepts(self.check())

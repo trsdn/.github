@@ -7,8 +7,8 @@
 # first, then this record, then regenerate. Never the other way round.
 
 standard_version: "1.3.3"
-assessed_on: "2026-08-25"
-state: "Needs work"
+assessed_on: "2026-08-29"
+state: "Healthy"
 evidence: "docs/self-assessment.md"
 
 criteria:
@@ -27,21 +27,21 @@ criteria:
   P01: pass
   P02: pass
   P03: pass
-  P04: partial
+  P04: pass
   P05: pass
   P06: pass
   P07: pass
   P08: pass
-  P09: fail
+  P09: pass
   S01: pass
   S02: pass
-  S03: partial
+  S03: pass
   S04: pass
   S05: pass
   S06: na
   S07: pass
   S08: pass
-  S09: partial
+  S09: pass
   S10: pass
   D01: na
   D02: na
@@ -88,7 +88,7 @@ criteria:
   Y05: na
   Y06: na
   T01: pass
-  T02: partial
+  T02: pass
   T03: pass
   T04: pass
   T05: na

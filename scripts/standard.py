@@ -95,10 +95,7 @@ def parse(repository: pathlib.Path) -> tuple[dict, list[str]]:
         seen[identifier] = number
         prefix = identifier[0]
         if prefix not in claimed:
-            errors.append(
-                f"line {number}: prefix `{prefix}` is not claimed in the prefix "
-                "register"
-            )
+            errors.append(f"line {number}: prefix `{prefix}` is not claimed in the prefix register")
         criteria.append(
             {
                 "id": identifier,
@@ -111,9 +108,7 @@ def parse(repository: pathlib.Path) -> tuple[dict, list[str]]:
     for prefix, identifiers in group_by_prefix(criteria).items():
         numbers = sorted(int(i[1:]) for i in identifiers)
         if numbers != list(range(1, len(numbers) + 1)):
-            errors.append(
-                f"prefix `{prefix}` is not contiguous from 01: found {numbers}"
-            )
+            errors.append(f"prefix `{prefix}` is not contiguous from 01: found {numbers}")
 
     document_version = version_match.group("version") if version_match else "0.0.0"
     changelog_text = (repository / CHANGELOG).read_text()
@@ -182,8 +177,7 @@ def main() -> int:
             errors.append("standard.yml is missing; run scripts/standard.py")
         elif catalog_path.read_text() != rendered:
             errors.append(
-                "standard.yml is out of date; run scripts/standard.py and "
-                "commit the result"
+                "standard.yml is out of date; run scripts/standard.py and commit the result"
             )
         for error in errors:
             fail(error)
@@ -195,10 +189,7 @@ def main() -> int:
     for error in errors:
         fail(error)
     catalog_path.write_text(rendered)
-    print(
-        f"standard: wrote {catalog_path.name} with "
-        f"{len(catalog['criteria'])} criteria"
-    )
+    print(f"standard: wrote {catalog_path.name} with {len(catalog['criteria'])} criteria")
     return 1 if errors else 0
 
 

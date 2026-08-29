@@ -58,7 +58,14 @@ def relative_time(then: datetime | None, now: datetime | None = None) -> str:
         then = then.replace(tzinfo=UTC)
     delta = now - then
     seconds = max(0, int(delta.total_seconds()))
-    units = (("y", 31536000), ("mo", 2592000), ("w", 604800), ("d", 86400), ("h", 3600), ("min", 60))
+    units = (
+        ("y", 31536000),
+        ("mo", 2592000),
+        ("w", 604800),
+        ("d", 86400),
+        ("h", 3600),
+        ("min", 60),
+    )
     for label, size in units:
         if seconds >= size:
             return f"{seconds // size}{label} ago"
