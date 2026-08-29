@@ -43,6 +43,12 @@ jobs:
         run: |
           rm -rf assets/profile-stats
           python -m profile_stats account --username trsdn --theme both --out assets/profile-stats
+          # This repository shows its own activity card, which is what P09 asks
+          # of every repository. Rendering it here rather than through the
+          # reusable workflow keeps it on the stats branch, because main is
+          # protected and a workflow cannot push to it.
+          python -m profile_stats repo --repo "${GITHUB_REPOSITORY}" --theme both \
+            --out assets/profile-stats/dot-github
       - name: Publish cards to the stats branch
         run: |
           git config user.name "github-actions[bot]"
