@@ -29,7 +29,9 @@ SKIP_DIRECTORIES = {
 
 FENCE = re.compile(r"^\s{0,3}(`{3,}|~{3,})")
 HEADING = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
-INLINE_LINK = re.compile(r"\[(?:[^\[\]]|\[[^\[\]]*\])*\]\(\s*<?([^)\s>]+)>?(?:\s+[\"'][^\"']*[\"'])?\s*\)")
+INLINE_LINK = re.compile(
+    r"\[(?:[^\[\]]|\[[^\[\]]*\])*\]\(\s*<?([^)\s>]+)>?(?:\s+[\"'][^\"']*[\"'])?\s*\)"
+)
 REFERENCE_DEFINITION = re.compile(r"^\s{0,3}\[([^\]]+)\]:\s*<?([^\s>]+)>?")
 HTML_TARGET = re.compile(r"(?:href|src|srcset)\s*=\s*[\"']([^\"']+)[\"']", re.IGNORECASE)
 EXPLICIT_ANCHOR = re.compile(r"<a\s+[^>]*\bid\s*=\s*[\"']([^\"']+)[\"']", re.IGNORECASE)
@@ -155,7 +157,9 @@ def check(repository: Path) -> list[str]:
                 else:
                     continue
             if fragment.lower() not in anchors[resolved]:
-                problems.append(f"{where}:{number}: anchor not found in {document or where}: #{fragment}")
+                problems.append(
+                    f"{where}:{number}: anchor not found in {document or where}: #{fragment}"
+                )
     return problems
 
 

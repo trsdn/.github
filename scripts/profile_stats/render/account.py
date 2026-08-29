@@ -51,7 +51,9 @@ def render_overview_card(stats: AccountStats, theme: Theme) -> str:
 
     body = [defs(theme), card_bg(width, height, theme)]
     body.append(f'<text x="28" y="44" class="title">{esc(stats.username)} account overview</text>')
-    body.append('<text x="28" y="68" class="subtitle">Public GitHub activity. Repositories reads sources / all; the difference is forks.</text>')
+    body.append(
+        '<text x="28" y="68" class="subtitle">Public GitHub activity. Repositories reads sources / all; the difference is forks.</text>'
+    )
     metrics = [
         (28, rows[0], "Total commits", n(stats.total_commits)),
         (188, rows[0], "Stars", n(stats.total_stars)),
@@ -116,7 +118,9 @@ def _month_labels(origin: date, columns: int, x0: int, step: int) -> str:
         day = origin + timedelta(days=col * 7)
         if day.month != previous_month:
             if previous_month is not None and col - last_labelled >= 3:
-                parts.append(f'<text x="{x0 + col * step}" y="90" class="tiny">{MONTHS[day.month - 1]}</text>')
+                parts.append(
+                    f'<text x="{x0 + col * step}" y="90" class="tiny">{MONTHS[day.month - 1]}</text>'
+                )
                 last_labelled = col
             previous_month = day.month
     return "".join(parts)
@@ -139,11 +143,13 @@ def render_activity_card(stats: AccountStats, theme: Theme) -> str:
     body.append('<text x="28" y="44" class="title">Contribution activity</text>')
     body.append(
         f'<text x="28" y="68" class="subtitle">Last 12 months · '
-        f'current streak {stats.current_streak}d · longest streak {stats.longest_streak}d</text>'
+        f"current streak {stats.current_streak}d · longest streak {stats.longest_streak}d</text>"
     )
     body.append(_month_labels(origin, columns, grid_x, step))
     for row, name in ((1, "Mon"), (3, "Wed"), (5, "Fri")):
-        body.append(f'<text x="54" y="{grid_y + row * step + cell - 1}" text-anchor="end" class="tiny">{name}</text>')
+        body.append(
+            f'<text x="54" y="{grid_y + row * step + cell - 1}" text-anchor="end" class="tiny">{name}</text>'
+        )
     for col, row, day in placed:
         x = grid_x + col * step
         y = grid_y + row * step
@@ -156,14 +162,18 @@ def render_activity_card(stats: AccountStats, theme: Theme) -> str:
     body.append(f'<text x="{swatch_x}" y="{legend_y}" class="tiny">Less</text>')
     swatch_x += 30
     for colour in _heat_levels(theme):
-        body.append(f'<rect x="{swatch_x}" y="{legend_y - 9}" width="{cell}" height="{cell}" rx="2" fill="{colour}"/>')
+        body.append(
+            f'<rect x="{swatch_x}" y="{legend_y - 9}" width="{cell}" height="{cell}" rx="2" fill="{colour}"/>'
+        )
         swatch_x += step
     body.append(f'<text x="{swatch_x + 2}" y="{legend_y}" class="tiny">More</text>')
     body.append(footer(width - MARGIN, legend_y, stats.generated_at))
     return svg_root(width, height, "".join(body))
 
 
-def _language_bar(langs: list[LanguageShare], total: int, x: int, y: int, width: int, theme: Theme) -> str:
+def _language_bar(
+    langs: list[LanguageShare], total: int, x: int, y: int, width: int, theme: Theme
+) -> str:
     if total <= 0:
         return f'<rect x="{x}" y="{y}" width="{width}" height="18" rx="9" fill="{theme.track}"/>'
     parts = []
@@ -190,7 +200,9 @@ def render_language_card(stats: AccountStats, theme: Theme) -> str:
 
     body = [defs(theme), card_bg(width, height, theme)]
     body.append('<text x="28" y="44" class="title">Language distribution</text>')
-    body.append('<text x="28" y="68" class="subtitle">Weighted by repository language bytes; forks excluded</text>')
+    body.append(
+        '<text x="28" y="68" class="subtitle">Weighted by repository language bytes; forks excluded</text>'
+    )
     body.append(_language_bar(stats.weighted_languages, total, 28, 98, 764, theme))
     for i, lang in enumerate(langs):
         x = 28 + (i % 3) * 255
@@ -231,14 +243,20 @@ def render_repos_table_card(stats: AccountStats, theme: Theme, top_n: int = 12) 
 
     body = [defs(theme), card_bg(width, height, theme)]
     body.append('<text x="28" y="44" class="title">Recently active repositories</text>')
-    body.append(f'<text x="28" y="68" class="subtitle">Top {len(repos)} sorted by last activity</text>')
+    body.append(
+        f'<text x="28" y="68" class="subtitle">Top {len(repos)} sorted by last activity</text>'
+    )
     for x, label in _TABLE_COLUMNS:
         body.append(f'<text x="{x}" y="100" class="label">{esc(label)}</text>')
     for i, repo in enumerate(repos):
         y = first_row + i * row_h
         fill = theme.track if i % 2 else theme.panel
-        body.append(f'<rect x="20" y="{y - 21}" width="940" height="30" rx="7" fill="{fill}" opacity=".42"/>')
-        release = repo.latest_release.tag if repo.latest_release and repo.latest_release.tag else "—"
+        body.append(
+            f'<rect x="20" y="{y - 21}" width="940" height="30" rx="7" fill="{fill}" opacity=".42"/>'
+        )
+        release = (
+            repo.latest_release.tag if repo.latest_release and repo.latest_release.tag else "—"
+        )
         if repo.latest_release and repo.latest_release.published_at:
             release = f"{release} {repo.latest_release.published_at.date().isoformat()}"
         body.append(f'<text x="28" y="{y}" class="mono">{esc(truncate(repo.full_name, 34))}</text>')
@@ -269,15 +287,17 @@ def render_now_building_card(stats: AccountStats, theme: Theme) -> str:
 
     body = [defs(theme), card_bg(width, height, theme)]
     body.append('<text x="28" y="44" class="title">Now building</text>')
-    body.append('<text x="28" y="68" class="subtitle">The three repositories with the most recent commits</text>')
+    body.append(
+        '<text x="28" y="68" class="subtitle">The three repositories with the most recent commits</text>'
+    )
     for i, repo in enumerate(repos):
         y = first_row + i * row_step
         body.append(
             f'<circle cx="38" cy="{y - 7}" r="7" fill="{color_for(repo.primary_language, repo.primary_language_color)}"/>'
             f'<text x="56" y="{y - 12}" class="mono">{esc(truncate(repo.full_name, 45))}</text>'
             f'<text x="56" y="{y + 10}" class="small">'
-            f'{esc(relative_time(repo.last_commit_at, stats.generated_at))} · '
-            f'{esc(truncate(repo.last_commit_message or "—", 78))}</text>'
+            f"{esc(relative_time(repo.last_commit_at, stats.generated_at))} · "
+            f"{esc(truncate(repo.last_commit_message or '—', 78))}</text>"
         )
     body.append(footer(width - MARGIN, footer_y, stats.generated_at))
     return svg_root(width, height, "".join(body))

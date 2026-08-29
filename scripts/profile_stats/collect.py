@@ -43,23 +43,36 @@ query RepoStats($owner: String!, $name: String!) {
 """
 
 
-def collect_repo_stats(client: GitHubClient, repository: str, *, include_activity: bool = True) -> RepoStats:
+def collect_repo_stats(
+    client: GitHubClient, repository: str, *, include_activity: bool = True
+) -> RepoStats:
     owner, name = repository.split("/", 1)
     repo = client.graphql(_REPO_QUERY, {"owner": owner, "name": name})["repository"]
     release = repo.get("latestRelease")
     latest_release = None
     if release:
-        downloads = sum(int(a.get("downloadCount") or 0) for a in release.get("releaseAssets", {}).get("nodes", []))
-        latest_release = ReleaseStats(release.get("tagName"), parse_datetime(release.get("publishedAt")), downloads)
-    history = (((repo.get("defaultBranchRef") or {}).get("target") or {}).get("history") or {})
+        downloads = sum(
+            int(a.get("downloadCount") or 0)
+            for a in release.get("releaseAssets", {}).get("nodes", [])
+        )
+        latest_release = ReleaseStats(
+            release.get("tagName"), parse_datetime(release.get("publishedAt")), downloads
+        )
+    history = ((repo.get("defaultBranchRef") or {}).get("target") or {}).get("history") or {}
     last_node = (history.get("nodes") or [{}])[0] if history.get("nodes") else {}
     languages = [
-        LanguageShare(edge["node"]["name"], int(edge.get("size") or 0), color_for(edge["node"].get("name"), edge["node"].get("color")))
+        LanguageShare(
+            edge["node"]["name"],
+            int(edge.get("size") or 0),
+            color_for(edge["node"].get("name"), edge["node"].get("color")),
+        )
         for edge in (repo.get("languages") or {}).get("edges", [])
     ]
     contributors = 0
     try:
-        contributors = client.count_paginated(f"/repos/{owner}/{name}/contributors", params={"anon": "1"})
+        contributors = client.count_paginated(
+            f"/repos/{owner}/{name}/contributors", params={"anon": "1"}
+        )
     except Exception:
         contributors = 0
     activity = []
@@ -89,7 +102,9 @@ def collect_repo_stats(client: GitHubClient, repository: str, *, include_activit
         last_commit_message=last_node.get("messageHeadline"),
         contributors=contributors,
         primary_language=primary.get("name"),
-        primary_language_color=color_for(primary.get("name"), primary.get("color")) if primary else None,
+        primary_language_color=color_for(primary.get("name"), primary.get("color"))
+        if primary
+        else None,
         languages=languages,
         language_total=int((repo.get("languages") or {}).get("totalSize") or 0),
         disk_usage_kb=int(repo.get("diskUsage") or 0),
@@ -139,29 +154,53 @@ def _repo_from_node(repo: dict[str, Any]) -> RepoStats:
     release = repo.get("latestRelease")
     latest_release = None
     if release:
-        downloads = sum(int(a.get("downloadCount") or 0) for a in release.get("releaseAssets", {}).get("nodes", []))
-        latest_release = ReleaseStats(release.get("tagName"), parse_datetime(release.get("publishedAt")), downloads)
-    history = (((repo.get("defaultBranchRef") or {}).get("target") or {}).get("history") or {})
+        downloads = sum(
+            int(a.get("downloadCount") or 0)
+            for a in release.get("releaseAssets", {}).get("nodes", [])
+        )
+        latest_release = ReleaseStats(
+            release.get("tagName"), parse_datetime(release.get("publishedAt")), downloads
+        )
+    history = ((repo.get("defaultBranchRef") or {}).get("target") or {}).get("history") or {}
     last_node = (history.get("nodes") or [{}])[0] if history.get("nodes") else {}
     primary = repo.get("primaryLanguage") or {}
     license_info = repo.get("licenseInfo") or {}
     languages = [
-        LanguageShare(edge["node"]["name"], int(edge.get("size") or 0), color_for(edge["node"].get("name"), edge["node"].get("color")))
+        LanguageShare(
+            edge["node"]["name"],
+            int(edge.get("size") or 0),
+            color_for(edge["node"].get("name"), edge["node"].get("color")),
+        )
         for edge in (repo.get("languages") or {}).get("edges", [])
     ]
     return RepoStats(
-        owner=repo["owner"]["login"], name=repo["name"], full_name=repo["nameWithOwner"],
-        description=repo.get("description"), default_branch=(repo.get("defaultBranchRef") or {}).get("name") or "main",
-        is_private=bool(repo.get("isPrivate")), stars=int(repo.get("stargazerCount") or 0),
-        forks=int(repo.get("forkCount") or 0), watchers=int((repo.get("watchers") or {}).get("totalCount") or 0),
-        open_issues=int((repo.get("issues") or {}).get("totalCount") or 0), open_prs=int((repo.get("pullRequests") or {}).get("totalCount") or 0),
-        releases=int((repo.get("releases") or {}).get("totalCount") or 0), latest_release=latest_release,
-        commits=int(history.get("totalCount") or 0), last_commit_at=parse_datetime(last_node.get("committedDate")),
-        last_commit_message=last_node.get("messageHeadline"), contributors=0,
-        primary_language=primary.get("name"), primary_language_color=color_for(primary.get("name"), primary.get("color")) if primary else None,
-        languages=languages, language_total=int((repo.get("languages") or {}).get("totalSize") or 0),
-        disk_usage_kb=int(repo.get("diskUsage") or 0), license_name=license_info.get("spdxId") or license_info.get("name"),
-        commit_activity=[], updated_at=parse_datetime(repo.get("updatedAt")),
+        owner=repo["owner"]["login"],
+        name=repo["name"],
+        full_name=repo["nameWithOwner"],
+        description=repo.get("description"),
+        default_branch=(repo.get("defaultBranchRef") or {}).get("name") or "main",
+        is_private=bool(repo.get("isPrivate")),
+        stars=int(repo.get("stargazerCount") or 0),
+        forks=int(repo.get("forkCount") or 0),
+        watchers=int((repo.get("watchers") or {}).get("totalCount") or 0),
+        open_issues=int((repo.get("issues") or {}).get("totalCount") or 0),
+        open_prs=int((repo.get("pullRequests") or {}).get("totalCount") or 0),
+        releases=int((repo.get("releases") or {}).get("totalCount") or 0),
+        latest_release=latest_release,
+        commits=int(history.get("totalCount") or 0),
+        last_commit_at=parse_datetime(last_node.get("committedDate")),
+        last_commit_message=last_node.get("messageHeadline"),
+        contributors=0,
+        primary_language=primary.get("name"),
+        primary_language_color=color_for(primary.get("name"), primary.get("color"))
+        if primary
+        else None,
+        languages=languages,
+        language_total=int((repo.get("languages") or {}).get("totalSize") or 0),
+        disk_usage_kb=int(repo.get("diskUsage") or 0),
+        license_name=license_info.get("spdxId") or license_info.get("name"),
+        commit_activity=[],
+        updated_at=parse_datetime(repo.get("updatedAt")),
     )
 
 
@@ -181,7 +220,14 @@ def _streaks(days: list[ContributionDay]) -> tuple[int, int]:
     return current, longest
 
 
-def collect_account_stats(client: GitHubClient, username: str, *, include_private: bool = False, include: list[str] | None = None, exclude: list[str] | None = None) -> AccountStats:
+def collect_account_stats(
+    client: GitHubClient,
+    username: str,
+    *,
+    include_private: bool = False,
+    include: list[str] | None = None,
+    exclude: list[str] | None = None,
+) -> AccountStats:
     generated_at = datetime.now(UTC)
     since = generated_at - timedelta(days=370)
     repos: list[RepoStats] = []
@@ -191,11 +237,16 @@ def collect_account_stats(client: GitHubClient, username: str, *, include_privat
     total_repos = 0
     include_set = set(include or [])
     exclude_set = set(exclude or [])
-    profile = client.graphql(_ACCOUNT_PROFILE_QUERY, {"login": username, "from": since.isoformat(), "to": generated_at.isoformat()})["user"]
+    profile = client.graphql(
+        _ACCOUNT_PROFILE_QUERY,
+        {"login": username, "from": since.isoformat(), "to": generated_at.isoformat()},
+    )["user"]
     followers = int((profile.get("followers") or {}).get("totalCount") or 0)
     for week in profile["contributionsCollection"]["contributionCalendar"]["weeks"]:
         for day in week["contributionDays"]:
-            contribution_days.append(ContributionDay(date.fromisoformat(day["date"]), int(day["contributionCount"])))
+            contribution_days.append(
+                ContributionDay(date.fromisoformat(day["date"]), int(day["contributionCount"]))
+            )
     while True:
         data = client.graphql(_ACCOUNT_REPOS_QUERY, {"login": username, "cursor": cursor})["user"]
         page = data["repositories"]
@@ -222,12 +273,36 @@ def collect_account_stats(client: GitHubClient, username: str, *, include_privat
         for lang in repo.languages:
             language_bytes[lang.name] += lang.size
             language_colors[lang.name] = lang.color
-    weighted_languages = [LanguageShare(name, size, language_colors.get(name, color_for(name))) for name, size in sorted(language_bytes.items(), key=lambda item: item[1], reverse=True)]
+    weighted_languages = [
+        LanguageShare(name, size, language_colors.get(name, color_for(name)))
+        for name, size in sorted(language_bytes.items(), key=lambda item: item[1], reverse=True)
+    ]
     current_streak, longest_streak = _streaks(contribution_days)
     total_commits = sum(r.commits for r in repos)
     total_stars = sum(r.stars for r in repos)
-    active_repos = sum(1 for r in repos if (r.last_commit_at or r.updated_at) and (generated_at - (r.last_commit_at or r.updated_at)).days <= 365)
+    active_repos = sum(
+        1
+        for r in repos
+        if (r.last_commit_at or r.updated_at)
+        and (generated_at - (r.last_commit_at or r.updated_at)).days <= 365
+    )
     merged_prs = client.search_count(f"author:{username} type:pr is:merged")
     authored_issues = client.search_count(f"author:{username} type:issue")
     code_reviews = client.search_count(f"reviewed-by:{username} type:pr")
-    return AccountStats(username, generated_at, repos, total_commits, total_stars, merged_prs, authored_issues, code_reviews, followers, active_repos, total_repos, contribution_days, current_streak, longest_streak, weighted_languages)
+    return AccountStats(
+        username,
+        generated_at,
+        repos,
+        total_commits,
+        total_stars,
+        merged_prs,
+        authored_issues,
+        code_reviews,
+        followers,
+        active_repos,
+        total_repos,
+        contribution_days,
+        current_streak,
+        longest_streak,
+        weighted_languages,
+    )

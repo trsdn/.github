@@ -43,7 +43,7 @@ class LinkTests(ScriptTestCase):
 
     def test_explicit_html_anchor_is_resolved(self) -> None:
         """The standard's criteria are addressed this way, not by heading text."""
-        self.write("README.md", '# Title\n\n[see](docs/guide.md#s05)\n')
+        self.write("README.md", "# Title\n\n[see](docs/guide.md#s05)\n")
         self.write("docs/guide.md", '# Guide\n\n| <a id="s05"></a>S05 | Requirement |\n')
         self.assertAccepts(self.run_links())
 

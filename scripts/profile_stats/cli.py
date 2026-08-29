@@ -49,7 +49,9 @@ def account_command(args: argparse.Namespace) -> None:
     stats = collect_account_stats(
         client,
         args.username or config["username"],
-        include_private=args.include_private if args.include_private is not None else bool(config.get("include_private")),
+        include_private=args.include_private
+        if args.include_private is not None
+        else bool(config.get("include_private")),
         include=repo_cfg.get("include", []),
         exclude=repo_cfg.get("exclude", []),
     )
@@ -74,12 +76,18 @@ def account_command(args: argparse.Namespace) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="profile-stats", description="Render self-hosted GitHub statistics SVG cards.")
-    parser.add_argument("--config", help="Path to YAML config. Defaults to scripts/profile_stats/config.yml.")
+    parser = argparse.ArgumentParser(
+        prog="profile-stats", description="Render self-hosted GitHub statistics SVG cards."
+    )
+    parser.add_argument(
+        "--config", help="Path to YAML config. Defaults to scripts/profile_stats/config.yml."
+    )
     parser.add_argument("--token", help="GitHub token. Defaults to STATS_TOKEN or GITHUB_TOKEN.")
     sub = parser.add_subparsers(dest="command", required=True)
     repo = sub.add_parser("repo", help="Render cards for one repository.")
-    repo.add_argument("--repo", required=True, help="Repository in owner/name form, for example trsdn/OpenLens.")
+    repo.add_argument(
+        "--repo", required=True, help="Repository in owner/name form, for example trsdn/OpenLens."
+    )
     repo.add_argument("--out", required=True, help="Output directory.")
     repo.add_argument("--theme", choices=["light", "dark", "both"], default="both")
     repo.set_defaults(func=repo_command)
