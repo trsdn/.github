@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.3.3
-- Last reviewed: 2026-08-25
+- Version: 1.4.0
+- Last reviewed: 2026-08-29
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across
@@ -71,6 +71,7 @@ claiming its prefix in this table in the same change.
 | R | Package And Release |
 | S | Software |
 | T | Documentation |
+| W | Published Site |
 | X | Accessibility |
 | Y | Data Protection And Privacy |
 
@@ -100,6 +101,7 @@ Apply the baseline to every active repository, then add every matching profile.
 | Deployable | It is deployed to a workstation, server, container, or cloud environment |
 | Package | It publishes a package, binary, image, or release artifact |
 | Documentation | Its primary product is documentation, research, content, or templates |
+| Published Site | It publishes a website, or its audience includes readers who will never open the repository |
 | Archived | Development has intentionally ended and GitHub marks it archived |
 
 ## Baseline
@@ -118,6 +120,7 @@ Apply the baseline to every active repository, then add every matching profile.
 | <a id="b10"></a>B10 | Ownership and maintenance status are clear | `CODEOWNERS`, contributing guide, or README |
 | <a id="b11"></a>B11 | The repository records which version of this standard it was assessed against, and when | Conformance record described in [Conformance Records](#conformance-records) |
 | <a id="b12"></a>B12 | Assessed repositories are discoverable as a set | The `trsdn-standard` GitHub topic |
+| <a id="b13"></a>B13 | Each fact has one home, and other documents link to it rather than restating it | [Content Boundaries](#content-boundaries) |
 
 `B12` marks a repository as *governed by this standard*. It makes no claim about
 the outcome; the outcome lives only in the conformance record required by `B11`.
@@ -217,6 +220,133 @@ project URLs, npm `repository` and `bugs`, and OCI image labels
 | <a id="t03"></a>T03 | Sources and evidence are distinguishable from conclusions | Citations, references, or source notes |
 | <a id="t04"></a>T04 | Generated artifacts identify their source and regeneration process | Build or export documentation |
 | <a id="t05"></a>T05 | Stale or superseded material is archived or clearly marked | Status markers and archive structure |
+
+## Published Sites
+
+A repository is read by contributors. A site is read by everyone else. The two
+audiences want different things, and serving the second one from a README is why
+READMEs grow until nobody reads them.
+
+This profile applies when a repository publishes a website, or when its audience
+includes people who will never open the repository: users of an application,
+readers of a document, anyone deciding whether the project is worth their time
+before they are willing to look at code.
+
+It does not apply to a library, an internal tool, or a repository whose only
+readers are contributors. Record the rationale rather than leaving the profile
+unclaimed.
+
+| ID | Requirement | Expected evidence |
+|---|---|---|
+| <a id="w01"></a>W01 | The site is published from the repository by a repeatable, documented process | Deployment workflow and committed site source |
+| <a id="w02"></a>W02 | The repository and the site link to each other | Repository homepage field, and a repository link in the site's persistent navigation or footer |
+| <a id="w03"></a>W03 | The landing view states what the project is, who it is for, and its current status before any scrolling | Site source |
+| <a id="w04"></a>W04 | The site carries the content baseline | [Site Content Baseline](#site-content-baseline) |
+| <a id="w05"></a>W05 | The site uses the shared design language rather than ad-hoc styling | [Design Language](#design-language) |
+| <a id="w06"></a>W06 | The design language version the site was built against is recorded | Version note, manifest entry, or vendored file header |
+| <a id="w07"></a>W07 | The site loads no third-party resources, sets no cookies, and carries no analytics | Site source and a documented network review |
+| <a id="w08"></a>W08 | The site states each fact once and links to the repository for depth | [Content Boundaries](#content-boundaries) |
+
+A site is a shipped user interface, so [Accessibility](#accessibility) applies to
+it in full. Those criteria are not restated here.
+
+`W07` is the same argument as `P09` and `Y02`. A font, script, or image loaded
+from another host observes every visitor on a page the maintainer controls, and
+adds an availability dependency on somebody else's free tier. Self-host it or do
+without it.
+
+### Site Content Baseline
+
+`W04` is satisfied when the landing view carries all of these. Order is a
+suggestion; presence is not.
+
+- The name and a one-sentence statement of what the project is.
+- Status and version: maintained, experimental, or archived, and which release
+  the page describes.
+- What it does, in the shortest honest form. A screenshot, an example, or a
+  short sample where the product is visual or textual.
+- How to get it, or how to read it: download, install, or the entry point to the
+  content.
+- The disclosure required by `Y01`, even when the answer is that nothing is
+  collected. One sentence is a `Pass`.
+- Links to the repository, the license, the security policy, and how to get
+  support.
+- The date the page was generated or last reviewed.
+
+These belong in the repository and not on the site: contribution instructions,
+architecture, decision records, the full changelog, and anything addressed to
+contributors rather than to readers. A site that grows a contributor section has
+started to duplicate the repository, which `W08` forbids.
+
+A site may be a single page. Nothing in this section requires more than one, and
+a single honest page beats a navigation tree over empty sections.
+
+### Design Language
+
+The shared design language is **Instrument Workshop**. Sites use it rather than
+inventing styling per repository, so that the projects look like they come from
+the same hand and so that accessibility decisions — contrast, focus, target
+size, density — are made once rather than re-litigated per site.
+
+It is consumed by copying two stylesheets into the repository and loading the
+tokens first:
+
+```html
+<link rel="stylesheet" href="/assets/core.tokens.css">
+<link rel="stylesheet" href="/assets/instrument-workshop.css">
+```
+
+`iw-root` goes on `<body>`, the theme is an attribute on `<html>`, and density is
+an attribute on any container. There is no package to install, no build step, and
+no framework or JavaScript requirement.
+
+Copying rather than depending is deliberate. The design system is maintained
+separately and privately, so a public site cannot resolve it at build time. A
+vendored copy also means a site keeps rendering when the source repository moves,
+which is the same property `P09` wants from a statistics card.
+
+`W06` exists because a vendored copy has no version unless one is written down.
+Record which version was copied, in a manifest, a note, or a comment at the top
+of the vendored file. Without it, nobody can tell whether a site is three
+revisions behind or current.
+
+Deviating is allowed where the design language has no answer, and the deviation
+is recorded. Deviating because it was quicker is a `Fail`.
+
+## Content Boundaries
+
+`B13` and `W08` both point here. The rule is one sentence: **each fact has
+exactly one home, and every other surface links to it.**
+
+A fact stated in two places will be updated in one of them. The second copy then
+becomes wrong while still looking authoritative, and readers have no way to tell
+which one is current. This is the most common way a well-maintained repository
+starts to mislead.
+
+| Surface | Answers | Bounded by |
+|---|---|---|
+| Description and topics | What is this, in one line | One sentence |
+| Site | What it is and why it is worth your time, for someone who will never read the code | The content baseline above |
+| `README.md` | What, why, status, how to start, and where to go next | Links outward rather than expanding inward |
+| `docs/` | Depth: architecture, guides, reference, runbooks | No limit |
+| `docs/decisions/` | Why a choice was made, and what it cost | One decision per file |
+| `CHANGELOG.md` | What changed, and when | One entry per release |
+| `AGENTS.md` | How to work in this repository safely | Operating rules only |
+
+The README is the surface that goes wrong most often, because everything looks
+like it belongs there. The test is whether a paragraph answers *how do I start*
+or *why should I care*. If it answers *how does it work internally*, it belongs
+in `docs/`. If it answers *why was it built this way*, it belongs in a decision
+record.
+
+The same test resolves the site. If a paragraph is addressed to somebody who
+might change the code, it does not belong on the site.
+
+Duplication that a generator produces from a single source is not duplication.
+The badge, the conformance record, and the statistics card all restate facts that
+live elsewhere, and none of them can drift, because none of them is edited by
+hand. That is the distinction: **generated restatement is fine, hand-maintained
+restatement is not.**
 
 ## Agent Readiness
 
@@ -510,6 +640,9 @@ CHANGELOG.md
     release.yml
 docs/
   decisions/
+site/
+  index.html
+  assets/
 tests/
 ```
 

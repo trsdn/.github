@@ -1,18 +1,26 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.3.3
+- Standard version: 1.4.0
 - Assessed on: 2026-08-29
-- State: **Healthy**
+- State: **Needs work**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
 
-This repository publishes the standard, so it assesses itself against it. Every
-criterion that applies now passes. That is a recent result, not a founding one:
-the previous assessment recorded one failure and four partials, and each was
-closed by changing the repository rather than by softening the criterion.
+This repository publishes the standard, so it assesses itself against it.
 
-The record is what the badge renders. If a future assessment finds a gap, the
-badge goes back to `Needs work`, because a green badge over a known gap would
-make every other badge in the estate worthless.
+Earlier today this repository reached `Healthy` against 1.3.3, with every
+applicable criterion passing. Version 1.4.0 then added the Published Site profile
+and `B13`, and the profile applies here: the standard is a public document whose
+readers are, by design, people who maintain *other* repositories.
+
+There is no site, so all eight `W` criteria fail and the state returns to
+`Needs work`.
+
+That is the correct behaviour, not a regression. Raising the bar creates gaps in
+repositories that were compliant with the previous bar — including this one, and
+it would be dishonest for the repository that writes the standard to exempt
+itself from the version it just published. `B11` exists precisely so that a
+result names the version it was produced against: the `Healthy` result was real,
+and it was real *against 1.3.3*.
 
 ## Profiles
 
@@ -23,7 +31,33 @@ make every other badge in the estate worthless.
 | Deployable | No | Nothing is deployed anywhere |
 | Package | Yes | The standard is published as tagged releases |
 | Documentation | Yes | The primary product is documentation |
+| Published Site | Yes | The standard is written for readers who maintain other repositories and who have no reason to contribute to this one |
 | Archived | No | Actively maintained |
+
+## Gaps
+
+### W01-W08 — No published site — `fail`
+
+The standard is currently readable only as Markdown in a repository, or as
+`standard.yml`. Someone deciding whether to adopt it has to open a repository and
+read a long document in GitHub's file viewer.
+
+All eight criteria fail together because they describe one artefact that does not
+exist. Tracked as a single remediation issue rather than eight, per the
+[Remediation Issue Contract](repository-quality-standard.md#remediation-issue-contract).
+
+Two decisions belong to the maintainer before this can be closed, and neither is
+an implementation detail:
+
+1. **Where the site lives.** Publishing Pages from `.github` yields a URL
+   containing a leading dot, and this repository is already special-cased by
+   GitHub as the source of default community health files. Rendering the
+   standard from a separate repository may be the better answer.
+2. **Whether the design language becomes public.** `W05` requires Instrument
+   Workshop, which is consumed by vendoring two stylesheets. The design system
+   repository is private and no public repository ships those files yet, so the
+   first site to satisfy `W05` also publishes the design language. That is a
+   disclosure decision, not a technical one.
 
 ## Closed gaps
 
@@ -124,6 +158,13 @@ environment.
 
 ## Notable passes
 
+- `B13` — passes, but only after a fix. The six validation commands were listed
+  verbatim in both `README.md` and `AGENTS.md`, and adding two checks earlier
+  today required editing both. That is exactly the failure `B13` describes: the
+  next person to add a check updates one copy, and the other silently becomes
+  wrong while still reading as authoritative. `README.md` now holds the list,
+  which `B05` requires anyway, and `AGENTS.md` links to it and keeps only what is
+  unique to it — what each check rejects and why it exists.
 - `B06`, `S05`, `S09`, `P03` — secret scanning, push protection, private
   vulnerability reporting, and branch protection are all enabled and verified
   against the API rather than assumed.

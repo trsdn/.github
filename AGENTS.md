@@ -45,16 +45,11 @@ statistics cards.
 
 ## Validate before proposing a change
 
-Run all six. They are the complete validation for this repository:
+Run the commands in [Validation](README.md#validation). That list is the complete
+validation for this repository and lives in one place, so that it cannot drift
+from what CI runs.
 
-```sh
-python3 scripts/standard.py --check
-python3 scripts/conformance.py --check
-python3 scripts/links.py
-python3 -m unittest discover -s tests -v
-npx --yes markdownlint-cli2@0.18.1 "**/*.md"
-pipx run ruff==0.14.5 check . && pipx run ruff==0.14.5 format --check .
-```
+What each one rejects, and why it exists:
 
 `scripts/standard.py --check` fails when `standard.yml` has drifted from the
 Markdown, when a criterion identifier is duplicated or non-contiguous, when a
@@ -109,6 +104,10 @@ ecosystem, or build tool.
 - Do not rewrite history, force push, or delete branches.
 - Do not commit secrets, tokens, or personal data. Push protection is enabled and
   a blocked push means stop and rotate, not retry.
+- Do not restate a fact that already has a home elsewhere. Link to it. The
+  standard requires this of assessed repositories in `B13`, and this repository
+  is not exempt from its own criteria. Generated restatement is fine, because it
+  cannot drift; hand-maintained restatement is not.
 - Do not create or move Git tags, publish releases, or change repository
   settings, branch protection, or security settings. Those are maintainer
   actions.
