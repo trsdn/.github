@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+from ..languages import color_for
+from ..models import RepoStats
 from .svg import bytesize, esc, footer, iso_date, n, relative_time, svg_root, truncate
 from .theme import Theme, card_bg, defs
-from ..models import RepoStats
-from ..languages import color_for
 
 
 def _metric(x: int, y: int, label: str, value: object) -> str:
@@ -89,9 +89,9 @@ def render_repo_card(stats: RepoStats, theme: Theme, generated_at: datetime | No
     body.extend(_metric(*m) for m in metrics)
     body.append(f'<text x="28" y="258" class="label">Latest release</text><text x="28" y="281" class="mono">{esc(truncate(release_text, 58))}</text>')
     body.append(f'<text x="416" y="258" class="label">Last message</text><text x="416" y="281" class="mono">{esc(truncate(stats.last_commit_message or "—", 48))}</text>')
-    body.append(f'<text x="28" y="326" class="label">Language distribution</text>')
+    body.append('<text x="28" y="326" class="label">Language distribution</text>')
     body.append(_language_bar(stats, 28, 342, 764))
-    body.append(f'<text x="28" y="410" class="label">Commit activity · 52 weeks</text>')
+    body.append('<text x="28" y="410" class="label">Commit activity · 52 weeks</text>')
     body.append(_activity_bars(stats, 28, 424, 764, 30, theme))
     body.append(footer(792, 466, generated_at))
     return svg_root(width, height, "".join(body))

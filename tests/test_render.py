@@ -5,13 +5,25 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
+import unittest
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from xml.etree import ElementTree
-import unittest
 
-from profile_stats.models import AccountStats, ContributionDay, LanguageShare, ReleaseStats, RepoStats
-from profile_stats.render.account import render_activity_card, render_language_card, render_now_building_card, render_overview_card, render_repos_table_card
+from profile_stats.models import (
+    AccountStats,
+    ContributionDay,
+    LanguageShare,
+    ReleaseStats,
+    RepoStats,
+)
+from profile_stats.render.account import (
+    render_activity_card,
+    render_language_card,
+    render_now_building_card,
+    render_overview_card,
+    render_repos_table_card,
+)
 from profile_stats.render.repo import render_repo_card
 from profile_stats.render.svg import relative_time, stamp
 from profile_stats.render.theme import DARK, LIGHT

@@ -9,7 +9,6 @@ from datetime import datetime
 from typing import Any
 
 
-
 class GitHubApiError(RuntimeError):
     """Raised when GitHub returns a failed API response."""
 

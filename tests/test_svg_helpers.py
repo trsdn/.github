@@ -5,9 +5,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
+import unittest
 from datetime import UTC, datetime, timedelta
 from xml.etree import ElementTree
-import unittest
 
 from profile_stats.render.svg import esc, n, relative_time, svg_root, truncate
 

@@ -8,7 +8,13 @@ from pathlib import Path
 from .collect import collect_account_stats, collect_repo_stats
 from .config import load_config
 from .github_api import GitHubClient
-from .render.account import render_activity_card, render_language_card, render_now_building_card, render_overview_card, render_repos_table_card
+from .render.account import (
+    render_activity_card,
+    render_language_card,
+    render_now_building_card,
+    render_overview_card,
+    render_repos_table_card,
+)
 from .render.repo import render_repo_card
 from .render.svg import validate_svg
 from .render.theme import from_config

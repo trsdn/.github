@@ -10,10 +10,10 @@ from __future__ import annotations
 from datetime import UTC, date, datetime, timedelta
 from math import ceil
 
-from .svg import esc, footer, n, relative_time, svg_root, truncate
-from .theme import Theme, card_bg, defs
 from ..languages import color_for
 from ..models import AccountStats, ContributionDay, LanguageShare
+from .svg import esc, footer, n, relative_time, svg_root, truncate
+from .theme import Theme, card_bg, defs
 
 MARGIN = 28
 FOOTER_GAP = 30
@@ -181,7 +181,7 @@ def _language_bar(langs: list[LanguageShare], total: int, x: int, y: int, width:
 def render_language_card(stats: AccountStats, theme: Theme) -> str:
     width = 820
     langs = stats.weighted_languages[:12]
-    total = sum(l.size for l in stats.weighted_languages)
+    total = sum(language.size for language in stats.weighted_languages)
     legend_top, legend_step = 150, 32
     rows = max(1, ceil(len(langs) / 3))
     content_bottom = legend_top + (rows - 1) * legend_step
