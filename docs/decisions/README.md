@@ -13,3 +13,4 @@ future reader can see why it is the way it is before changing it.
 | [0005](0005-proportionate-accessibility-and-privacy.md) | Accessibility and privacy criteria stay at a level one maintainer can meet | Accepted |
 | [0006](0006-conformance-topic-badge-and-record.md) | Conformance is recorded in a file, discovered by topic, and shown by a generated badge | Accepted |
 | [0007](0007-testing-the-validation-scripts.md) | The validation scripts are tested through their command line, asserting exit code and diagnostic | Accepted |
+| [0008](0008-internal-links-are-checked-external-links-are-not.md) | Internal links and anchors are checked in CI; external links are deliberately not | Accepted |

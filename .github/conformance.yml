@@ -8,7 +8,7 @@
 
 standard_version: "1.3.3"
 assessed_on: "2026-08-29"
-state: "Needs work"
+state: "Healthy"
 evidence: "docs/self-assessment.md"
 
 criteria:
@@ -32,7 +32,7 @@ criteria:
   P06: pass
   P07: pass
   P08: pass
-  P09: fail
+  P09: pass
   S01: pass
   S02: pass
   S03: pass

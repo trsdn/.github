@@ -1,14 +1,18 @@
 # Self-Assessment: trsdn/.github
 
 - Standard version: 1.3.3
-- Assessed on: 2026-08-25
-- State: **Needs work**
+- Assessed on: 2026-08-29
+- State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
 
-This repository publishes the standard, so it assesses itself against it. The
-result is deliberately not `Healthy`: one criterion fails and four criteria are
-partial. Publishing a green badge over known gaps would make every other badge in
-the estate worthless.
+This repository publishes the standard, so it assesses itself against it. Every
+criterion that applies now passes. That is a recent result, not a founding one:
+the previous assessment recorded one failure and four partials, and each was
+closed by changing the repository rather than by softening the criterion.
+
+The record is what the badge renders. If a future assessment finds a gap, the
+badge goes back to `Needs work`, because a green badge over a known gap would
+make every other badge in the estate worthless.
 
 ## Profiles
 
@@ -21,43 +25,68 @@ the estate worthless.
 | Documentation | Yes | The primary product is documentation |
 | Archived | No | Actively maintained |
 
-## Gaps
+## Closed gaps
 
-### P09 — Repository activity is shown from a self-hosted source — `fail`
+Each of these was a gap in the previous assessment. They are kept here rather
+than deleted, because the record of what was wrong is the reason to trust that
+what is now green was actually fixed.
 
-The reusable workflow, generator, documentation, and example SVGs exist in this
-repository, but this repository's own README does not yet display its repository
-activity card. The criterion requires the card to be shown, not merely that the
-tooling exists.
+### P09 — Repository activity is shown from a self-hosted source
 
-### S03 — Static checks run automatically — `partial`
+Was `fail`. The generator, the reusable workflow, and the documentation all
+existed, but this repository did not show its own card. The criterion asks for
+the card to be shown, not for the tooling to exist.
 
-Markdown is linted in CI. The Python scripts are not linted, formatted, or
-type-checked by anything. Evidence exists for one language and not the other.
+The card is now rendered for this repository alongside the account cards and
+published to the `stats` branch, which the README embeds with a `<picture>`
+element. It is published to a branch rather than committed to `main` because
+`main` requires status checks, and a workflow cannot push through that.
 
-### S09 — Required checks protect the default branch — `partial`
+### S03 — Static checks run automatically
 
-Branch protection is in place and is stronger than the baseline requires: linear
-history, no force pushes, no deletions, required conversation resolution, and
-required status checks that must be current before merge.
+Was `partial`. Markdown was linted; the Python that generates and validates
+everything this repository publishes was not.
 
-It is `partial` only because the three checks added in this version —
-`Standard consistency`, `Conformance record`, and `Script tests` — are not yet in
-the required set. Until they are, the checks that guard the standard's integrity
-can be merged past.
+Ruff now runs `check` and `format --check` in CI, pinned. The first run found an
+ambiguous variable name and two f-strings without placeholders. The rule set
+stays close to Ruff's defaults deliberately: a configuration nobody can satisfy
+gets suppressed rather than fixed, and a suppressed check reads as coverage
+without being any.
 
-### P04 — Issue and pull-request intake is structured — `partial`
+### S09 — Required checks protect the default branch
 
-Issue forms and a pull-request template exist. There is no
-`ISSUE_TEMPLATE/config.yml`, so blank issues bypass the forms entirely and the
-structure is advisory rather than enforced.
+Was `partial`, and had been stale rather than wrong. The three checks named in
+the previous assessment were added to the required set shortly after it was
+written, and the record had not caught up. Verified against the API: `Markdown
+lint`, `Standard consistency`, `Conformance record`, and `Script tests` are all
+required, with strict mode on.
 
-### T02 — Internal links and generated output are validated — `partial`
+This is the one gap that closed without any change to the repository, which is
+exactly why the review cadence exists.
 
-Markdown lint runs, but nothing checks that links resolve. This document set now
-contains many cross-references between the standard, the record format, the
-decisions, and the templates. A broken link between them is currently invisible
-to CI.
+### P04 — Issue and pull-request intake is structured
+
+Was `partial`. Issue forms and a pull-request template existed, but no
+`ISSUE_TEMPLATE/config.yml` did, so a single click on "Open a blank issue"
+bypassed all of them.
+
+Blank issues are now disabled and contact links route vulnerabilities to the
+security policy and questions to the support guide.
+
+### T02 — Internal links and generated output are validated
+
+Was `partial`. Markdown lint ran, but nothing checked that links resolved.
+
+`scripts/links.py` now validates relative targets and anchors across every
+Markdown file. Anchors are the point: criteria are addressed as `#s05` and cited
+from other repositories, so a renamed heading silently invalidates citations that
+live outside this checkout. Verified by mutation — a missing file, a missing
+anchor in another file, a missing anchor in the same file, and a renamed heading
+are each caught.
+
+External links are deliberately out of scope. Checking them needs the network and
+fails for reasons unrelated to this repository, which is how a check earns the
+right to be ignored.
 
 ## Not applicable
 
@@ -77,7 +106,10 @@ output survives any terminal, pipe, or log.
 **Privacy `Y03`-`Y06`.** No telemetry, no user data, no storage, no retention,
 because nothing runs. `Y01` and `Y02` do apply and are answered: this repository
 collects nothing, and the only outbound network access is CI resolving
-`markdownlint-cli2` from the npm registry.
+`markdownlint-cli2` from the npm registry and Ruff from PyPI. The activity card
+the README now shows is served from this repository's own `stats` branch and is
+self-contained, so it observes no reader — which is the whole reason `P09`
+requires a self-hosted card rather than a third-party image service.
 
 **Localization `L04`-`L06`.** English only, no string catalogs, no localized
 builds, no translations to trace.
@@ -112,7 +144,7 @@ environment.
 
 ## Reassessment
 
-Due by 2027-02-24, six months after the assessment date. The conformance check
+Due by 2027-02-28, six months after the assessment date. The conformance check
 fails once the record ages past that point and stays red until the repository is
 reassessed. Regenerating the badge makes it render as stale, which keeps the
 public signal honest, but does not clear the check.

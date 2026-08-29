@@ -135,10 +135,11 @@ dependencies, so every script still runs from a bare Python installation.
 
 ## Privacy
 
-This repository collects nothing and stores no user data. Routine validation only
-resolves `markdownlint-cli2` from the npm registry. The optional statistics
-generator contacts the GitHub API to render repository and account SVG cards. See
-`Y01` and `Y02`.
+This repository collects nothing and stores no user data. Routine validation
+resolves `markdownlint-cli2` from the npm registry and Ruff from PyPI. The
+optional statistics generator contacts the GitHub API to render repository and
+account SVG cards. The cards it produces are self-contained and embed no remote
+fonts or images, so displaying one observes nobody. See `Y01` and `Y02`.
 
 ## License
 
