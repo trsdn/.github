@@ -6,6 +6,24 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.4.0 - 2026-08-29
+
+- Added the **Published Site** profile and criteria `W01`-`W08`. A repository is
+  read by contributors; a site is read by everyone else, and serving the second
+  audience from a README is why READMEs grow until nobody reads them. The
+  profile covers publication, two-way linking between repository and site, what
+  a landing page carries, use of the shared design language, and the absence of
+  third-party resources.
+- Added **Content Boundaries**, which states where each fact lives across the
+  description, the site, `README.md`, `docs/`, decision records, the changelog,
+  and `AGENTS.md`. A fact stated twice gets updated once, and the stale copy
+  still looks authoritative.
+- Added `B13`, requiring that each fact has one home and other documents link to
+  it rather than restate it. Generated restatement is explicitly exempt: a
+  badge, a record, or a statistics card cannot drift, because none of them is
+  edited by hand.
+- Claimed the `W` prefix.
+
 ## 1.3.3 - 2026-08-25
 
 - The account overview now reports the repository count as `sources / all`, for

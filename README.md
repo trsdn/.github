@@ -66,11 +66,13 @@ assessment backlog.
 
 ## This repository's own result
 
-State: **Healthy**. Every criterion that applies to this repository passes, and
-the evidence for each is recorded in the
-[self-assessment](docs/self-assessment.md). Publishing a green badge over known
-gaps would devalue every other badge in the estate, so the badge follows the
-record and never the other way round.
+State: **Needs work**. Version 1.4.0 added the Published Site profile, which
+applies here and which nothing yet satisfies, so eight criteria fail. The
+[self-assessment](docs/self-assessment.md) records why, and why raising the bar
+is expected to create gaps rather than to be quietly avoided.
+
+Publishing a green badge over a known gap would devalue every other badge in the
+estate, so the badge follows the record and never the other way round.
 
 ## Repository activity
 
