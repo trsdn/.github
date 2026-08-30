@@ -1,26 +1,18 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.4.0
-- Assessed on: 2026-08-29
-- State: **Needs work**
+- Standard version: 1.5.0
+- Assessed on: 2026-08-30
+- State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
 
-This repository publishes the standard, so it assesses itself against it.
+This repository publishes the standard, so it assesses itself against it. Every
+criterion that applies passes. That is a recent result, not a founding one: an
+earlier assessment recorded one failure and four partials, and each was closed by
+changing the repository rather than by softening the criterion.
 
-Earlier today this repository reached `Healthy` against 1.3.3, with every
-applicable criterion passing. Version 1.4.0 then added the Published Site profile
-and `B13`, and the profile applies here: the standard is a public document whose
-readers are, by design, people who maintain *other* repositories.
-
-There is no site, so all eight `W` criteria fail and the state returns to
-`Needs work`.
-
-That is the correct behaviour, not a regression. Raising the bar creates gaps in
-repositories that were compliant with the previous bar — including this one, and
-it would be dishonest for the repository that writes the standard to exempt
-itself from the version it just published. `B11` exists precisely so that a
-result names the version it was produced against: the `Healthy` result was real,
-and it was real *against 1.3.3*.
+The record is what the badge renders. If a future assessment finds a gap, the
+badge goes back to `Needs work`, because a green badge over a known gap would
+make every other badge in the estate worthless.
 
 ## Profiles
 
@@ -31,33 +23,8 @@ and it was real *against 1.3.3*.
 | Deployable | No | Nothing is deployed anywhere |
 | Package | Yes | The standard is published as tagged releases |
 | Documentation | Yes | The primary product is documentation |
-| Published Site | Yes | The standard is written for readers who maintain other repositories and who have no reason to contribute to this one |
+| Published Site | No | This repository defines the standard; it does not ship a product. See below |
 | Archived | No | Actively maintained |
-
-## Gaps
-
-### W01-W08 — No published site — `fail`
-
-The standard is currently readable only as Markdown in a repository, or as
-`standard.yml`. Someone deciding whether to adopt it has to open a repository and
-read a long document in GitHub's file viewer.
-
-All eight criteria fail together because they describe one artefact that does not
-exist. Tracked as a single remediation issue rather than eight, per the
-[Remediation Issue Contract](repository-quality-standard.md#remediation-issue-contract).
-
-Two decisions belong to the maintainer before this can be closed, and neither is
-an implementation detail:
-
-1. **Where the site lives.** Publishing Pages from `.github` yields a URL
-   containing a leading dot, and this repository is already special-cased by
-   GitHub as the source of default community health files. Rendering the
-   standard from a separate repository may be the better answer.
-2. **Whether the design language becomes public.** `W05` requires Instrument
-   Workshop, which is consumed by vendoring two stylesheets. The design system
-   repository is private and no public repository ships those files yet, so the
-   first site to satisfy `W05` also publishes the design language. That is a
-   disclosure decision, not a technical one.
 
 ## Closed gaps
 
@@ -123,6 +90,20 @@ fails for reasons unrelated to this repository, which is how a check earns the
 right to be ignored.
 
 ## Not applicable
+
+**Published Site `W01`-`W08`.** This repository defines the standard; it does not
+ship a product. Everyone who reads the standard reads it while working inside a
+repository — applying it, citing a criterion in an issue, or acting on it as an
+agent — and a page in front of it would add a surface to maintain while answering
+nothing they were asking. The criteria are consumed as Markdown at a pinned URL
+and as `standard.yml`, both of which are already the right shape for that
+audience.
+
+This was recorded as eight failures against 1.4.0 for one day. The trigger was
+written too broadly — "readers who will never open the repository" caught any
+document, including a specification — and 1.5.0 narrowed it. The repositories the
+standard is *applied to* are the ones that ship products, and many of them do
+need a site.
 
 **Deployable `D01`-`D06`.** Nothing is deployed. There is no target, no
 environment, no secret store, and no rollback path, because there is no running

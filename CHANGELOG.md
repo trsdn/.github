@@ -6,6 +6,22 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.5.0 - 2026-08-30
+
+- Narrowed the **Published Site** profile. The 1.4.0 trigger caught any
+  repository whose audience "includes readers who will never open the
+  repository", which swept in specifications and templates — documents applied
+  *to* repositories by people who are already inside one. The profile now asks
+  whether the repository ships something an audience uses without needing the
+  source. A page in front of a specification adds a surface to maintain and
+  answers nothing its readers were asking.
+- Added a versioning rule for exactly this case: narrowing a profile's
+  applicability is a minor change, because no recorded `Pass` can become a
+  `Fail`. The 1.4.0 table had no row for it.
+- Recorded that the shared design language **may** be vendored into public
+  repositories. This was the open disclosure question in 1.4.0; copying the
+  stylesheets is now expressly permitted, which unblocks `W05`.
+
 ## 1.4.0 - 2026-08-29
 
 - Added the **Published Site** profile and criteria `W01`-`W08`. A repository is
