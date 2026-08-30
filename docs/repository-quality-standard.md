@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.5.0
+- Version: 1.5.1
 - Last reviewed: 2026-08-30
 - Review cadence: every six months, even when nothing changes
 
@@ -395,7 +395,8 @@ A reusable starting point is published as [`templates/AGENTS.md`](../templates/A
 Repositories are published to an international audience. Language is therefore a
 property of the repository, not a matter of personal habit.
 
-Applies to the Software, Deployable, Package, and Documentation profiles.
+Applies to the Software, Deployable, Package, Documentation, and Published Site
+profiles.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|

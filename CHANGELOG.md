@@ -6,6 +6,13 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.5.1 - 2026-08-30
+
+- Named the Published Site profile in the Language section. A site is the most
+  public surface a project has, and it was the one surface the section did not
+  name. No outcome changes: every site-publishing repository already matched
+  `Software` or `Documentation`, so `L01` and `L02` already applied to it.
+
 ## 1.5.0 - 2026-08-30
 
 - Narrowed the **Published Site** profile. The 1.4.0 trigger caught any
