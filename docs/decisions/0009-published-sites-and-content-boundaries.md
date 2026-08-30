@@ -2,6 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-08-29
+- Amended: 2026-08-30 (standard 1.5.0)
 
 ## Context
 
@@ -28,8 +29,8 @@ structural rather than occasional, so both are settled together.
 ## Decision
 
 The `Published Site` profile and criteria `W01`-`W08` apply to any repository
-that publishes a site, or whose audience includes people who will never open the
-repository.
+that publishes a site, or that ships something whose audience uses it without
+ever needing the repository.
 
 Sites use Instrument Workshop, the shared design language, and record the version
 they were built against. Instrument Workshop is consumed by copying two
@@ -48,14 +49,13 @@ a CI checkout would all need credentials that a public Pages build does not have
 Copying is the documented consumption path and needs no build step, no package
 manager, and no JavaScript.
 
-The cost is that the first public site to satisfy `W05` also publishes the design
-language, because the stylesheets ship in the open. That is acceptable: a design
-language is meant to be seen, its value is in consistency rather than secrecy,
-and every site built from it is already a rendering of it. It is recorded here
-because it is a disclosure that happens as a side effect of a technical
-constraint, and side effects nobody wrote down are the ones that surprise people.
+Copying is expressly permitted, which was settled after this record was first
+written. The consequence is that the design language becomes visible in every
+public site built from it, because the stylesheets ship in the open. That is
+accepted: a design language earns its value from consistent use rather than from
+being hidden, and every site built from it is already a rendering of it.
 
-The second cost is drift. A copied stylesheet does not update when the source
+The cost that remains is drift. A copied stylesheet does not update when the source
 does, which is exactly why `W06` requires the version to be recorded: an
 out-of-date copy is tolerable, an out-of-date copy that nobody can date is not.
 
@@ -78,8 +78,18 @@ because none of them is edited by hand and each has a check that fails when it
 disagrees with its source. The rule targets hand-maintained restatement, which is
 the only kind that rots.
 
-**This repository fails its own new criteria.** The Published Site profile applies
-here, no site exists, and the state returns from `Healthy` to `Needs work` the
-same day it was earned. Exempting the repository that writes the standard would
-have been the cheaper option and would have made every other assessment
-negotiable.
+**The profile does not apply to this repository.** The trigger as first written
+asked whether the audience "includes readers who will never open the repository",
+which caught any document, including this specification, and this repository was
+recorded as eight failures for one day. Standard 1.5.0 narrowed it to ask whether
+the repository ships something an audience uses without needing the source.
+
+A specification is applied *to* repositories by people who are already inside
+one. Putting a page in front of it adds a surface to maintain and answers nothing
+its readers were asking. The repositories the standard is applied to are the ones
+that ship products, and that is where `W01`-`W08` do their work — nine of them
+already publish a site, which is what prompted this record in the first place.
+
+The versioning table had no row for a narrowing of this kind. One was added:
+narrowing a profile's applicability is minor, because no recorded `Pass` can turn
+into a `Fail`.

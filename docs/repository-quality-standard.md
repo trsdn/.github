@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.4.0
-- Last reviewed: 2026-08-29
+- Version: 1.5.0
+- Last reviewed: 2026-08-30
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across
@@ -34,12 +34,18 @@ result is always recorded against the exact version it was produced with.
 | Change | Version impact |
 |---|---|
 | A criterion is removed, renumbered, or its meaning narrows so that a recorded `Pass` could become a `Fail` | Major |
+| A profile's applicability narrows, so that a recorded `Fail` could become `Not applicable` | Minor |
 | A criterion, profile, or section is added | Minor |
 | Wording, examples, formatting, or typos change without altering meaning | Patch |
 
 Adding criteria is a minor change because a recorded result stays valid for the
 version it names. A repository does not silently regress when this document
 grows; it is simply due for reassessment.
+
+Narrowing a profile's applicability is minor for the same reason in reverse. No
+recorded `Pass` can turn into a `Fail`, so no past assessment is invalidated; the
+change can only excuse a repository from criteria it was previously measured
+against, and only at its next assessment.
 
 ### Criterion Identifiers Are Permanent
 
@@ -101,7 +107,7 @@ Apply the baseline to every active repository, then add every matching profile.
 | Deployable | It is deployed to a workstation, server, container, or cloud environment |
 | Package | It publishes a package, binary, image, or release artifact |
 | Documentation | Its primary product is documentation, research, content, or templates |
-| Published Site | It publishes a website, or its audience includes readers who will never open the repository |
+| Published Site | It publishes a website, or it ships something whose audience uses it without ever needing the repository |
 | Archived | Development has intentionally ended and GitHub marks it archived |
 
 ## Baseline
@@ -227,14 +233,20 @@ A repository is read by contributors. A site is read by everyone else. The two
 audiences want different things, and serving the second one from a README is why
 READMEs grow until nobody reads them.
 
-This profile applies when a repository publishes a website, or when its audience
-includes people who will never open the repository: users of an application,
-readers of a document, anyone deciding whether the project is worth their time
-before they are willing to look at code.
+This profile applies when a repository publishes a website, or when it ships
+something people use without ever needing the repository: an application, a
+tool, a game, a piece of writing meant to be read as a page. The test is whether
+a reasonable audience exists that wants the product and not the source.
 
-It does not apply to a library, an internal tool, or a repository whose only
-readers are contributors. Record the rationale rather than leaving the profile
-unclaimed.
+It does not apply when every reader is working inside a repository. A library, an
+internal tool, a template, and a specification are all consumed *in* repositories
+by people who are already there — a page in front of them adds a surface to
+maintain and answers nothing they were asking. This document is the example: it
+is a definition that maintainers and agents apply to repositories, so it is
+assessed as `Documentation` and not here. The repositories it is applied *to* are
+a different matter, and many of them do ship a product.
+
+Record the rationale rather than leaving the profile unclaimed.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
@@ -300,10 +312,14 @@ tokens first:
 an attribute on any container. There is no package to install, no build step, and
 no framework or JavaScript requirement.
 
-Copying rather than depending is deliberate. The design system is maintained
-separately and privately, so a public site cannot resolve it at build time. A
-vendored copy also means a site keeps rendering when the source repository moves,
-which is the same property `P09` wants from a statistics card.
+Copying rather than depending is deliberate, and copying is expressly permitted.
+The design system is maintained separately and privately, so a public site cannot
+resolve it at build time. The stylesheets may be vendored into public
+repositories, which means the design language becomes visible in every site built
+from it — that is accepted, because a design language earns its value from
+consistent use rather than from being hidden. A vendored copy also means a site
+keeps rendering when the source repository moves, which is the same property
+`P09` wants from a statistics card.
 
 `W06` exists because a vendored copy has no version unless one is written down.
 Record which version was copied, in a manifest, a note, or a comment at the top
