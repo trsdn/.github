@@ -84,9 +84,15 @@ the suite goes red. A test that passes either way is not coverage.
   the same change.
 - **Regenerate, do not edit.** After changing the standard, run
   `python3 scripts/standard.py` and commit the regenerated `standard.yml`.
-- **Version and changelog move together.** Adding criteria is a minor bump;
-  removing, renumbering, or narrowing a criterion is a major bump. The check
-  enforces that the document version matches the newest changelog entry.
+- **Version and changelog move together.** The bump follows
+  [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility),
+  which is the only place the rules are stated. The check enforces that the
+  document version matches the newest changelog entry.
+- **Publish the release when the version changes.** Tag the commit that carries
+  the new version as `v<version>` and push the tag. The release workflow verifies
+  that the tag, `standard.yml`, and the changelog agree, then publishes with the
+  changelog entry as the notes. A version that is never tagged cannot be cited by
+  pinned reference, which is the whole point of versioning this document.
 - **Every criterion needs evidence a single maintainer can produce.** Do not add
   a criterion requiring a paid tool, an audit, a certification, or a specialist.
 - **Do not require tooling that does not exist** in the repositories being
@@ -108,9 +114,8 @@ ecosystem, or build tool.
   standard requires this of assessed repositories in `B13`, and this repository
   is not exempt from its own criteria. Generated restatement is fine, because it
   cannot drift; hand-maintained restatement is not.
-- Do not create or move Git tags, publish releases, or change repository
-  settings, branch protection, or security settings. Those are maintainer
-  actions.
+- Do not change repository settings, branch protection, or security settings.
+  Those are maintainer actions.
 - Do not hand-edit `standard.yml` or anything under `.github/badges/`.
 - Do not change a conformance record to make a badge look better. The record
   follows the evidence; the badge follows the record.
