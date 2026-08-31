@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.6.0
+- Version: 1.6.1
 - Last reviewed: 2026-08-31
 - Review cadence: every six months, even when nothing changes
 
@@ -499,16 +499,18 @@ Rules:
 - Badges outside the required and optional sets need a stated reason. A wall of
   badges carries less information than four accurate ones.
 - A badge image may be committed to the repository only when a repository event
-  regenerates it. License, platform, and conformance qualify. CI status and the
-  latest release move without a commit, so a committed image of either is stale
-  between regenerations. Bounded staleness is acceptable for the activity card
-  in `P09`; it is not acceptable for a badge reporting current status.
+  regenerates it. License, platform, and conformance qualify, and committing
+  them is permitted, never required. CI status and the latest release move
+  without a commit, so a committed image of either is stale between
+  regenerations. Bounded staleness is acceptable for the activity card in `P09`;
+  it is not acceptable for a badge reporting current status.
 - Where the authority for a value publishes its own image, use that image.
   GitHub serves a workflow status badge for a repository's own CI, so that badge
   is first-party and live at once. A third-party render of the same value is not
   a `Fail`, but it is the weaker option and reassessment should replace it.
-- Everywhere else a live third-party image is a `Pass`. Serving a value late is
-  worse than serving it from somebody else's host.
+- A live third-party image is a `Pass` for any value with no first-party image,
+  whether or not that value would also qualify for committing. Serving a value
+  late is worse than serving it from somebody else's host.
 
 A hardcoded `Swift 5.9` badge beside a manifest that has moved to 6.0 is the
 failure this section exists to prevent.
