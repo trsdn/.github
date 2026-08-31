@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.6.1
+- Version: 1.7.0
 - Last reviewed: 2026-08-31
 - Review cadence: every six months, even when nothing changes
 
@@ -192,6 +192,32 @@ assessment backlog.
 | <a id="r04"></a>R04 | Tag, package version, and release title are consistent | Release workflow validation |
 | <a id="r05"></a>R05 | Built artifacts are smoke-tested in a clean environment | CI or release workflow |
 | <a id="r06"></a>R06 | Release notes describe meaningful changes and upgrade concerns | GitHub release or changelog |
+| <a id="r07"></a>R07 | Release notes are generated from the changelog entry for the version being released, and automation fails the release when that entry is missing, empty, or still held in an unreleased section | Release workflow gate plus a published release whose notes match its changelog entry |
+
+`R06` and `R07` divide the work. `R06` is about content: notes a reader can act
+on. `R07` is about provenance: the notes a consumer actually receives are the
+maintained entry for that exact version, and not a second description written at
+tag time.
+
+The gap `R07` closes is specific. A repository can keep an exemplary changelog
+and still publish releases whose notes are fixed boilerplate, because nothing
+connects the two. The entries then reach nobody — the changelog is read only by
+someone who already knows to open it, and the release page, which is the surface
+a consumer actually lands on, says nothing. `R06` on its own is satisfiable by a
+changelog nobody consumes, which is why `R07` asks for a gate rather than a
+habit.
+
+The gate fails the release when the changelog has no section for the version
+being tagged, when that section is empty, or when entries are still held in an
+unreleased section that the tagged version did not absorb. A repository that
+keeps no unreleased section satisfies the last condition by construction, having
+nowhere to strand an entry. A minimal gate extracts the section for the tag,
+exits non-zero when the result is empty, and passes that same text to the
+release command as the notes body, so the published notes and the maintained
+entry cannot disagree.
+
+A reusable starting point is published as
+[`templates/release-notes/`](../templates/release-notes/).
 
 ## Product Identity
 

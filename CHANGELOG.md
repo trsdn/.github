@@ -6,6 +6,25 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.7.0 - 2026-08-31
+
+- Added `R07`, requiring that published release notes are generated from the
+  changelog entry for the version being released, gated by automation that fails
+  the release when the entry is missing, empty, or still held in an unreleased
+  section. A repository can keep an exemplary changelog and still publish
+  releases whose notes are fixed boilerplate, because nothing connects the two.
+  The entries then reach nobody, and the release page is the surface a consumer
+  actually lands on.
+- Left `R06` unchanged. Narrowing it so that boilerplate notes over an unread
+  changelog could no longer pass would be a major change, and it would buy no
+  coverage that `R07` does not already provide. The two now divide the work:
+  `R06` is about content, `R07` about provenance. See
+  [decision 0010](docs/decisions/0010-release-notes-come-from-the-changelog.md).
+- Published [`templates/release-notes/`](templates/release-notes/) as the
+  reference gate for `R07`, linked from the criterion's prose. A criterion that
+  mandates automation has to say where the automation comes from, or every
+  repository invents it again.
+
 ## 1.6.1 - 2026-08-31
 
 - Closed an ambiguity in the badge image rule, found by the first repository
