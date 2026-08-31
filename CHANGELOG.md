@@ -25,6 +25,20 @@ Versions follow the compatibility policy in the
   mandates automation has to say where the automation comes from, or every
   repository invents it again.
 
+## 1.6.1 - 2026-08-31
+
+- Closed an ambiguity in the badge image rule, found by the first repository
+  assessed against 1.6.0. The committing bullet named license, platform, and
+  conformance as qualifying for a committed image, and the following bullet
+  granted a `Pass` to a live third-party image "everywhere else". Read together,
+  the three named values fell outside "everywhere else" and were left with no
+  stated result at all — neither `Pass` nor `Partial` nor `Fail` — which let
+  `may` be read as `must`. Committing a qualifying value is now stated as
+  permitted and never required, and the `Pass` is tied to the absence of a
+  first-party image rather than to "everywhere else". No result changes; 1.6.0
+  already excluded a reading that turns a recorded `Pass` into a `Fail`, and
+  this states in the rule text what that exclusion implied.
+
 ## 1.6.0 - 2026-08-31
 
 - Corrected the reason given for self-hosting images. Both `P08` and `P09`
