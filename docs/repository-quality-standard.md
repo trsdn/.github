@@ -216,6 +216,9 @@ exits non-zero when the result is empty, and passes that same text to the
 release command as the notes body, so the published notes and the maintained
 entry cannot disagree.
 
+A reusable starting point is published as
+[`templates/release-notes/`](../templates/release-notes/).
+
 ## Product Identity
 
 Apply these requirements to anything a user installs, runs, or downloads:

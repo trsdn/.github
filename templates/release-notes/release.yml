@@ -1,0 +1,75 @@
+name: Release
+
+# Reference implementation of the `R07` gate: the notes published for a tag are
+# the maintained changelog entry for exactly that version, and the release fails
+# rather than publishing something written here instead.
+#
+# Adopt this workflow as it stands, or lift the two gate steps into an existing
+# release workflow. Everything project-specific — building, signing, and
+# uploading artifacts — belongs between the gate and the publish step.
+#
+# The extraction accepts both `## 1.2.3 - 2026-01-01` and the
+# Keep-a-Changelog `## [1.2.3] - 2026-01-01` heading form.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the tag
+        uses: actions/checkout@v7
+
+      # Gate, part one. Nothing ships while it is still described as unreleased.
+      # Without this, entries stay under `## Unreleased`, ship anyway, and then
+      # appear in no release notes at all.
+      #
+      # A repository that keeps no unreleased section can drop this step: it has
+      # nowhere to strand an entry.
+      - name: Reject entries left in an unreleased section
+        run: |
+          set -euo pipefail
+          held="$(awk '
+            tolower($0) ~ /^##[ \t]+\[?unreleased\]?/ { capture = 1; next }
+            capture && /^## / { exit }
+            capture { print }
+          ' CHANGELOG.md | tr -d '[:space:]')"
+          if [ -n "$held" ]; then
+            echo "release: entries are still held in the unreleased section; promote them into $GITHUB_REF_NAME" >&2
+            exit 1
+          fi
+
+      # Gate, part two. The notes are extracted, never authored here. A missing
+      # or empty entry fails the release instead of publishing boilerplate.
+      - name: Extract release notes for this version
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          awk -v version="$version" '
+            BEGIN { gsub(/\./, "\\.", version) }
+            $0 ~ "^## \\[?" version "\\]?([ \t]|$)" { capture = 1; next }
+            capture && /^## / { exit }
+            capture { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "release: no changelog entry for $version" >&2
+            exit 1
+          fi
+
+      # Build, sign, and stage artifacts here. Keep them after the gate, so a
+      # release that cannot describe itself fails before anything is built.
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file release-notes.md

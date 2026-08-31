@@ -110,6 +110,9 @@ repositories. Those controls must be enabled and verified per repository.
   readiness criteria `G01` to `G08`.
 - [`templates/repo-stats/`](templates/repo-stats/) — caller workflow and README
   snippet for the `P09` repository statistics card.
+- [`templates/release-notes/`](templates/release-notes/) — reference release
+  workflow implementing the `R07` gate, which publishes the changelog entry for
+  the tag as the release notes.
 
 ## Contributing
 

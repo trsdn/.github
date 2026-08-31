@@ -68,3 +68,12 @@ This repository already satisfies `R07`: its release workflow extracts the
 section for the tag from `CHANGELOG.md`, fails when the extraction is empty, and
 publishes that text as the notes body. The unreleased guard was added alongside
 this decision so the gate is complete rather than complete-by-absence.
+
+A criterion that mandates automation has to say where the automation comes from,
+or every repository invents it again and the estate ends up with as many gates as
+it has release workflows. A reference workflow is therefore published as
+[`templates/release-notes/`](../../templates/release-notes/) and linked from the
+criterion's prose, the same way `templates/AGENTS.md` backs `G01`-`G08` and
+`templates/repo-stats/` backs `P09`. It is a starting point, not a mandate:
+`R07` asks for the outcome, and a repository that reaches it with a shell script,
+a release tool, or a different CI system passes just as well.

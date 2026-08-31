@@ -20,6 +20,10 @@ Versions follow the compatibility policy in the
   coverage that `R07` does not already provide. The two now divide the work:
   `R06` is about content, `R07` about provenance. See
   [decision 0010](docs/decisions/0010-release-notes-come-from-the-changelog.md).
+- Published [`templates/release-notes/`](templates/release-notes/) as the
+  reference gate for `R07`, linked from the criterion's prose. A criterion that
+  mandates automation has to say where the automation comes from, or every
+  repository invents it again.
 
 ## 1.6.0 - 2026-08-31
 
