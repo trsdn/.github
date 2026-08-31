@@ -3,7 +3,7 @@ name: Release
 # A tag publishes a release of the standard. The notes come from CHANGELOG.md so
 # that the changelog stays the single place a change is described, and the
 # consistency check guarantees the tag, the document version, and the changelog
-# agree before anything is published.
+# agree before anything is published. Together these steps are the `R07` gate.
 
 on:
   push:
@@ -31,6 +31,19 @@ jobs:
           declared="$(sed -n 's/^version: "\(.*\)"$/\1/p' standard.yml)"
           if [ "$tag" != "$declared" ]; then
             echo "release: tag v$tag does not match declared version $declared" >&2
+            exit 1
+          fi
+
+      - name: Reject entries left in an unreleased section
+        run: |
+          set -euo pipefail
+          held="$(awk '
+            tolower($0) ~ /^##[ \t]+\[?unreleased\]?/ { capture = 1; next }
+            capture && /^## / { exit }
+            capture { print }
+          ' CHANGELOG.md | tr -d '[:space:]')"
+          if [ -n "$held" ]; then
+            echo "release: entries are still held in the unreleased section; promote them into $GITHUB_REF_NAME" >&2
             exit 1
           fi
 

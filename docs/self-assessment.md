@@ -1,6 +1,6 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.6.0
+- Standard version: 1.7.0
 - Assessed on: 2026-08-31
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
@@ -153,6 +153,14 @@ environment.
 - `R02`, `R04` — the versioning policy is documented and a check enforces that
   the document version, the changelog, and the release tag agree, so they cannot
   drift apart silently.
+- `R07` — passes, and the criterion was written from a failure found elsewhere in
+  the estate rather than from this repository. `.github/workflows/release.yml`
+  extracts the changelog section for the tag, exits non-zero when the result is
+  empty, and publishes that same text as the notes body, so no release can carry
+  notes that were written separately from the entry. The unreleased guard was
+  added in the same change: this repository keeps no unreleased section and could
+  not strand an entry today, but a gate that holds only while a convention holds
+  is not a gate.
 - `G01`-`G08` — the agent readiness criteria are satisfied by `AGENTS.md`, a
   Copilot configuration that defers to it instead of duplicating it, generated
   paths marked explicitly, and a single documented validation command.
