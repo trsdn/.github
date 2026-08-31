@@ -76,6 +76,17 @@ the suite goes red. A test that passes either way is not coverage.
 
 ## Rules specific to the standard
 
+- **A criterion is decided by its rule text alone.** Before merging a criterion
+  or a rule that feeds one, take it and a plausible repository and try to reach
+  `Pass`, `Partial`, `Fail`, or `Not applicable` using only the document at that
+  version. If that needs an intention the text does not state, the text is not
+  finished. Every case a rule names has a stated result, and so does everything
+  its enumeration excludes; attach the outcome to a property of the thing
+  assessed rather than to a residual set like "everywhere else"; say that a
+  permission is a permission, because `may` beside a list reads as `must`; and
+  never let the changelog carry the rule. See
+  [decision 0011](docs/decisions/0011-criteria-are-decided-by-the-rule-text.md),
+  which exists because `P08` failed this twice in consecutive versions.
 - **Criterion identifiers are append-only.** Never renumber, reuse, or repurpose
   an identifier. A retired criterion keeps its identifier and gains a retirement
   note. Identifiers are cited from other repositories and from issues; changing
