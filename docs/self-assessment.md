@@ -1,7 +1,7 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.5.1
-- Assessed on: 2026-08-30
+- Standard version: 1.6.0
+- Assessed on: 2026-08-31
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
 
@@ -123,8 +123,9 @@ because nothing runs. `Y01` and `Y02` do apply and are answered: this repository
 collects nothing, and the only outbound network access is CI resolving
 `markdownlint-cli2` from the npm registry and Ruff from PyPI. The activity card
 the README now shows is served from this repository's own `stats` branch and is
-self-contained, so it observes no reader — which is the whole reason `P09`
-requires a self-hosted card rather than a third-party image service.
+self-contained, so nothing about it depends on a third party staying available —
+which is what `P09` asks for, and it observes no reader on any surface,
+proxied or not.
 
 **Localization `L04`-`L06`.** English only, no string catalogs, no localized
 builds, no translations to trace.

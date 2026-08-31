@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.5.1
-- Last reviewed: 2026-08-30
+- Version: 1.6.0
+- Last reviewed: 2026-08-31
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across
@@ -498,11 +498,27 @@ Rules:
   `Partial` at best.
 - Badges outside the required and optional sets need a stated reason. A wall of
   badges carries less information than four accurate ones.
-- Badge images are served from the repository or a first-party source where
-  practical, because a third-party image host observes every reader. See `Y02`.
+- A badge image may be committed to the repository only when a repository event
+  regenerates it. License, platform, and conformance qualify. CI status and the
+  latest release move without a commit, so a committed image of either is stale
+  between regenerations. Bounded staleness is acceptable for the activity card
+  in `P09`; it is not acceptable for a badge reporting current status.
+- Where the authority for a value publishes its own image, use that image.
+  GitHub serves a workflow status badge for a repository's own CI, so that badge
+  is first-party and live at once. A third-party render of the same value is not
+  a `Fail`, but it is the weaker option and reassessment should replace it.
+- Everywhere else a live third-party image is a `Pass`. Serving a value late is
+  worse than serving it from somebody else's host.
 
 A hardcoded `Swift 5.9` badge beside a manifest that has moved to 6.0 is the
 failure this section exists to prevent.
+
+Badge hosting is not a privacy question on GitHub. Markdown rendered on
+`github.com` loads every external image through GitHub's proxy, so the image host
+observes the proxy and not the reader. The `Y02` argument applies where that
+proxy does not: a published site fetches images directly into the visitor's
+browser, which is why `W07` forbids them there. What remains for a README is an
+availability and trust dependency on whoever renders the image.
 
 ## Repository Statistics
 
@@ -515,11 +531,13 @@ code.
 generated from an authoritative source and committed to the repository. It is
 not fetched from a third-party rendering service at read time.
 
-The reason is `Y02`. A README image served from an external host observes every
-visitor, including their address and referrer, and does so on a page the
-maintainer controls. A self-hosted card removes that observation, and it also
-removes an availability dependency: a card committed as an SVG cannot break
-because someone else's free tier expired.
+The reason is not privacy. GitHub proxies the image, as
+[Status Badges](#status-badges) explains. The reason is control: a card fetched
+at read time renders whatever a third party decides to render, whenever that
+party is available, and no diff ever showed it. A card committed as an SVG was
+reviewed when it landed and cannot break because someone else's free tier
+expired. On a published site the privacy argument does apply directly, and `W07`
+covers it there.
 
 Rules:
 

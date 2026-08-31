@@ -6,6 +6,30 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.6.0 - 2026-08-31
+
+- Corrected the reason given for self-hosting images. Both `P08` and `P09`
+  claimed that a README image lets its host observe every reader. Markdown
+  rendered on `github.com` loads external images through GitHub's proxy, so the
+  host sees the proxy, not the reader. The standard already knew this — the
+  statistics section relies on the same proxy when it rejects
+  `prefers-color-scheme` inside an SVG. `Y02` still carries the argument for a
+  published site, where the browser fetches directly and `W07` applies.
+- Replaced "served from the repository or a first-party source where practical"
+  in the badge section. *Where practical* is not assessable, so every repository
+  with a status badge landed on `Partial` with nothing to do about it. The rule
+  now turns on how the value changes: a badge image is committed only when a
+  repository event regenerates it, and a value that moves on its own is served
+  live. A committed image of a moving value is stale by construction, which is
+  the failure the section exists to prevent.
+- Named GitHub's workflow badge endpoint as the first-party source for CI
+  status, so the one required badge that has a first-party live image is no
+  longer served by a third party for want of a pointer. A third-party render
+  stays a `Pass` and is replaced at reassessment.
+- Recorded that a live third-party image is a `Pass` where no first-party source
+  exists, which is the case for the latest release. No recorded result can turn
+  into a `Fail` from any of this.
+
 ## 1.5.1 - 2026-08-30
 
 - Named the Published Site profile in the Language section. A site is the most
