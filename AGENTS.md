@@ -103,7 +103,11 @@ the suite goes red. A test that passes either way is not coverage.
   the new version as `v<version>` and push the tag. The release workflow verifies
   that the tag, `standard.yml`, and the changelog agree, then publishes with the
   changelog entry as the notes. A version that is never tagged cannot be cited by
-  pinned reference, which is the whole point of versioning this document.
+  pinned reference, which is the whole point of versioning this document. Until
+  the tag exists no repository can be assessed against that version, and this
+  repository's own record must not name it: `standard_version` must be a
+  published tag, and the local check cannot see when it is not. See
+  [decision 0011](docs/decisions/0011-criteria-are-decided-by-the-rule-text.md).
 - **Every criterion needs evidence a single maintainer can produce.** Do not add
   a criterion requiring a paid tool, an audit, a certification, or a specialist.
 - **Do not require tooling that does not exist** in the repositories being

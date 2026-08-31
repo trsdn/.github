@@ -16,4 +16,4 @@ future reader can see why it is the way it is before changing it.
 | [0008](0008-internal-links-are-checked-external-links-are-not.md) | Internal links and anchors are checked in CI; external links are deliberately not | Accepted |
 | [0009](0009-published-sites-and-content-boundaries.md) | Published sites carry the shared design language, and each fact has one home | Accepted |
 | [0010](0010-release-notes-come-from-the-changelog.md) | Release notes are generated from the changelog, and `R06` stays as it is | Accepted |
-| [0011](0011-criteria-are-decided-by-the-rule-text.md) | A criterion is decided by its rule text alone, never by the changelog | Accepted |
+| [0011](0011-criteria-are-decided-by-the-rule-text.md) | A criterion is decided by its rule text alone, and a rule this repository cannot violate visibly is untested here | Accepted |
