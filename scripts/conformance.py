@@ -9,9 +9,16 @@ A record older than the review cadence renders as stale rather than as its last
 known result. Because the badge is committed, time passing eventually turns the
 check red. That is intentional: a red check means reassessment is due.
 
+A record names the standard version it was assessed against, and a consuming
+repository resolves that version at its tag. Passing `--published-tags` asserts
+that the tag exists. It is omitted on pull requests, because a version bump is
+merged before it is tagged, and supplied on the default branch, where an
+untagged version means the tag is overdue.
+
 Usage:
     python3 scripts/conformance.py            # write the badge
     python3 scripts/conformance.py --check    # verify, exit non-zero on drift
+    python3 scripts/conformance.py --check --published-tags "$(git tag --list)"
 """
 
 from __future__ import annotations
@@ -81,7 +88,10 @@ def parse_record(text: str) -> tuple[dict, dict[str, str], list[str]]:
 
 
 def validate(
-    scalars: dict, criteria: dict[str, str], catalog: pathlib.Path
+    scalars: dict,
+    criteria: dict[str, str],
+    catalog: pathlib.Path,
+    published_tags: set[str] | None = None,
 ) -> tuple[list[str], bool]:
     errors: list[str] = []
 
@@ -116,6 +126,14 @@ def validate(
             f"record assesses standard `{scalars.get('standard_version')}` but the "
             f"catalog in this repository is `{catalog_version}`; reassess or pin "
             "the record to a published tag of that version"
+        )
+
+    version = scalars.get("standard_version", "")
+    if published_tags is not None and version and f"v{version}" not in published_tags:
+        errors.append(
+            f"record names standard `{version}`, but `v{version}` is not a published "
+            "tag; a repository assessed against it resolves the standard at that tag "
+            "and cannot check it out, so tag the commit carrying the version"
         )
 
     for identifier, result in sorted(criteria.items()):
@@ -180,7 +198,19 @@ def main() -> int:
         type=pathlib.Path,
         help="criteria catalog to validate against; defaults to the repository's own standard.yml",
     )
+    parser.add_argument(
+        "--published-tags",
+        help=(
+            "the tags that exist, separated by whitespace or commas; when given, the "
+            "recorded standard version must have one. Omit it and the check is skipped, "
+            "because a version bump is merged before its tag exists"
+        ),
+    )
     arguments = parser.parse_args()
+
+    published_tags = None
+    if arguments.published_tags is not None:
+        published_tags = {tag for tag in arguments.published_tags.replace(",", " ").split()}
 
     repository = arguments.repository.resolve()
     record_path = repository / DEFAULT_RECORD
@@ -202,7 +232,7 @@ def main() -> int:
 
     scalars, criteria, errors = parse_record(record_path.read_text())
     if not errors:
-        validation_errors, stale = validate(scalars, criteria, catalog_path)
+        validation_errors, stale = validate(scalars, criteria, catalog_path, published_tags)
         errors.extend(validation_errors)
     else:
         stale = False

@@ -28,6 +28,22 @@ jobs:
       - name: Verify record and badge
         run: python3 scripts/conformance.py --check
 
+  tagged:
+    name: Recorded version is tagged
+    # Only on the default branch. A version bump is merged before its tag
+    # exists, so requiring the tag on the pull request would block every bump.
+    # Between the merge and the tag this job is red, which is the point: the
+    # recorded version is one no repository can be assessed against yet.
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository with tags
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Verify the recorded standard version has a published tag
+        run: python3 scripts/conformance.py --check --published-tags "$(git tag --list)"
+
   tests:
     name: Script tests
     runs-on: ubuntu-latest

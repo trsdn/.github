@@ -62,6 +62,13 @@ record has aged past the review cadence. A red check from ageing is intentional
 and means reassessment is due. Regenerating the badge makes it render as stale
 but does not clear the check, because only a fresh assessment can.
 
+Adding `--published-tags` makes it also fail when the recorded
+`standard_version` has no tag. CI supplies it on the default branch only, since
+a version bump is merged before it is tagged; between the merge and the tag that
+job is red, and tagging clears it. It is deliberately absent from the local
+validation list for the same reason: on a branch that bumps the version, the tag
+cannot exist yet.
+
 `scripts/links.py` fails when a relative link points at a file that does not
 exist, or at a heading or `<a id>` anchor that does not. Anchors are the reason
 it exists: criteria are cited from other repositories as `#s05`, and renaming a
@@ -76,6 +83,17 @@ the suite goes red. A test that passes either way is not coverage.
 
 ## Rules specific to the standard
 
+- **A criterion is decided by its rule text alone.** Before merging a criterion
+  or a rule that feeds one, take it and a plausible repository and try to reach
+  `Pass`, `Partial`, `Fail`, or `Not applicable` using only the document at that
+  version. If that needs an intention the text does not state, the text is not
+  finished. Every case a rule names has a stated result, and so does everything
+  its enumeration excludes; attach the outcome to a property of the thing
+  assessed rather than to a residual set like "everywhere else"; say that a
+  permission is a permission, because `may` beside a list reads as `must`; and
+  never let the changelog carry the rule. See
+  [decision 0011](docs/decisions/0011-criteria-are-decided-by-the-rule-text.md),
+  which exists because `P08` failed this twice in consecutive versions.
 - **Criterion identifiers are append-only.** Never renumber, reuse, or repurpose
   an identifier. A retired criterion keeps its identifier and gains a retirement
   note. Identifiers are cited from other repositories and from issues; changing
@@ -92,7 +110,11 @@ the suite goes red. A test that passes either way is not coverage.
   the new version as `v<version>` and push the tag. The release workflow verifies
   that the tag, `standard.yml`, and the changelog agree, then publishes with the
   changelog entry as the notes. A version that is never tagged cannot be cited by
-  pinned reference, which is the whole point of versioning this document.
+  pinned reference, which is the whole point of versioning this document. Until
+  the tag exists no repository can be assessed against that version, and this
+  repository's own record must not name it: `standard_version` must be a
+  published tag, and the local check cannot see when it is not. See
+  [decision 0011](docs/decisions/0011-criteria-are-decided-by-the-rule-text.md).
 - **Every criterion needs evidence a single maintainer can produce.** Do not add
   a criterion requiring a paid tool, an audit, a certification, or a specialist.
 - **Do not require tooling that does not exist** in the repositories being
