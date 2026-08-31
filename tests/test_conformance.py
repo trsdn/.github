@@ -154,6 +154,38 @@ class ConformanceTests(ScriptTestCase):
         self.write_record(record(version="1.0.0"))
         self.assertRejects(self.check(), "reassess or pin the record")
 
+    # Published tags --------------------------------------------------------
+
+    def test_accepts_a_recorded_version_that_has_a_published_tag(self) -> None:
+        self.write_record(record())
+        self.generate_badge()
+        self.assertAccepts(
+            self.run_script("conformance.py", "--check", "--published-tags", "v1.9.0, v2.0.0")
+        )
+
+    def test_rejects_a_recorded_version_that_has_no_published_tag(self) -> None:
+        """The state this repository was in: merged, recorded, never tagged."""
+        self.write_record(record())
+        self.generate_badge()
+        self.assertRejects(
+            self.run_script("conformance.py", "--check", "--published-tags", "v1.9.0"),
+            "`v2.0.0` is not a published tag",
+        )
+
+    def test_rejects_a_recorded_version_when_no_tag_exists_at_all(self) -> None:
+        self.write_record(record())
+        self.generate_badge()
+        self.assertRejects(
+            self.run_script("conformance.py", "--check", "--published-tags", ""),
+            "`v2.0.0` is not a published tag",
+        )
+
+    def test_skips_the_tag_check_when_no_tags_are_supplied(self) -> None:
+        """A version bump is merged before it is tagged, so pull requests opt out."""
+        self.write_record(record())
+        self.generate_badge()
+        self.assertAccepts(self.check())
+
     # Ageing ----------------------------------------------------------------
 
     def test_rejects_a_record_older_than_the_review_cadence(self) -> None:

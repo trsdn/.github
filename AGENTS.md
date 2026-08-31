@@ -62,6 +62,13 @@ record has aged past the review cadence. A red check from ageing is intentional
 and means reassessment is due. Regenerating the badge makes it render as stale
 but does not clear the check, because only a fresh assessment can.
 
+Adding `--published-tags` makes it also fail when the recorded
+`standard_version` has no tag. CI supplies it on the default branch only, since
+a version bump is merged before it is tagged; between the merge and the tag that
+job is red, and tagging clears it. It is deliberately absent from the local
+validation list for the same reason: on a branch that bumps the version, the tag
+cannot exist yet.
+
 `scripts/links.py` fails when a relative link points at a file that does not
 exist, or at a heading or `<a id>` anchor that does not. Anchors are the reason
 it exists: criteria are cited from other repositories as `#s05`, and renaming a
