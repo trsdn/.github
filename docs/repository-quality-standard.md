@@ -334,7 +334,7 @@ guarded by a label, an approval, or a maintainer's attention.
 
 ## Package And Release Repositories
 
-`R03`, `R05`, `R07`, and `R08` require a runner. Where none is available,
+`R03`, `R05`, and `R07` require a runner. Where none is available,
 [Automation Availability](#automation-availability) states what is recorded
 instead.
 
@@ -389,11 +389,19 @@ absence it would replace, and it does not ask for a software bill of materials,
 which is ecosystem-specific tooling that few consumers of these repositories
 read.
 
-Where no such mechanism exists, a recorded statement of that fact is a `Pass`.
-The criterion asks a repository to have answered the question, not to have
-solved it in an ecosystem that offers no solution. A repository publishing a
-document, a site, or nothing installable is `Not applicable`; `R01` and `R05`
-are already `Not applicable` in that case for the same reason.
+Where no such mechanism is available to this repository, a recorded statement of
+that fact is a `Pass`. Availability is the property, and it fails in two ways: an
+ecosystem that issues no provenance at all, and a repository with no runner,
+which cannot reach the mechanism its ecosystem does offer, because every
+qualifying mechanism derives from a workflow identity. Both are recorded the same
+way. The criterion asks a repository to have answered the question, not to have
+solved it where it has no means to. A repository that could use a mechanism and
+has not is neither case and is a `Fail`, since a statement is a `Pass` only where
+it records a fact that holds. Neither case is excused by
+[Automation Availability](#automation-availability), which does not narrow this
+criterion. A repository publishing a document, a site, or nothing installable is
+`Not applicable`; `R01` and `R05` are already `Not applicable` in that case for
+the same reason.
 
 ## Product Identity
 
@@ -705,7 +713,7 @@ ones:
 | Which criteria | Result when no runner is available |
 |---|---|
 | Those satisfied by a check the repository owns, which a runner only makes convenient. At this version `S02`, `S03`, and `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not |
-| Those whose evidence can only be produced by a workflow run. At this version `S04`, `S09`, `R03`, `R05`, `R07`, `R08`, and `P09` | `Not applicable` |
+| Those whose evidence can only be produced by a workflow run. At this version `S04`, `S09`, `R03`, `R05`, `R07`, and `P09` | `Not applicable` |
 
 **Membership is decided by the property, not by the list.** Each list names the
 criteria that match at the version on the cover, and is there so an assessor can
@@ -718,19 +726,19 @@ catalog check are things the repository owns; a runner only makes them
 convenient, and `B05` already requires the command that runs them, so the
 evidence exists without CI and `Pass` is the honest result. A matrix, a required
 check, a release built by a tag, a smoke test in a clean environment, a
-release-notes gate, registry provenance, and a generated activity card are not
-properties of the repository at all — they are things a runner does. Where there
+release-notes gate, and a generated activity card are not properties of the
+repository at all — they are things a runner does. Where there
 is no runner, there is nothing to assess, which is what `Not applicable` means
 everywhere else in this document.
 
-Two of them need their membership shown rather than asserted. `R08` offers a
-`Pass` for a recorded statement, but that statement's condition is that no
-provenance mechanism *exists* in the ecosystem, and a repository that cannot
-reach a mechanism which plainly exists does not meet it; every other qualifying
-mechanism derives from the workflow identity, so a run is the only remaining
-path. `P09` requires a card a workflow reproduces and regenerates on a schedule,
-and states outright that a committed SVG no workflow reproduces is a `Fail`, so a
-repository with no runner has no reachable result but that one.
+`P09` needs its membership shown rather than asserted. It requires a card a
+workflow reproduces and regenerates on a schedule, and states outright that a
+committed SVG no workflow reproduces is a `Fail`, so a repository with no runner
+has no reachable result but that one. The `Not applicable` covers the repository
+that publishes no card. It does not licence one: a repository that commits a card
+and presents it as generated remains a `Fail`, because that is a false claim
+rather than an absence, and this section excuses what a repository cannot
+produce, never what it misrepresents.
 
 The first row turns on one property, whether the check exists, so every
 repository lands on exactly one of its three results. A check that does not
@@ -754,10 +762,12 @@ that chooses not to use it is not in this state, and its ordinary results stand,
 including `Fail`. So does every criterion matching neither row above, including
 one whose evidence a workflow run *may* produce but need not: `I06` accepts a
 build script, `R04` asks whether a tag, a version, and a title agree rather than
-what compared them, `W01` asks for a repeatable documented process rather than a
+what compared them, `R08` accepts a recorded statement wherever no provenance
+mechanism is available to the repository, which a repository with no runner can
+write without one, `W01` asks for a repeatable documented process rather than a
 workflow, and `S11`, `S12`, and `S13` are properties of a workflow file that
 hold whether or not it ever runs. This section narrows the criteria its two rows
-describe — ten at this version — and one badge position, and nothing else.
+describe — nine at this version — and one badge position, and nothing else.
 
 ## Status Badges
 

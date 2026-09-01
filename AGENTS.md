@@ -106,17 +106,35 @@ the suite goes red. A test that passes either way is not coverage.
   evidence names a workflow run is placed against
   [Automation Availability](docs/repository-quality-standard.md#automation-availability)
   in the same change: on the row whose property it matches, or deliberately on
-  neither, with the reason stated. That section has been corrected twice for the
-  same omission, once because `R08` was added one version before the section
-  existed and nobody went back for it. Membership is decided by the property, so
-  the check is whether the evidence can only come from a run — not whether the
-  criterion appears in the illustrative list.
+  neither, with the reason stated. Membership is decided by the property, so the
+  check is whether the evidence can *only* come from a run — not whether the
+  criterion appears in the illustrative list, and not whether it mentions a
+  workflow. `R08` is the cautionary case in both directions: it was missed for a
+  version because it was added before the section existed, then put on the
+  `Not applicable` row although a recorded statement evidences it without a run.
+  A criterion with an escape hatch is assessed by asking whether the hatch is
+  reachable without a runner.
 - **Regenerate, do not edit.** After changing the standard, run
   `python3 scripts/standard.py` and commit the regenerated `standard.yml`.
 - **Version and changelog move together.** The bump follows
   [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility),
   which is the only place the rules are stated. The check enforces that the
   document version matches the newest changelog entry.
+- **A version bump reassesses this repository too.** The version is named by this
+  repository's own record, so bumping it without reassessing leaves the record
+  citing a version it was not assessed against, and `scripts/conformance.py
+  --check` and the test suite both go red. In the same change, update
+  `standard_version` and `assessed_on` in `.github/conformance.yml` and the
+  header of `docs/self-assessment.md`, add a per-criterion note there for any
+  criterion added, regenerate the badge with `python3 scripts/conformance.py`,
+  and regenerate `templates/conformance.yml`, which embeds the version and is
+  covered by a test. Where a result genuinely changes, the record follows the
+  evidence and not the other way round.
+- **Date `assessed_on` in UTC.** The check rejects a date in the future and
+  evaluates it in UTC, so a local clock ahead of UTC passes every local check and
+  then fails in CI with `assessed_on is in the future`. Use
+  `date -u +%F`, or `[datetime]::UtcNow.ToString('yyyy-MM-dd')` in PowerShell,
+  rather than the date on the machine.
 - **Publish the release when the version changes.** The commit that carries the
   new version is tagged `v<version>` on the default branch, after the pull
   request that bumped it has merged. The release workflow verifies that the tag,

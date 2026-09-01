@@ -10,7 +10,7 @@ Versions follow the compatibility policy in the
 
 - Restated both rows of the
   [Automation Availability](docs/repository-quality-standard.md#automation-availability)
-  results table as properties, and added `R08` and `P09` to the
+  results table as properties, and added `P09` to the
   `Not applicable` row. Membership was decided by a list of five names rather
   than by the property the row is about, which is the failure
   [decision 0011](docs/decisions/0011-criteria-are-decided-by-the-rule-text.md)
@@ -19,22 +19,37 @@ Versions follow the compatibility policy in the
   already incomplete against 1.8.0's own `R08`. Each row now states its property
   and names the criteria matching it at this version, so the list illustrates
   the rule instead of being it.
-- `R08` requires a runner. Every qualifying provenance mechanism it names
-  derives from the workflow identity, and its recorded-statement `Pass` turns on
-  no mechanism *existing* rather than on the repository being unable to reach
-  one, so a repository with no runner had only `Fail` available. Its siblings
-  `R03`, `R05`, and `R07` were already `Not applicable` for the identical cause,
-  with nothing stating a reason for the difference.
+- Corrected `R08`'s escape hatch, which turned on the wrong property. It read
+  "where no such mechanism *exists*", so a repository with a runner-derived
+  mechanism it could not reach had only `Fail` available, while its siblings
+  `R03`, `R05`, and `R07` were `Not applicable` for the identical cause. It now
+  turns on whether a mechanism is *available to this repository*, with the two
+  ways availability fails named: an ecosystem issuing no provenance at all, and a
+  repository with no runner. A repository that could use a mechanism and has not
+  is still a `Fail`. `R08` is therefore assessed normally and is not narrowed by
+  Automation Availability: its evidence can be a recorded statement, which needs
+  no run. Putting it on the `Not applicable` row instead would have repeated the
+  defect this release fixes one level down, because membership would then have
+  turned on a property of the ecosystem rather than of the criterion, and it
+  would have left two stated results for one repository — `Pass` from `R08`'s own
+  text and `Not applicable` from the table. It also keeps signal that
+  `Not applicable` discards: a repository with no runner must still state that
+  its artifacts carry no provenance and why, which is the entire point of a
+  criterion whose requirement ends "or the repository states why they cannot".
 - `P09` requires a card a workflow reproduces and regenerates on a schedule, and
   says outright that a committed SVG no workflow reproduces is a `Fail`. It is
-  Public-profile, so this is narrower than `R08`, but the section already gives
-  the case: a public repository whose account has disabled Actions has no runner
-  available.
+  Public-profile, so its membership is narrow, but the section already gives the
+  case: a public repository whose account has disabled Actions has no runner
+  available. Stated the override in both directions, so the `Not applicable`
+  covers a repository publishing no card and does not licence one: committing a
+  card and presenting it as generated remains a `Fail`, being a false claim
+  rather than an absence.
 - Swept every criterion whose evidence names a workflow and recorded the result
   here so it is not re-derived. Kept outside the section, each with the reason
   now stated in its closing paragraph: `I06`, which accepts a build script;
   `R04`, which asks whether a tag, a version, and a title agree rather than what
-  compared them; `W01`, which asks for a repeatable documented process rather
+  compared them; `R08`, whose corrected escape hatch a repository with no runner
+  can reach; `W01`, which asks for a repeatable documented process rather
   than a workflow; and `S11`, `S12`, and `S13`, which are properties of a
   workflow file that hold whether or not it ever runs. Also checked and left
   outside: `B05` and `G02`, whose successful run is of a documented command
@@ -42,17 +57,22 @@ Versions follow the compatibility policy in the
   `S05`, whose secret scanning is a platform feature rather than an Actions one.
   `S02`, `S03`, and `L04` stay on the first row, unchanged.
 - Fixed the closing paragraph, which claimed the section narrowed "eight
-  criteria and one badge position". It narrows ten at this version, and the
+  criteria and one badge position". It narrows nine at this version, and the
   count is now stated as a property of the version rather than as a fact about
   the document.
-- Required in [`AGENTS.md`](AGENTS.md) that a new criterion naming a workflow
-  run be classified against this section in the same change. This is the second
-  correction to this section in one day, and both were the same shape.
-- This is a minor bump: a recorded `Fail` on `R08` or `P09` may become
-  `Not applicable`, which
-  [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility)
-  names as minor. No recorded `Pass` is invalidated, and no criterion is added,
-  renumbered, or retired.
+- Required in [`AGENTS.md`](AGENTS.md) that a new or changed criterion naming a
+  workflow run be classified against this section in the same change, and that a
+  criterion with an escape hatch be assessed by asking whether the hatch is
+  reachable without a runner. Also recorded there that a version bump reassesses
+  this repository's own record in the same change, and that `assessed_on` is
+  dated in UTC, since the check evaluates it in UTC and a local clock ahead of
+  UTC passes every local check before failing in CI.
+- This is a minor bump: a recorded `Fail` on `P09` may become `Not applicable`,
+  and a recorded `Fail` on `R08` may become `Pass` where no provenance mechanism
+  is available to the repository. Both directions are named as minor by
+  [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility).
+  No recorded `Pass` is invalidated, and no criterion is added, renumbered, or
+  retired.
 
 ## 1.10.0 - 2026-09-01
 
