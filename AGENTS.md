@@ -106,19 +106,42 @@ the suite goes red. A test that passes either way is not coverage.
   [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility),
   which is the only place the rules are stated. The check enforces that the
   document version matches the newest changelog entry.
-- **Publish the release when the version changes.** Tag the commit that carries
-  the new version as `v<version>` and push the tag. The release workflow verifies
-  that the tag, `standard.yml`, and the changelog agree, then publishes with the
-  changelog entry as the notes. A version that is never tagged cannot be cited by
-  pinned reference, which is the whole point of versioning this document. Until
-  the tag exists no repository can be assessed against that version, and this
+- **Publish the release when the version changes.** The commit that carries the
+  new version is tagged `v<version>` on the default branch, after the pull
+  request that bumped it has merged. The release workflow verifies that the tag,
+  `standard.yml`, and the changelog agree, then publishes with the changelog
+  entry as the notes. A version that is never tagged cannot be cited by pinned
+  reference, which is the whole point of versioning this document. Until the tag
+  exists no repository can be assessed against that version, and this
   repository's own record must not name it: `standard_version` must be a
   published tag, and the local check cannot see when it is not. See
   [decision 0011](docs/decisions/0011-criteria-are-decided-by-the-rule-text.md).
+- **Tagging is a maintainer action, and an agent does not take it unasked.** See
+  [Releasing and publishing](#releasing-and-publishing) for who tags, when, and
+  what an agent may do when it is asked to.
 - **Every criterion needs evidence a single maintainer can produce.** Do not add
   a criterion requiring a paid tool, an audit, a certification, or a specialist.
 - **Do not require tooling that does not exist** in the repositories being
   assessed.
+
+## Releasing and publishing
+
+By default an agent does not release. The tag belongs on a merge commit that
+does not exist while the bump is still in review, so an agent cannot create it
+from the branch that bumps the version. An agent that bumps the version says in
+the pull request that the tag is outstanding, and stops there.
+
+If a maintainer explicitly instructs an agent, in the current request, to create
+and push the release tag once the bump has merged, the agent may do so. Verify
+first that the version in `standard.yml` and the matching `CHANGELOG.md` entry
+already agree with the requested tag, since
+[`.github/workflows/release.yml`](.github/workflows/release.yml) rejects the tag
+otherwise.
+
+Do not invoke `gh release create` yourself even under such an instruction.
+Pushing the tag is sufficient: the workflow verifies the tag against
+`standard.yml`, refuses a changelog that still holds entries in an unreleased
+section, extracts the notes for that version, and publishes.
 
 ## Rules specific to the inherited community files
 
@@ -138,6 +161,9 @@ ecosystem, or build tool.
   cannot drift; hand-maintained restatement is not.
 - Do not change repository settings, branch protection, or security settings.
   Those are maintainer actions.
+- Do not create or move a tag, publish a release, or push to the default branch
+  unless a maintainer explicitly instructs you to in the current request, and
+  then only as described in [Releasing and publishing](#releasing-and-publishing).
 - Do not hand-edit `standard.yml` or anything under `.github/badges/`.
 - Do not change a conformance record to make a badge look better. The record
   follows the evidence; the badge follows the record.
