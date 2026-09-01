@@ -6,6 +6,28 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.9.1 - 2026-09-01
+
+- Closed a hole in the first
+  [Automation Availability](docs/repository-quality-standard.md#automation-availability)
+  result row, which 1.9.0 introduced. Its three conditions turned on three
+  different properties — whether a successful run could be produced, whether a
+  documented command ran the check, and whether the check existed — so they
+  sampled rather than partitioned. A repository with a check, a documented
+  `B05` command that runs it, and a run that fails matched no condition and had
+  no stated result, which is the defect
+  [decision 0011](docs/decisions/0011-criteria-are-decided-by-the-rule-text.md)
+  exists to prevent. The row now turns on one property, whether the check
+  exists: `Fail` where it does not, and otherwise `Pass` where the documented
+  `B05` command runs it and the linked evidence records a successful run of
+  that command, `Partial` where it does not. The three results are exhaustive
+  and mutually exclusive. The `Not applicable` row states one result for a
+  named enumeration and has no equivalent hole.
+- This is a patch bump: it states an outcome the 1.9.0 text left unstated and
+  changes no outcome that text decided. `Pass` and `Fail` keep the cases they
+  already had, and the only cases moving into `Partial` are ones that
+  previously had no result at all. Precedent is 1.6.1.
+
 ## 1.9.0 - 2026-09-01
 
 - Added
