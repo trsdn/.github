@@ -39,6 +39,14 @@ def facts(**overrides) -> dict:
         "contents": {},
         "community_files": {},
         "secret_scanning": "",
+        "inherited_security_policy": False,
+        "private_reporting": "",
+        "ruleset": {
+            "readable": False,
+            "checks": [],
+            "blocks_force_push": False,
+            "blocks_deletion": False,
+        },
         "protection": {
             "visible": False,
             "required_checks": [],
@@ -48,6 +56,21 @@ def facts(**overrides) -> dict:
     }
     base.update(overrides)
     return base
+
+
+def ruleset(
+    *,
+    readable: bool = True,
+    checks: list[str] | None = None,
+    blocks_force_push: bool = False,
+    blocks_deletion: bool = False,
+) -> dict:
+    return {
+        "readable": readable,
+        "checks": checks or [],
+        "blocks_force_push": blocks_force_push,
+        "blocks_deletion": blocks_deletion,
+    }
 
 
 def workflow(body: str, name: str = "ci.yml") -> dict:
@@ -219,7 +242,45 @@ class AssessTests(unittest.TestCase):
         )
         self.assertEqual(drafted["P03"], "fail")
 
-    # -- B16 is decided by two settings, and only when they are visible -----
+    def test_an_inherited_security_policy_is_not_reported_missing(self) -> None:
+        """A public repository inherits the account policy and satisfies `P03` through it."""
+        drafted, _ = self.assess(
+            facts(paths=["README.md"], inherited_security_policy=True, private_reporting="enabled")
+        )
+        self.assertEqual(drafted["P03"], "pass")
+
+    def test_a_policy_without_private_reporting_fails(self) -> None:
+        """`P03` asks for both. A published policy with public-only reporting is not enough."""
+        drafted, _ = self.assess(facts(paths=["SECURITY.md"], private_reporting="disabled"))
+        self.assertEqual(drafted["P03"], "fail")
+
+    def test_required_checks_in_a_ruleset_are_read(self) -> None:
+        """Rulesets have replaced branch protection, and reading only the latter reports
+        a protected branch as unprotected."""
+        drafted, notes = self.assess(facts(ruleset=ruleset(checks=["build", "test"])))
+        self.assertEqual(drafted["S09"], "pass")
+        self.assertIn("build, test", notes)
+
+    def test_a_branch_with_no_required_check_anywhere_fails(self) -> None:
+        drafted, _ = self.assess(
+            facts(
+                protection={"visible": True, "required_checks": []},
+                ruleset=ruleset(),
+            )
+        )
+        self.assertEqual(drafted["S09"], "fail")
+
+    def test_unreadable_rulesets_leave_the_branch_undecided(self) -> None:
+        """A token that cannot see the rulesets must not produce a confident failure."""
+        drafted, _ = self.assess(
+            facts(
+                protection={"visible": True, "required_checks": []},
+                ruleset=ruleset(readable=False),
+            )
+        )
+        self.assertEqual(drafted["S09"], "unknown")
+
+    # -- B16 is decided by two settings, through either mechanism ------------
 
     def test_a_branch_that_blocks_both_settings_passes_b16(self) -> None:
         drafted, _ = self.assess(
@@ -261,9 +322,48 @@ class AssessTests(unittest.TestCase):
         self.assertEqual(drafted["B16"], "fail")
 
     def test_invisible_protection_leaves_b16_to_a_person(self) -> None:
-        """A 404 cannot tell a ruleset, an unprotected branch, and no plan apart."""
+        """A 404 cannot tell an unprotected branch and an unreadable one apart."""
         drafted, _ = self.assess(facts())
         self.assertEqual(drafted["B16"], "unknown")
+
+    def test_a_ruleset_keeps_the_branch_where_protection_permits_it(self) -> None:
+        """Either mechanism can keep the branch, so reading one alone reports a branch
+        kept by the other as unkept."""
+        drafted, _ = self.assess(
+            facts(
+                protection={
+                    "visible": True,
+                    "required_checks": ["Tests"],
+                    "force_pushes": True,
+                    "deletions": True,
+                },
+                ruleset=ruleset(blocks_force_push=True, blocks_deletion=True),
+            )
+        )
+        self.assertEqual(drafted["B16"], "pass")
+
+    def test_a_ruleset_blocking_one_setting_leaves_the_other_permitted(self) -> None:
+        drafted, _ = self.assess(
+            facts(
+                protection={
+                    "visible": True,
+                    "required_checks": ["Tests"],
+                    "force_pushes": True,
+                    "deletions": True,
+                },
+                ruleset=ruleset(blocks_force_push=True),
+            )
+        )
+        self.assertEqual(drafted["B16"], "partial")
+
+    def test_a_ruleset_alone_decides_b16_without_branch_protection(self) -> None:
+        """A repository that keeps its branch through a ruleset has no classic
+        protection to read, and the 404 must not hide the answer."""
+        drafted, notes = self.assess(
+            facts(ruleset=ruleset(blocks_force_push=True, blocks_deletion=True))
+        )
+        self.assertEqual(drafted["B16"], "pass")
+        self.assertIn("a ruleset blocks force pushes and deletion", notes)
 
 
 if __name__ == "__main__":
