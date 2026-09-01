@@ -39,6 +39,9 @@ def facts(**overrides) -> dict:
         "contents": {},
         "community_files": {},
         "secret_scanning": "",
+        "inherited_security_policy": False,
+        "private_reporting": "",
+        "ruleset_checks": {"readable": False, "checks": []},
         "protection": {"visible": False, "required_checks": []},
     }
     base.update(overrides)
@@ -213,6 +216,46 @@ class AssessTests(unittest.TestCase):
             facts(paths=["README.md"], community_files={"readme": True, "license": True})
         )
         self.assertEqual(drafted["P03"], "fail")
+
+    def test_an_inherited_security_policy_is_not_reported_missing(self) -> None:
+        """A public repository inherits the account policy and satisfies `P03` through it."""
+        drafted, _ = self.assess(
+            facts(paths=["README.md"], inherited_security_policy=True, private_reporting="enabled")
+        )
+        self.assertEqual(drafted["P03"], "pass")
+
+    def test_a_policy_without_private_reporting_fails(self) -> None:
+        """`P03` asks for both. A published policy with public-only reporting is not enough."""
+        drafted, _ = self.assess(facts(paths=["SECURITY.md"], private_reporting="disabled"))
+        self.assertEqual(drafted["P03"], "fail")
+
+    def test_required_checks_in_a_ruleset_are_read(self) -> None:
+        """Rulesets have replaced branch protection, and reading only the latter reports
+        a protected branch as unprotected."""
+        drafted, notes = self.assess(
+            facts(ruleset_checks={"readable": True, "checks": ["build", "test"]})
+        )
+        self.assertEqual(drafted["S09"], "pass")
+        self.assertIn("build, test", notes)
+
+    def test_a_branch_with_no_required_check_anywhere_fails(self) -> None:
+        drafted, _ = self.assess(
+            facts(
+                protection={"visible": True, "required_checks": []},
+                ruleset_checks={"readable": True, "checks": []},
+            )
+        )
+        self.assertEqual(drafted["S09"], "fail")
+
+    def test_unreadable_rulesets_leave_the_branch_undecided(self) -> None:
+        """A token that cannot see the rulesets must not produce a confident failure."""
+        drafted, _ = self.assess(
+            facts(
+                protection={"visible": True, "required_checks": []},
+                ruleset_checks={"readable": False, "checks": []},
+            )
+        )
+        self.assertEqual(drafted["S09"], "unknown")
 
 
 if __name__ == "__main__":
