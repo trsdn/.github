@@ -146,6 +146,58 @@ class GitHub:
         return body.decode("utf-8", errors="replace")
 
 
+def rules_from_rulesets(client: GitHub, repository: str) -> dict:
+    """Read the rules a branch ruleset imposes, which have replaced branch protection.
+
+    A repository can require checks, and can keep its history, through either
+    mechanism, and increasingly does so through rulesets alone. Reading only
+    branch protection reports a protected branch as unprotected, which is the
+    worst kind of wrong answer: a confident one. `readable` separates "no ruleset
+    imposes this" from "the rulesets could not be read", so that the second stays
+    undecided.
+    """
+    unreadable = {
+        "readable": False,
+        "checks": [],
+        "blocks_force_push": False,
+        "blocks_deletion": False,
+    }
+    status, rulesets = client.json(f"/repos/{repository}/rulesets?includes_parents=true")
+    if status != 200 or not isinstance(rulesets, list):
+        return unreadable
+
+    checks: set[str] = set()
+    blocks_force_push = False
+    blocks_deletion = False
+    for summary in rulesets:
+        if not isinstance(summary, dict) or summary.get("target") != "branch":
+            continue
+        if summary.get("enforcement") != "active":
+            continue
+        detail_status, detail = client.json(f"/repos/{repository}/rulesets/{summary.get('id')}")
+        if detail_status != 200 or not isinstance(detail, dict):
+            continue
+        for rule in detail.get("rules") or []:
+            if not isinstance(rule, dict):
+                continue
+            if rule.get("type") == "non_fast_forward":
+                blocks_force_push = True
+            elif rule.get("type") == "deletion":
+                blocks_deletion = True
+            elif rule.get("type") == "required_status_checks":
+                parameters = rule.get("parameters") or {}
+                for entry in parameters.get("required_status_checks") or []:
+                    context = (entry or {}).get("context")
+                    if context:
+                        checks.add(context)
+    return {
+        "readable": True,
+        "checks": sorted(checks),
+        "blocks_force_push": blocks_force_push,
+        "blocks_deletion": blocks_deletion,
+    }
+
+
 def collect(client: GitHub, repository: str) -> dict:
     """Read every fact the decisions below depend on, and nothing else."""
     status, meta = client.json(f"/repos/{repository}")
@@ -170,6 +222,20 @@ def collect(client: GitHub, repository: str) -> dict:
                 contents[path] = body
 
     protection_status, protection = client.json(f"/repos/{repository}/branches/{branch}/protection")
+    ruleset = rules_from_rulesets(client, repository)
+    reporting_status, reporting = client.json(
+        f"/repos/{repository}/private-vulnerability-reporting"
+    )
+
+    owner = repository.split("/")[0]
+    inherited_policy = False
+    if not bool(meta.get("private")):
+        for path in ("SECURITY.md", ".github/SECURITY.md", "docs/SECURITY.md"):
+            found, _ = client.json(f"/repos/{owner}/.github/contents/{path}")
+            if found == 200:
+                inherited_policy = True
+                break
+
     licence = meta.get("license") or {}
     analysis = meta.get("security_and_analysis") or {}
     files = (profile or {}).get("files") or {} if isinstance(profile, dict) else {}
@@ -190,6 +256,13 @@ def collect(client: GitHub, repository: str) -> dict:
         "contents": contents,
         "community_files": {key: bool(value) for key, value in files.items()},
         "secret_scanning": (analysis.get("secret_scanning") or {}).get("status", ""),
+        "inherited_security_policy": inherited_policy,
+        "private_reporting": (
+            ""
+            if reporting_status != 200 or not isinstance(reporting, dict)
+            else ("enabled" if reporting.get("enabled") else "disabled")
+        ),
+        "ruleset": ruleset,
         "protection": {
             "visible": protection_status == 200,
             "required_checks": sorted(
@@ -287,11 +360,18 @@ def decide_s13(facts: dict) -> tuple[str, str]:
     )
 
 
-def decide_b16(facts: dict) -> tuple[str, str]:
-    """Decide `B16` from the two settings that keep the default branch."""
+def decide_b16(facts: dict, ruleset: dict) -> tuple[str, str]:
+    """Decide `B16` from the two settings that keep the default branch.
+
+    Either mechanism can keep the branch, so a ruleset blocking force pushes
+    settles that half whatever branch protection says, and the same for deletion.
+    Reading one mechanism alone would report a branch kept by the other as
+    unkept, which is the confident wrong answer `rules_from_rulesets` exists to
+    avoid.
+    """
     protection = facts["protection"]
-    force = bool(protection.get("force_pushes", False))
-    deletion = bool(protection.get("deletions", False))
+    force = bool(protection.get("force_pushes", False)) and not ruleset["blocks_force_push"]
+    deletion = bool(protection.get("deletions", False)) and not ruleset["blocks_deletion"]
     if not force and not deletion:
         return "pass", "the default branch blocks force pushes and deletion"
     if force and deletion:
@@ -357,14 +437,25 @@ def decide(facts: dict, catalog_ids: list[str]) -> dict[str, tuple[str, str]]:
     elif facts["secret_scanning"] == "disabled":
         decided["S05"] = ("fail", "secret scanning is disabled")
 
-    if facts["protection"]["visible"]:
-        checks = facts["protection"]["required_checks"]
+    ruleset = facts.get("ruleset") or {
+        "readable": False,
+        "checks": [],
+        "blocks_force_push": False,
+        "blocks_deletion": False,
+    }
+    checks = sorted(set(facts["protection"]["required_checks"]) | set(ruleset["checks"]))
+    if checks:
+        decided["S09"] = ("pass", "required checks on the default branch: " + ", ".join(checks))
+    elif facts["protection"]["visible"] and ruleset["readable"]:
         decided["S09"] = (
-            ("pass", "required checks on the default branch: " + ", ".join(checks))
-            if checks
-            else ("fail", "the default branch is protected but requires no check")
+            "fail",
+            "the default branch is protected and no ruleset or protection requires a check",
         )
-        decided["B16"] = decide_b16(facts)
+
+    if facts["protection"]["visible"]:
+        decided["B16"] = decide_b16(facts, ruleset)
+    elif ruleset["blocks_force_push"] and ruleset["blocks_deletion"]:
+        decided["B16"] = ("pass", "a ruleset blocks force pushes and deletion")
 
     forms = [path for path in paths if ISSUE_FORM.match(path)]
     template = [path for path in paths if PR_TEMPLATE.match(path)]
@@ -392,13 +483,27 @@ def decide(facts: dict, catalog_ids: list[str]) -> dict[str, tuple[str, str]]:
             if not missing
             else ("partial", "GitHub recognises no " + ", ".join(missing))
         )
-        if not community.get("security") and not any(
-            path.upper().endswith("SECURITY.MD") for path in paths
-        ):
-            decided["P03"] = (
-                "fail",
-                "no security policy in the tree and none recognised by GitHub",
-            )
+
+    policy_in_tree = any(path.upper().endswith("SECURITY.MD") for path in paths)
+    policy = policy_in_tree or bool(facts.get("inherited_security_policy"))
+    reporting = facts.get("private_reporting", "")
+    if not policy:
+        decided["P03"] = (
+            "fail",
+            "no security policy in the repository and none inherited from the account",
+        )
+    elif reporting == "disabled":
+        where = "the repository" if policy_in_tree else "the account"
+        decided["P03"] = (
+            "fail",
+            f"a policy is published by {where} but private vulnerability reporting is disabled",
+        )
+    elif reporting == "enabled":
+        where = "the repository" if policy_in_tree else "inherited from the account"
+        decided["P03"] = (
+            "pass",
+            f"private reporting is enabled and a policy is published ({where})",
+        )
 
     if facts["archived"]:
         decided["B09"] = ("pass", "the repository is archived, which is an intentional state")

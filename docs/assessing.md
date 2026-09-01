@@ -27,12 +27,12 @@ assessment.
 | `B09` | The archived flag, and only when the repository is archived |
 | `B11` | Whether `.github/conformance.yml` exists |
 | `B12` | Whether the `trsdn-standard` topic is present |
-| `B16` | Whether classic branch protection blocks force pushes and deletion |
+| `B16` | Whether a ruleset or classic branch protection blocks force pushes and deletion |
 | `P02`, `P06` | The community profile GitHub reports, which counts inherited files |
-| `P03` | A security policy in the tree or recognised by GitHub, absence only |
+| `P03` | A security policy in the tree or inherited from the account, and whether private reporting is enabled |
 | `P04`, `P10`, `P11` | Whether any intake template exists, absence only |
 | `S05` | The secret scanning status, where the token can see it |
-| `S09` | Required status checks on the default branch, where the token can see it |
+| `S09` | Required status checks on the default branch, from rulesets and from branch protection |
 | `S11` | A `permissions` block in every workflow |
 | `S12` | Every `uses:` reference, against the graduated table in the standard |
 | `S13` | Untrusted triggers and the secrets they can reach |
@@ -43,16 +43,29 @@ Everything else is left to a person, and the notes file lists it.
 Two of these deserve their limits stated. `P10` and `P11` ask whether intake
 collects enough to act on, which the standard assesses on the information
 gathered rather than on headings; the script can only see that no template
-exists at all, so that is the only result it records. And `P03` is recorded as a
-failure only when no policy is found anywhere — the community profile API emits
-no `security` key, so its absence proves nothing.
+exists at all, so that is the only result it records.
 
-`B16` has a limit of its own. The script reads classic branch protection, so it
-decides the criterion only where that endpoint answers. A branch protected by a
-ruleset instead, a branch nothing covers, and a repository whose plan offers no
-mechanism all return the same `404`, and the standard gives those three cases
-`Pass`, `Fail`, and `Not applicable` respectively. The script cannot tell them
-apart, so it leaves `B16` unknown and a person settles it.
+`P03` and `S09` are the two places where a fact is easy to read and easy to read
+wrongly, and both were wrong first. A public repository with no `SECURITY.md`
+inherits the account policy, so reading only its own tree reports a repository
+with a working private reporting channel as having none; and required checks now
+come from rulesets at least as often as from branch protection, so reading only
+branch protection reports a protected branch as unprotected. Each of those is
+worse than no answer, because a draft that is silent invites a look and a draft
+that is confidently wrong does not. Where the evidence cannot be read at all —
+an unreadable ruleset, a reporting setting the token cannot see — the criterion
+stays `unknown` rather than becoming a failure.
+
+`B16` reads both mechanisms for the same reason `S09` does. Either can keep the
+branch, so a ruleset blocking force pushes settles that half whatever branch
+protection permits, and a ruleset blocking both decides the criterion on its own
+where there is no classic protection to read.
+
+A limit remains where neither answers. A branch nothing covers, a branch whose
+protection the token cannot see, and a repository whose plan offers no mechanism
+all return the same `404`, and the standard gives those cases `Fail`, no answer,
+and `Not applicable` respectively. The script cannot tell them apart, so it
+leaves `B16` unknown there and a person settles it.
 
 Where the repository is private, the Public profile does not apply, and the
 script records `na` against every `P` criterion with that reason.
