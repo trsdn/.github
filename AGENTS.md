@@ -118,6 +118,16 @@ the suite goes red. A test that passes either way is not coverage.
   [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility),
   which is the only place the rules are stated. The check enforces that the
   document version matches the newest changelog entry.
+- **Reassess in the same change as the bump.** A new version leaves this
+  repository's own record naming the old one, which `scripts/conformance.py
+  --check` rejects and `tests/` fails on. Update `standard_version` and
+  `assessed_on` in `.github/conformance.yml` and the header of
+  `docs/self-assessment.md`, revisit any criterion the change touched, then
+  regenerate the badge with `python3 scripts/conformance.py` and the published
+  template with `python3 scripts/conformance.py --init --output
+  templates/conformance.yml`. Date `assessed_on` in UTC: the check rejects a
+  date in the future, and an evening clock ahead of UTC passes locally and then
+  fails in CI.
 - **Publish the release when the version changes.** The commit that carries the
   new version is tagged `v<version>` on the default branch, after the pull
   request that bumped it has merged. The release workflow verifies that the tag,
