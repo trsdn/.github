@@ -38,6 +38,7 @@ statistics cards.
 | `templates/AGENTS.md` | Starting point published for other repositories. |
 | `templates/conformance.yml` | Generated starting point for a conformance record. Never hand-edit. |
 | `scripts/standard.py`, `scripts/conformance.py`, `scripts/links.py` | Validation and generation tooling for the standard, Python standard library only. |
+| `scripts/assess.py` | Drafts a conformance record for another repository from what the GitHub API exposes. Standard library only; see [assessing](docs/assessing.md). |
 | `scripts/profile_stats/` | Self-hosted GitHub statistics generator; runtime dependency is `requests`. |
 | `tests/` | Tests for the tooling in `scripts/`, run via `unittest`. |
 | `.github/conformance.yml` | This repository's conformance record. |

@@ -38,7 +38,17 @@ its meaning. See
 
 ## Applying the standard to a repository
 
-1. Assess the repository against a published version of the standard.
+1. Assess the repository against a published version of the standard. To start
+   from a draft rather than a blank record, read what a script can read:
+
+   ```sh
+   python3 scripts/assess.py --repo owner/name --out drafts/owner-name
+   ```
+
+   It decides only the criteria a fact settles — the topic, the licence, the
+   `permissions` blocks, the action references — and leaves everything that
+   turns on judgement `unknown`. See [drafting a record](docs/assessing.md).
+
 2. Record the result in `.github/conformance.yml`, following the
    [record format](docs/conformance-record.md). To start from a record that
    already names every criterion, copy
@@ -69,7 +79,8 @@ gh search repos --owner trsdn --topic trsdn-standard --limit 100 \
 ```
 
 The difference between that list and the full account list is the outstanding
-assessment backlog.
+assessment backlog. [`scripts/assess.py`](docs/assessing.md) exists to make that
+number movable.
 
 ## This repository's own result
 
@@ -143,9 +154,10 @@ npx --yes markdownlint-cli2@0.18.1 "**/*.md"
 pipx run ruff==0.14.5 check . && pipx run ruff==0.14.5 format --check .
 ```
 
-The standard and conformance scripts, the link checker, and their tests use the
-Python standard library only. The statistics generator is separate runtime
-tooling and installs `requests` from `requirements.txt` when its workflows run.
+The standard and conformance scripts, the link checker, the draft assessor, and
+their tests use the Python standard library only. The statistics generator is
+separate runtime tooling and installs `requests` from `requirements.txt` when
+its workflows run.
 Markdown linting and Ruff pin their tool versions and are never added as
 dependencies, so every script still runs from a bare Python installation.
 
