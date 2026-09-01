@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.10.0
-- Last reviewed: 2026-09-01
+- Version: 1.11.0
+- Last reviewed: 2026-09-02
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across
@@ -389,11 +389,15 @@ absence it would replace, and it does not ask for a software bill of materials,
 which is ecosystem-specific tooling that few consumers of these repositories
 read.
 
-Where no such mechanism exists, a recorded statement of that fact is a `Pass`.
-The criterion asks a repository to have answered the question, not to have
-solved it in an ecosystem that offers no solution. A repository publishing a
-document, a site, or nothing installable is `Not applicable`; `R01` and `R05`
-are already `Not applicable` in that case for the same reason.
+Where no such mechanism is available to this repository, a recorded statement of
+that fact is a `Pass`. Two cases qualify and are recorded the same way: an
+ecosystem that issues no provenance at all, and a repository with no runner,
+which cannot reach the mechanism its ecosystem does offer, because every
+qualifying mechanism derives from a workflow identity. The criterion asks a
+repository to have answered the question, not to have solved it where it has no
+means to. A repository publishing a document, a site, or nothing installable is
+`Not applicable`; `R01` and `R05` are already `Not applicable` in that case for
+the same reason.
 
 ## Product Identity
 
@@ -679,10 +683,10 @@ not restate the secret-handling requirements in `S05`, `S06`, `S07`, and `D02`.
 
 ## Automation Availability
 
-Eight criteria name a workflow run as their evidence, and one required badge
+Nine criteria name a workflow run as their evidence, and one required badge
 reports one. A repository with no runner cannot produce any of it, and none of
 those criteria say what an assessor records instead. This section says it once,
-because a rule restated in eight places drifts.
+because a rule restated in nine places drifts.
 
 **The property is the runner, not the visibility.** A repository is *without
 automation* when no runner is available to it: no self-hosted runner it can use,
@@ -705,16 +709,25 @@ ones:
 | What the criterion requires | Result when no runner is available |
 |---|---|
 | That a check exists and can be run: `S02`, `S03`, `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not |
-| That automation performs or enforces something: `S04`, `S09`, `R03`, `R05`, `R07` | `Not applicable` |
+| That automation performs or enforces something, leaving no evidence a workflow run does not produce: at this version `S04`, `S09`, `R03`, `R05`, `R07`, and `P09` | `Not applicable` |
+
+The second row is decided by its description and not by its list. A criterion
+belongs there when every way of evidencing it runs a workflow; the names are the
+criteria that meet that test at this version, so one added later belongs there on
+the day it is added, whether or not the list has caught up. The list was written
+in 1.9.0 naming five criteria and was already incomplete against `P09`, which
+1.11.0 added to it. `R08` looked like a sixth and is not one, because a recorded
+statement evidences it without a run.
 
 The split is between a capability and a gate. A test suite, a linter, and a
 catalog check are things the repository owns; a runner only makes them
 convenient, and `B05` already requires the command that runs them, so the
 evidence exists without CI and `Pass` is the honest result. A matrix, a required
-check, a release built by a tag, a smoke test in a clean environment, and a
-release-notes gate are not properties of the repository at all — they are things
-a runner does. Where there is no runner, there is nothing to assess, which is
-what `Not applicable` means everywhere else in this document.
+check, a release built by a tag, a smoke test in a clean environment, a
+release-notes gate, and a statistics card regenerated on a schedule are not
+properties of the repository at all — they are things a runner does. Where there
+is no runner, there is nothing to assess, which is what `Not applicable` means
+everywhere else in this document.
 
 The first row turns on one property, whether the check exists, so every
 repository lands on exactly one of its three results. A check that does not
@@ -724,6 +737,14 @@ that no documented command runs, a check whose documented command produces no
 recorded successful run, and a check whose run fails are all `Partial` alike.
 None of the three is excused by the absence of a runner, because none of them
 is caused by it.
+
+The second row needs one override stated, because `P09` is the only criterion in
+it whose ordinary text answers the question differently.
+[Repository Statistics](#repository-statistics) makes a committed card that no
+workflow reproduces a `Fail`, which is exactly what a repository without a runner
+would have to publish. Here that result is `Not applicable` instead. Committing a
+hand-made card and calling it generated stays a `Fail`, because that is a false
+claim rather than an absence.
 
 **`P08`.** The CI badge is position 3 of the required block. Where no runner is
 available, that position is omitted and the remaining badges keep their order
@@ -735,8 +756,14 @@ never computed is worse than one that is merely stale.
 
 **Everything else is assessed normally.** A repository with a runner available
 that chooses not to use it is not in this state, and its ordinary results stand,
-including `Fail`. So does every criterion not named in the table above: this
-section narrows eight criteria and one badge position, and nothing else.
+including `Fail`. So does every criterion the table's two descriptions do not
+cover: this section narrows nine criteria and one badge position, and nothing
+else. `R08` is the near miss worth naming, since it asks for provenance that
+every qualifying mechanism derives from a workflow identity. It stays outside
+this section because it accepts a recorded statement instead, and
+[Package And Release Repositories](#package-and-release-repositories) says so for
+the repository that cannot reach a mechanism as well as the one whose ecosystem
+offers none.
 
 ## Status Badges
 
@@ -821,7 +848,10 @@ Rules:
 
 The shared implementation is the reusable workflow described in
 [Repository Stats](repo-stats.md). A repository may generate the card another
-way; the criterion is about the property, not the tool.
+way; the criterion is about the property, not the tool. Both of the first two
+rules need a runner, so
+[Automation Availability](#automation-availability) states what a repository
+without one records instead.
 
 ## Conformance Records
 

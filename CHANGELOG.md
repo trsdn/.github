@@ -6,6 +6,40 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.11.0 - 2026-09-02
+
+- Added `P09` to the `Not applicable` row of
+  [Automation Availability](docs/repository-quality-standard.md#automation-availability).
+  Both of its first two rules need a runner: the card must be reproduced by a
+  workflow, and regenerated on a schedule. A repository without one had a stated
+  `Fail` waiting for it — "A committed SVG that no workflow reproduces is a
+  `Fail`" describes exactly what it would have to publish — while `S04`, `S09`,
+  `R03`, `R05`, and `R07` were excused for the same cause. The override is stated
+  in both directions: a hand-made card presented as generated stays a `Fail`,
+  because that is a false claim rather than an absence.
+- Made the second row of that table decided by its description rather than by its
+  list, so a criterion added later belongs there on the day it is added.
+  [Decision 0011](docs/decisions/0011-criteria-are-decided-by-the-rule-text.md)
+  requires an outcome to attach to a property of the thing assessed, because a
+  property survives someone extending a list. The list was written in 1.9.0 and
+  was already incomplete against `P09`, which 1.8.0's sibling criteria had made
+  visible.
+- Fixed `R08`, whose escape hatch turned on the wrong property. Every mechanism
+  it accepts "derive[s] from the workflow identity", so its `Pass` needed a
+  runner, while its recorded-statement `Pass` was available only "where no such
+  mechanism exists" — which is false for a repository whose ecosystem offers
+  provenance it cannot reach. Only `Fail` was left, for the cause that made its
+  siblings `Not applicable`. The condition is now availability to the repository,
+  and both qualifying cases are named. `R08` stays outside Automation
+  Availability, because a recorded statement evidences it without a run.
+- Swept every criterion whose evidence names a workflow, so this is not found a
+  third time. `S11`, `S12`, `S13`, and `I06` are correctly outside the section: a
+  `permissions` block, a pinned reference, and a trigger are properties of a
+  workflow file rather than of a run, and `I06` accepts a build script. `R04` is
+  assessed from a published release, and `W01` accepts any documented repeatable
+  process. `AGENTS.md` now requires the classification to be made when a
+  criterion naming a workflow run is added.
+
 ## 1.10.0 - 2026-09-01
 
 - Added `B16`, which requires that the default branch cannot be force-pushed

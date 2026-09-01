@@ -102,6 +102,16 @@ the suite goes red. A test that passes either way is not coverage.
   one silently invalidates those citations.
 - **Claim the prefix.** A new section claims its letter in the prefix register in
   the same change.
+- **Classify a criterion that needs a runner.** When a new or reworded criterion
+  can only be evidenced by a workflow run, say what it records where no runner is
+  available, in the same change, in
+  [Automation Availability](docs/repository-quality-standard.md#automation-availability)
+  and nowhere else. That section is the single home for the rule; a criterion
+  that is assessed normally needs nothing, because its closing paragraph already
+  says so. This is required because it has been missed twice: `R08` landed in
+  1.8.0 one version before the section that would have covered it, and `P09`
+  predated the section and was omitted from its list. Both produced a `Fail` for
+  the one cause the section exists to excuse.
 - **Regenerate, do not edit.** After changing the standard, run
   `python3 scripts/standard.py` and commit the regenerated `standard.yml`.
 - **Version and changelog move together.** The bump follows

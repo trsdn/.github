@@ -20,7 +20,7 @@
 # The badge is generated from this file. Change the evidence first, then this
 # record, then regenerate. Never the other way round.
 
-standard_version: "1.10.0"
+standard_version: "1.11.0"
 assessed_on: "YYYY-MM-DD"
 state: "Needs work"
 evidence: "docs/self-assessment.md"
