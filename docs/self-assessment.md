@@ -1,6 +1,6 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.8.0
+- Standard version: 1.9.0
 - Assessed on: 2026-09-01
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
@@ -144,6 +144,13 @@ What this repository publishes is a tag over a commit, which git already ties to
 its source.
 
 **Archived `A01`-`A04`.** Actively maintained.
+
+**[Automation Availability](repository-quality-standard.md#automation-availability)
+is not claimed.** This repository is public, Actions is enabled, and every check
+in [Validation](../README.md#validation) runs on hosted runners on each pull
+request, so `S02`, `S03`, `S04`, `S09`, `L04`, `R03`, `R05`, `R07`, and the CI
+badge in `P08` are assessed on their ordinary rules. The section was written for
+private repositories in the estate that have no runner, not for this one.
 
 ## Notable passes
 
