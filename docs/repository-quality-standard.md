@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.7.0
-- Last reviewed: 2026-08-31
+- Version: 1.8.0
+- Last reviewed: 2026-09-01
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across
@@ -127,6 +127,8 @@ Apply the baseline to every active repository, then add every matching profile.
 | <a id="b11"></a>B11 | The repository records which version of this standard it was assessed against, and when | Conformance record described in [Conformance Records](#conformance-records) |
 | <a id="b12"></a>B12 | Assessed repositories are discoverable as a set | The `trsdn-standard` GitHub topic |
 | <a id="b13"></a>B13 | Each fact has one home, and other documents link to it rather than restating it | [Content Boundaries](#content-boundaries) |
+| <a id="b14"></a>B14 | A repository that holds or references a credential states how an exposed one is revoked and replaced | Security policy, runbook, or agent instructions naming each class of credential and who replaces it |
+| <a id="b15"></a>B15 | A repository that redistributes third-party code states how the obligations of those licences are met | Notice file, generated attribution list, or a recorded statement that nothing is redistributed |
 
 `B12` marks a repository as *governed by this standard*. It makes no claim about
 the outcome; the outcome lives only in the conformance record required by `B11`.
@@ -142,6 +144,33 @@ gh search repos --owner trsdn --topic trsdn-standard --limit 100 \
 The difference between that list and the full account list is the outstanding
 assessment backlog.
 
+`B14` applies to a repository that holds a credential or names one it expects to
+exist, including a workflow secret, a deployment token, or a registry
+credential. `GITHUB_TOKEN` alone does not bring a repository into scope, because
+it is issued and revoked per run and there is nothing for a maintainer to
+replace. A repository in scope that states nothing is a `Fail`; one that names
+some of its credentials is a `Partial`; a repository holding none is
+`Not applicable`.
+
+The bar is a few sentences, not an incident-response programme. Naming the
+credential, where it lives, and who replaces it is a complete answer. The
+criterion asks what happens when one is exposed, and deliberately does not ask
+for rotation on a schedule, a drill, or evidence of having rehearsed one. Where
+the answer is the same across repositories, link to the shared policy; `B13`
+requires that anyway.
+
+`B15` applies to a repository that ships somebody else's code inside something
+it publishes — a bundled dependency, a vendored directory, a container layer, or
+a compiled artifact that statically links one. A repository whose dependencies
+are resolved by the consumer's package manager at install time redistributes
+nothing, and one sentence saying so is a `Pass`. A repository with no
+dependencies at all is `Not applicable`.
+
+Stating the approach is the requirement. Producing a per-dependency inventory,
+running a licence scanner, or adjudicating compatibility between licences is
+not, and a criterion that needed any of them would require evidence a single
+maintainer cannot produce.
+
 ## Public Repositories
 
 | ID | Requirement | Expected evidence |
@@ -155,6 +184,36 @@ assessment backlog.
 | <a id="p07"></a>P07 | Metadata supports discovery | Description, topics, and a maintained homepage where useful |
 | <a id="p08"></a>P08 | README status badges follow the badge convention | [Status Badges](#status-badges) |
 | <a id="p09"></a>P09 | Repository activity is shown from a self-hosted, generated source rather than a third-party image service | [Repository Statistics](#repository-statistics) |
+| <a id="p10"></a>P10 | Issue intake collects what triage needs, not only a free-text box | Issue forms whose fields cover the problem, the expected and actual result, how to reproduce it, and the version or environment it occurred in |
+| <a id="p11"></a>P11 | Pull-request intake collects what review needs | Pull-request template covering what the change does, how it was validated, what it risks, and what it relates to |
+
+`P04` asks whether intake is structured at all. `P10` and `P11` ask whether the
+structure collects enough to act on, because a form with one box labelled
+"Description" is structured and still leaves every report to be triaged by
+conversation.
+
+Both are assessed on outcomes, not on headings. A template that gathers the
+listed information under different names, in a different order, or merged into
+fewer fields passes; wording is the repository's business. A template that
+gathers some of the listed information but not all of it is a `Partial`, whether
+it omits one item or several, and one that collects none of them is a `Fail`. So
+is the absence of any template at all, in either case.
+
+A template inherited from the account's default community health files counts,
+because what is assessed is what a reporter is actually shown. A repository that
+needs different fields from the inherited ones defines its own, which then
+replaces the inherited set entirely rather than adding to it.
+
+Fields may be optional where the repository knows they will often not apply, and
+a template that lets a reporter say a field does not apply is preferred to one
+that forces an answer. What `P10` and `P11` reject is a template that never asks.
+
+A repository whose issues are disabled is `Not applicable` for `P10`, and so is
+one that takes intake through a route GitHub forms cannot serve, provided the
+route is documented and collects the same information. Neither result is
+available for `P11`: every repository that accepts pull requests can carry a
+template, and a repository that accepts none is not public in the sense this
+section describes.
 
 ## Software Repositories
 
@@ -170,6 +229,48 @@ assessment backlog.
 | <a id="s08"></a>S08 | Dependency updates and vulnerability triage have an owner and process | Dependabot or documented equivalent |
 | <a id="s09"></a>S09 | Existing required checks protect the default branch | Branch ruleset or protection settings |
 | <a id="s10"></a>S10 | Architecture and non-obvious constraints are documented | README, `docs/`, or ADRs |
+| <a id="s11"></a>S11 | Workflow token permissions are declared and no broader than the work requires | A `permissions` block on every workflow or on each of its jobs |
+| <a id="s12"></a>S12 | An executable reference in a workflow cannot change underneath the repository | Action and reusable-workflow references |
+| <a id="s13"></a>S13 | A workflow triggered by an untrusted contribution cannot read repository secrets | Workflow triggers and secret usage, or an explicit not-applicable result |
+
+Automation is the part of a repository that runs with the most authority and is
+read the least often. These three cover it.
+
+`S11` is satisfied by a declared `permissions` block, at workflow or job level,
+that grants only what the job uses. A repository whose workflows declare none
+inherits the account default, which is frequently write-capable, so the omission
+is a `Fail` rather than an oversight. Declaring it on some workflows and not
+others is a `Partial`.
+
+`S12` treats a reference by a moving name as unpinned, on the same reasoning
+[Citing This Standard](#citing-this-standard) applies to citations: a name that
+resolves to different content later destroys the evidence trail, and here it
+also changes what executes. The rule is graduated by who controls the target,
+because that is where the risk actually differs.
+
+| Reference | Required form |
+|---|---|
+| An action from an account outside the one being assessed | A commit SHA, or a recorded reason why a tag is acceptable |
+| An action published by GitHub itself | A major-version tag is sufficient; a SHA is permitted and not required |
+| A workflow or action from within the account being assessed | A branch is permitted, including the default branch |
+
+The third row is a permission, not an obligation, and it is stated because the
+alternative is worse: pinning a reusable workflow to a tag means re-tagging
+every repository that calls it before any fix reaches them. An account that
+publishes shared workflows accepts that it can break its own consumers, which is
+a risk it can see and fix, unlike a third party it cannot.
+
+A repository with no workflows is `Not applicable` for `S11` and `S12`.
+
+`S13` is about triggers that run with the repository's own token or secrets on
+content a contributor controls, of which `pull_request_target` and
+`workflow_run` are the common ones. A repository using none of them is
+`Not applicable`. One that uses them without exposing secrets to the untrusted
+content passes, and it passes whether that is by design or by circumstance,
+because the criterion is about what an attacker can reach and not about intent.
+One that lets contributor-controlled content run in a job that can read a
+repository secret fails, and the result does not improve because the workflow is
+guarded by a label, an approval, or a maintainer's attention.
 
 ## Deployable Repositories
 
@@ -193,6 +294,7 @@ assessment backlog.
 | <a id="r05"></a>R05 | Built artifacts are smoke-tested in a clean environment | CI or release workflow |
 | <a id="r06"></a>R06 | Release notes describe meaningful changes and upgrade concerns | GitHub release or changelog |
 | <a id="r07"></a>R07 | Release notes are generated from the changelog entry for the version being released, and automation fails the release when that entry is missing, empty, or still held in an unreleased section | Release workflow gate plus a published release whose notes match its changelog entry |
+| <a id="r08"></a>R08 | A consumer can verify that a published artifact came from this repository, or the repository states why they cannot | Registry provenance, a build attestation, or a recorded statement |
 
 `R06` and `R07` divide the work. `R06` is about content: notes a reader can act
 on. `R07` is about provenance: the notes a consumer actually receives are the
@@ -218,6 +320,27 @@ entry cannot disagree.
 
 A reusable starting point is published as
 [`templates/release-notes/`](../templates/release-notes/).
+
+`R08` covers the other half of what a consumer receives. `R03` establishes that
+a tag produces the artifact through automation and `R05` that the artifact
+works, but neither lets somebody who downloads it later establish where it came
+from. A published name is not evidence of origin.
+
+Where the ecosystem issues provenance from the workflow that built the artifact,
+using it is the requirement: npm provenance, PyPI trusted publishing, and GitHub
+artifact attestations all qualify, and all of them derive from the workflow
+identity rather than from a key somebody has to look after. That is deliberate.
+This criterion does not ask for artifact signing with maintainer-held keys,
+because key custody is a heavier burden and a worse failure mode than the
+absence it would replace, and it does not ask for a software bill of materials,
+which is ecosystem-specific tooling that few consumers of these repositories
+read.
+
+Where no such mechanism exists, a recorded statement of that fact is a `Pass`.
+The criterion asks a repository to have answered the question, not to have
+solved it in an ecosystem that offers no solution. A repository publishing a
+document, a site, or nothing installable is `Not applicable`; `R01` and `R05`
+are already `Not applicable` in that case for the same reason.
 
 ## Product Identity
 
@@ -657,6 +780,49 @@ missing recovery for irreplaceable state, or an active deployment with no known
 source or configuration. High-priority gaps include no README, ambiguous public
 licensing, no software validation, unsupported dependencies, or unreproducible
 releases.
+
+## Changing This Standard
+
+A standard that can be cited but not contested puts every disagreement out of
+reach of the person holding the evidence. This section states what to do with
+one.
+
+**A criterion that cannot be applied is a defect in the criterion.** If reaching
+a result requires an intention the rule text does not state, the text is
+unfinished, and reporting that is more useful than guessing at the intent. See
+[decision 0011](decisions/0011-criteria-are-decided-by-the-rule-text.md).
+
+**Proposals and disputes both go in an issue against the repository publishing
+this document.** A proposal names the criterion, what it fails to decide or
+fails to catch, and a repository the change would score differently. A dispute
+names the criterion, the recorded result, and the evidence the assessor did not
+have. Neither needs a template; both need the criterion identifier, because that
+is what makes the discussion locatable later.
+
+**The maintainer decides.** There is no committee, review period, or vote, and
+inventing one would describe a process nobody runs. What the decision owes is
+durability: a change that alters how a criterion is applied gets a decision
+record, so the reasoning survives the issue thread that produced it.
+
+**A disputed result is resolved by reassessing, not by editing the record.** The
+record follows the evidence. If the evidence was misread, the reassessment
+produces a different result and the assessment date moves with it. If the
+criterion was wrong, the criterion changes and every repository assessed against
+the old version keeps its recorded result, because that result names the version
+it was produced with.
+
+**A repository may record a deviation instead of a `Fail`.** Where a criterion
+applies and the repository knowingly does not meet it, `Partial` with the
+rationale in the linked assessment is an honest answer and is preferred to a
+`Fail` that gets argued about, or to an `N/A` that claims the criterion does not
+apply when it does. What is not available is a result the evidence does not
+support.
+
+One structural note, because it is not obvious and invites an incorrect fix. The
+issue forms in the publishing repository are inherited by every repository in
+the account that does not define its own, so a form specific to this document
+cannot be added there without it appearing in repositories that have nothing to
+do with it. That is why proposals and disputes are ordinary issues.
 
 ## Remediation Issue Contract
 

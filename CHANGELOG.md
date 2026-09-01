@@ -6,6 +6,47 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.8.0 - 2026-09-01
+
+- Added `S11`, `S12`, and `S13`, covering the part of a repository that runs with
+  the most authority and is read the least often. `S11` requires declared token
+  permissions, `S12` requires that an executable reference cannot change
+  underneath the repository, and `S13` keeps repository secrets out of workflows
+  triggered by untrusted contributions. `S12` is graduated by who controls the
+  target rather than applied uniformly: a third-party action needs a commit SHA,
+  an action published by GitHub may be referenced by major-version tag, and a
+  workflow from within the assessed account may be referenced by branch. The
+  last is a permission and is stated as one, because pinning a shared reusable
+  workflow to a tag would mean re-tagging every consumer before a fix could
+  reach them.
+- Added `R08`, requiring that a consumer can verify an artifact came from the
+  repository that published it, or that the repository states why they cannot.
+  `R03` and `R05` already establish that automation built the artifact and that
+  it works, and neither says anything about origin. Provenance derived from the
+  publishing workflow satisfies it; artifact signing with maintainer-held keys
+  and a software bill of materials are both deliberately not required.
+- Added `P10` and `P11`, which ask whether issue and pull-request intake collects
+  enough to act on. `P04` already asked whether intake was structured, and a
+  single box labelled "Description" satisfies that while leaving every report to
+  be triaged by conversation. Both are assessed on the information gathered
+  rather than on headings or wording.
+- Added `B14`, requiring a repository that holds a credential to state how an
+  exposed one is revoked and replaced. `S05` detects exposure and `D02` prevents
+  it; nothing said what happens afterwards. `GITHUB_TOKEN` alone does not bring a
+  repository into scope, since it is issued and revoked per run.
+- Added `B15`, requiring a repository that redistributes third-party code to
+  state how the obligations of those licences are met. `B03` and `P01` cover a
+  repository's own licence only. A repository whose dependencies are resolved by
+  the consumer at install time redistributes nothing, and saying so is a `Pass`;
+  no inventory, scanner, or compatibility analysis is required.
+- Added [Changing This Standard](docs/repository-quality-standard.md#changing-this-standard),
+  stating how a criterion is proposed or contested, that the maintainer decides
+  and records the reasoning, and that a disputed result is resolved by
+  reassessing rather than by editing the record. It also records why proposals
+  are ordinary issues: the publishing repository's issue forms are inherited by
+  every repository in the account that defines none, so a form specific to this
+  document cannot live there.
+
 ## 1.7.0 - 2026-08-31
 
 - Added `R07`, requiring that published release notes are generated from the

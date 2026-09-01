@@ -157,7 +157,25 @@ optional statistics generator contacts the GitHub API to render repository and
 account SVG cards. The cards it produces are self-contained and embed no remote
 fonts or images, so displaying one observes nobody. See `Y01` and `Y02`.
 
+## Credentials
+
+One credential is configured here beyond the token GitHub issues per workflow
+run: `STATS_TOKEN`, an optional fine-grained personal access token the
+statistics workflows use where the run token is not enough, with the access
+listed in [repo stats](docs/repo-stats.md). If it is exposed, the maintainer
+revokes it in GitHub account settings, issues a replacement, and updates the
+repository secret; no other system holds a copy, so nothing else has to be
+changed, and until it is replaced the workflows fall back to the run token.
+`GITHUB_TOKEN` is issued and revoked per run and needs no such handling. See
+`B14`.
+
 ## License
 
 The content and templates in this repository are available under the
 [MIT License](LICENSE).
+
+Nothing here redistributes third-party code. The documents, templates, scripts,
+and workflows are written in this repository; the statistics generator's one
+runtime dependency and the validation tools are resolved from their registries
+by whoever runs them, and are not vendored, bundled, or published onward. There
+are therefore no third-party licence obligations to pass on. See `B15`.
