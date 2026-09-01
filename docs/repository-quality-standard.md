@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
 - Version: 1.11.0
-- Last reviewed: 2026-09-02
+- Last reviewed: 2026-09-01
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across

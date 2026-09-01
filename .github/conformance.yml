@@ -7,7 +7,7 @@
 # first, then this record, then regenerate. Never the other way round.
 
 standard_version: "1.11.0"
-assessed_on: "2026-09-02"
+assessed_on: "2026-09-01"
 state: "Healthy"
 evidence: "docs/self-assessment.md"
 

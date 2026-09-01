@@ -4,7 +4,7 @@
 # docs/repository-quality-standard.md. Do not edit by hand.
 
 version: "1.11.0"
-last_reviewed: "2026-09-02"
+last_reviewed: "2026-09-01"
 
 prefixes:
   A: "Archived"
