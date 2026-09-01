@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.9.1
+- Version: 1.10.0
 - Last reviewed: 2026-09-01
 - Review cadence: every six months, even when nothing changes
 
@@ -129,6 +129,7 @@ Apply the baseline to every active repository, then add every matching profile.
 | <a id="b13"></a>B13 | Each fact has one home, and other documents link to it rather than restating it | [Content Boundaries](#content-boundaries) |
 | <a id="b14"></a>B14 | A repository that holds or references a credential states how an exposed one is revoked and replaced | Security policy, runbook, or agent instructions naming each class of credential and who replaces it |
 | <a id="b15"></a>B15 | A repository that redistributes third-party code states how the obligations of those licences are met | Notice file, generated attribution list, or a recorded statement that nothing is redistributed |
+| <a id="b16"></a>B16 | The default branch cannot be force-pushed over or deleted | Branch ruleset or protection settings |
 
 `B12` marks a repository as *governed by this standard*. It makes no claim about
 the outcome; the outcome lives only in the conformance record required by `B11`.
@@ -170,6 +171,49 @@ Stating the approach is the requirement. Producing a per-dependency inventory,
 running a licence scanner, or adjudicating compatibility between licences is
 not, and a criterion that needed any of them would require evidence a single
 maintainer cannot produce.
+
+`B16` protects the branch itself, where `S09` gates what enters it. `S09` asks
+whether the checks a repository already has are required before a merge, and
+[Automation Availability](#automation-availability) records it as
+`Not applicable` where no runner can produce such a check. Blocking a force push
+and a deletion needs no runner, so `B16` is assessed on its ordinary terms in
+every repository, including one with no automation at all.
+
+The evidence is two settings on the default branch, read from the repository's
+settings page or with:
+
+```sh
+gh api repos/OWNER/REPO/branches/BRANCH/protection \
+  --jq '{force: .allow_force_pushes.enabled, deletion: .allow_deletions.enabled}'
+```
+
+A branch ruleset targeting the default branch and classic branch protection on
+it are equally acceptable. The criterion asks what the settings do, not which
+mechanism does it.
+
+| The default branch | Result |
+|---|---|
+| Is in a repository offered no ruleset or branch protection mechanism at all, and the record says so | `Not applicable` |
+| Otherwise, has both force pushes and deletion blocked | `Pass` |
+| Otherwise, has one of the two blocked and the other permitted | `Partial` |
+| Otherwise, has neither blocked, including where no ruleset or protection covers it | `Fail` |
+
+The first row is narrow and has to be recorded before it can be used. GitHub
+offers neither rulesets nor branch protection to a private repository on a plan
+without them, so there is no setting to make and nothing to assess. A repository
+in that state says so in the evidence its conformance record links to, in one
+sentence naming the absence and the reason, on the same terms as
+[Automation Availability](#automation-availability) requires for a missing
+runner; without that sentence the assessor reads on to the rows below. Every
+other repository has the settings available and reaches one of the three
+ordinary results.
+
+Whether the repository's own administrators may bypass the setting is not part
+of this criterion, and a repository that lets them is not thereby a `Partial`.
+The person who can lift the protection is the person who set it, so requiring
+enforcement against them would test intent rather than configuration. The
+setting still binds every other contributor and every workflow token, which is
+what the criterion is for.
 
 ## Public Repositories
 

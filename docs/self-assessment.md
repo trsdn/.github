@@ -1,6 +1,6 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.9.1
+- Standard version: 1.10.0
 - Assessed on: 2026-09-01
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
@@ -191,6 +191,12 @@ private repositories in the estate that have no runner, not for this one.
   tools and the generator's one runtime dependency are resolved from their
   registries by whoever runs them. The README records that, which is what the
   criterion asks of a repository that redistributes nothing.
+- `B16` — passes on the settings as they stand, verified rather than assumed.
+  Classic branch protection covers `main` and reports
+  `allow_force_pushes: false` and `allow_deletions: false`, which is the `Pass`
+  row. Rulesets are not used here; the criterion asks what the settings do, not
+  which mechanism does it. Administrator bypass is enabled and is deliberately
+  not assessed, per the criterion.
 - `P10`, `P11` — the bug form collects the expected result, the actual result,
   the reproduction, and the version and environment as separate required fields,
   and the pull-request template collects what the change does, how it was
