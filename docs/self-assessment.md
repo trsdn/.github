@@ -1,7 +1,7 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.7.0
-- Assessed on: 2026-08-31
+- Standard version: 1.8.0
+- Assessed on: 2026-09-01
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
 
@@ -132,9 +132,16 @@ builds, no translations to trace.
 
 **`S06`.** No runtime configuration exists to be environment-driven.
 
-**`R01`, `R05`.** Releases carry a document, not a package. There is no package
-manifest to complete and no installable artifact to smoke-test in a clean
-environment.
+**`S13`.** No workflow here is triggered by `pull_request_target` or by
+`workflow_run`, and none checks out the head of an untrusted pull request. Code
+from a fork therefore never executes in a run that can read repository secrets,
+and there is no trigger to constrain.
+
+**`R01`, `R05`, `R08`.** Releases carry a document, not a package. There is no
+package manifest to complete, no installable artifact to smoke-test in a clean
+environment, and nothing a consumer downloads whose origin could be attested.
+What this repository publishes is a tag over a commit, which git already ties to
+its source.
 
 **Archived `A01`-`A04`.** Actively maintained.
 
@@ -161,6 +168,28 @@ environment.
   added in the same change: this repository keeps no unreleased section and could
   not strand an entry today, but a gate that holds only while a convention holds
   is not a gate.
+- `S11`, `S12` — every workflow declares a `permissions` block, and no
+  executable reference can change underneath the repository. Every action used
+  here is published by GitHub, which `S12` allows to be referenced by
+  major-version tag; six of the fifteen references go further and pin a commit
+  SHA with the version in a trailing comment. No action from outside the account
+  is used at all, so the row of the table that requires a SHA is never reached.
+- `B14` — passes on new content rather than on what was already here. The
+  repository configures `STATS_TOKEN`, so the criterion applies and could not be
+  answered by the pre-existing "stop and rotate" instruction to agents, which
+  says what to stop doing but not who revokes what. The README now names the
+  credential, the revocation path, and the fallback behaviour while it is
+  missing.
+- `B15` — nothing here is vendored, bundled, or published onward; the validation
+  tools and the generator's one runtime dependency are resolved from their
+  registries by whoever runs them. The README records that, which is what the
+  criterion asks of a repository that redistributes nothing.
+- `P10`, `P11` — the bug form collects the expected result, the actual result,
+  the reproduction, and the version and environment as separate required fields,
+  and the pull-request template collects what the change does, how it was
+  validated, what it risks, and what it relates to. Both criteria were written
+  because `P04` accepts a single box labelled "Description", which leaves every
+  report to be triaged by conversation.
 - `G01`-`G08` — the agent readiness criteria are satisfied by `AGENTS.md`, a
   Copilot configuration that defers to it instead of duplicating it, generated
   paths marked explicitly, and a single documented validation command.

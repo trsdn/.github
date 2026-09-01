@@ -6,8 +6,8 @@
 # The badge in .github/badges/ is generated from this file. Change the evidence
 # first, then this record, then regenerate. Never the other way round.
 
-standard_version: "1.7.0"
-assessed_on: "2026-08-31"
+standard_version: "1.8.0"
+assessed_on: "2026-09-01"
 state: "Healthy"
 evidence: "docs/self-assessment.md"
 
@@ -25,6 +25,8 @@ criteria:
   B11: pass
   B12: pass
   B13: pass
+  B14: pass
+  B15: pass
   P01: pass
   P02: pass
   P03: pass
@@ -34,6 +36,8 @@ criteria:
   P07: pass
   P08: pass
   P09: pass
+  P10: pass
+  P11: pass
   S01: pass
   S02: pass
   S03: pass
@@ -44,6 +48,9 @@ criteria:
   S08: pass
   S09: pass
   S10: pass
+  S11: pass
+  S12: pass
+  S13: na
   D01: na
   D02: na
   D03: na
@@ -57,6 +64,7 @@ criteria:
   R05: na
   R06: pass
   R07: pass
+  R08: na
   I01: na
   I02: na
   I03: na
