@@ -102,6 +102,15 @@ the suite goes red. A test that passes either way is not coverage.
   one silently invalidates those citations.
 - **Claim the prefix.** A new section claims its letter in the prefix register in
   the same change.
+- **Classify a criterion that needs a runner.** A new or changed criterion whose
+  evidence names a workflow run is placed against
+  [Automation Availability](docs/repository-quality-standard.md#automation-availability)
+  in the same change: on the row whose property it matches, or deliberately on
+  neither, with the reason stated. That section has been corrected twice for the
+  same omission, once because `R08` was added one version before the section
+  existed and nobody went back for it. Membership is decided by the property, so
+  the check is whether the evidence can only come from a run — not whether the
+  criterion appears in the illustrative list.
 - **Regenerate, do not edit.** After changing the standard, run
   `python3 scripts/standard.py` and commit the regenerated `standard.yml`.
 - **Version and changelog move together.** The bump follows

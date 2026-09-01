@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.10.0
+- Version: 1.11.0
 - Last reviewed: 2026-09-01
 - Review cadence: every six months, even when nothing changes
 
@@ -334,7 +334,7 @@ guarded by a label, an approval, or a maintainer's attention.
 
 ## Package And Release Repositories
 
-`R03`, `R05`, and `R07` require a runner. Where none is available,
+`R03`, `R05`, `R07`, and `R08` require a runner. Where none is available,
 [Automation Availability](#automation-availability) states what is recorded
 instead.
 
@@ -702,19 +702,35 @@ repository changes: the sentence has to be removed when a runner appears.
 Where the state applies and is recorded, these results replace the ordinary
 ones:
 
-| What the criterion requires | Result when no runner is available |
+| Which criteria | Result when no runner is available |
 |---|---|
-| That a check exists and can be run: `S02`, `S03`, `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not |
-| That automation performs or enforces something: `S04`, `S09`, `R03`, `R05`, `R07` | `Not applicable` |
+| Those satisfied by a check the repository owns, which a runner only makes convenient. At this version `S02`, `S03`, and `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not |
+| Those whose evidence can only be produced by a workflow run. At this version `S04`, `S09`, `R03`, `R05`, `R07`, `R08`, and `P09` | `Not applicable` |
+
+**Membership is decided by the property, not by the list.** Each list names the
+criteria that match at the version on the cover, and is there so an assessor can
+work without re-deriving it. A criterion added later is decided by the row it
+matches, whether or not anyone remembered to extend the list — a list stops being
+true the moment the document grows, and a property does not.
 
 The split is between a capability and a gate. A test suite, a linter, and a
 catalog check are things the repository owns; a runner only makes them
 convenient, and `B05` already requires the command that runs them, so the
 evidence exists without CI and `Pass` is the honest result. A matrix, a required
-check, a release built by a tag, a smoke test in a clean environment, and a
-release-notes gate are not properties of the repository at all — they are things
-a runner does. Where there is no runner, there is nothing to assess, which is
-what `Not applicable` means everywhere else in this document.
+check, a release built by a tag, a smoke test in a clean environment, a
+release-notes gate, registry provenance, and a generated activity card are not
+properties of the repository at all — they are things a runner does. Where there
+is no runner, there is nothing to assess, which is what `Not applicable` means
+everywhere else in this document.
+
+Two of them need their membership shown rather than asserted. `R08` offers a
+`Pass` for a recorded statement, but that statement's condition is that no
+provenance mechanism *exists* in the ecosystem, and a repository that cannot
+reach a mechanism which plainly exists does not meet it; every other qualifying
+mechanism derives from the workflow identity, so a run is the only remaining
+path. `P09` requires a card a workflow reproduces and regenerates on a schedule,
+and states outright that a committed SVG no workflow reproduces is a `Fail`, so a
+repository with no runner has no reachable result but that one.
 
 The first row turns on one property, whether the check exists, so every
 repository lands on exactly one of its three results. A check that does not
@@ -735,8 +751,13 @@ never computed is worse than one that is merely stale.
 
 **Everything else is assessed normally.** A repository with a runner available
 that chooses not to use it is not in this state, and its ordinary results stand,
-including `Fail`. So does every criterion not named in the table above: this
-section narrows eight criteria and one badge position, and nothing else.
+including `Fail`. So does every criterion matching neither row above, including
+one whose evidence a workflow run *may* produce but need not: `I06` accepts a
+build script, `R04` asks whether a tag, a version, and a title agree rather than
+what compared them, `W01` asks for a repeatable documented process rather than a
+workflow, and `S11`, `S12`, and `S13` are properties of a workflow file that
+hold whether or not it ever runs. This section narrows the criteria its two rows
+describe — ten at this version — and one badge position, and nothing else.
 
 ## Status Badges
 
@@ -822,6 +843,10 @@ Rules:
 The shared implementation is the reusable workflow described in
 [Repository Stats](repo-stats.md). A repository may generate the card another
 way; the criterion is about the property, not the tool.
+
+Both of the first two rules need a runner. Where none is available,
+[Automation Availability](#automation-availability) states what is recorded
+instead.
 
 ## Conformance Records
 
