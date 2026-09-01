@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.7.0
-- Last reviewed: 2026-08-31
+- Version: 1.8.0
+- Last reviewed: 2026-09-01
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across
@@ -171,6 +171,10 @@ assessment backlog.
 | <a id="s09"></a>S09 | Existing required checks protect the default branch | Branch ruleset or protection settings |
 | <a id="s10"></a>S10 | Architecture and non-obvious constraints are documented | README, `docs/`, or ADRs |
 
+`S02`, `S03`, and `S04` name a workflow run as their evidence.
+[Automation Without A Runner](#automation-without-a-runner) states what is
+recorded where the repository has no runner available to it.
+
 ## Deployable Repositories
 
 | ID | Requirement | Expected evidence |
@@ -218,6 +222,10 @@ entry cannot disagree.
 
 A reusable starting point is published as
 [`templates/release-notes/`](../templates/release-notes/).
+
+`R03`, `R05`, and `R07` name automation as their evidence.
+[Automation Without A Runner](#automation-without-a-runner) states what is
+recorded where the repository has no runner available to it.
 
 ## Product Identity
 
@@ -499,6 +507,102 @@ These criteria describe disclosure, not legal process. They do not require a
 record of processing, a data protection agreement, or legal review. They also do
 not restate the secret-handling requirements in `S05`, `S06`, `S07`, and `D02`.
 
+## Automation Without A Runner
+
+Several criteria name a workflow run as their expected evidence. Hosted runner
+minutes are free for public repositories and metered for private ones, Actions
+can be disabled for a repository, and no self-hosted runner has to exist. A
+repository can therefore be maintained to a high standard and still be unable to
+produce a workflow run at all, for a reason that says nothing about its quality.
+
+Without this section such a repository records `Fail` across a stack of criteria,
+or an assessor settles the question with an intention the text does not state.
+That is the defect
+[decision 0011](decisions/0011-criteria-are-decided-by-the-rule-text.md) exists to
+prevent, so the outcome is stated here instead.
+
+This section applies to `S02`, `S03`, `S04`, `R03`, `R05`, `R07`, and to the
+continuous integration badge required by [Status Badges](#status-badges). It
+changes nothing for any other criterion. Three that look affected are not:
+
+- `S09` is limited to checks that already exist, and a ruleset blocking force
+  pushes and deletion needs no runner.
+- `L04` already accepts "a validation command or CI check", so the command alone
+  reaches `Pass`.
+- `B05` is unchanged, and is where the substitute work below lands. A documented,
+  reproducible validation command is required of every repository whether or not
+  it has a runner.
+
+### Runner Availability
+
+A repository **has no runner** when both of the following hold on the date of
+assessment:
+
+1. no GitHub-hosted runner is available to it, because Actions is disabled for
+   the repository or because it is private and no Actions minutes allowance
+   covers it; and
+2. no self-hosted runner is available to it.
+
+Every other repository **has a runner** and is assessed exactly as written. That
+includes a public repository with Actions enabled, a private repository with a
+minutes allowance, and any repository with a self-hosted runner.
+
+Runner availability is a property of the repository, established from its Actions
+settings and the Actions allowance of the account that owns it — evidence its
+maintainer already holds. It is never inferred from the absence of workflow
+files: a repository that has a runner and does not use one has a runner, and a
+missing workflow is a gap rather than an exemption.
+
+The assessment records which of the two cases holds, beside the visibility
+recorded for `B09`. Where it is not recorded, the repository has a runner.
+
+### Results Where A Repository Has No Runner
+
+Exactly one row below applies to each criterion named in it.
+
+| Criterion | Result | Reached by |
+|---|---|---|
+| `S02` | `Pass` | An automated test suite covers important behavior and failure paths, the documented `B05` command runs it, and a successful run is recorded in the assessment |
+| `S02` | `Partial` | Such a suite exists, and either the documented command does not run it or no successful run is recorded |
+| `S02` | `Fail` | No such suite exists |
+| `S03` | `Pass` | Formatting, linting, type, and static checks are configured for every tool the language supports, the documented `B05` command runs them, and a successful run is recorded in the assessment |
+| `S03` | `Partial` | Such configuration exists, and either the documented command does not run it or no successful run is recorded |
+| `S03` | `Fail` | No such configuration exists |
+| `S04` | `Not applicable` | Always, with the runner finding and the list of materially supported runtimes recorded as the rationale |
+| `R03` | `Partial` | A documented command produces the release artifacts from a clean checkout, and every release published since the previous assessment carries them |
+| `R03` | `Fail` | No such command exists, or a release published since the previous assessment does not carry the artifacts |
+| `R05` | `Pass` | A documented command smoke-tests the built artifact in an environment created for the test and discarded after it, inheriting nothing from the working checkout, and a successful run is recorded in the assessment |
+| `R05` | `Partial` | Such a command exists, and either the environment is not created for the test or no successful run is recorded |
+| `R05` | `Fail` | No such command exists |
+| `R07` | `Partial` | Every release published since the previous assessment carries the changelog entry for its version as its notes |
+| `R07` | `Fail` | A release published since the previous assessment carries notes that are not the changelog entry for its version |
+
+`S02`, `S03`, and `R05` keep a reachable `Pass` because their substance is the
+suite, the configuration, and the clean-environment check. A workflow is how that
+substance is usually demonstrated, not what it is.
+
+`R03` and `R07` are capped at `Partial` because their substance *is* the
+automation: an artifact built by hand, and release notes copied by hand, are the
+exact failures those criteria exist to catch. The work that reaches `Pass` is
+still identifiable — make a runner available — so neither is a criterion nobody
+can clear. `S04` is `Not applicable` rather than `Fail` because a matrix over
+runtimes cannot be produced by one maintainer on one machine at all.
+
+### The Continuous Integration Badge
+
+Where a repository has no runner there is no workflow whose status a badge could
+report. In that case:
+
+- the continuous integration badge is omitted, and the remaining required badges
+  keep their relative order. Omitting it is a `Pass` on `P08` when the rest of the
+  block is correct, and is neither a `Partial` nor a `Fail`;
+- a committed image standing in for it is a `Fail` on `P08`. The existing rule
+  against committing a status image is about staleness, and an image of a workflow
+  that never runs is stale the moment it lands;
+- a substitute badge reporting something else — a hand-written "no CI" label, or a
+  third-party render of another value — is a badge outside the required set and
+  needs the stated reason the badge rules already require of one.
+
 ## Status Badges
 
 Badges are the first thing a reader sees. They are held to the same rule as
@@ -511,7 +615,8 @@ Required badge block, in this order:
 
 1. license;
 2. platform or runtime requirement;
-3. CI status of the default branch;
+3. CI status of the default branch, except where
+   [Automation Without A Runner](#automation-without-a-runner) omits it;
 4. latest release, where the repository publishes releases;
 5. conformance, where a conformance record exists.
 

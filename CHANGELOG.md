@@ -6,7 +6,37 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
-## 1.7.0 - 2026-08-31
+## 1.8.0 - 2026-09-01
+
+- Added [Automation Without A Runner](docs/repository-quality-standard.md#automation-without-a-runner),
+  which states what an assessor records for `S02`, `S03`, `S04`, `R03`, `R05`,
+  `R07`, and the continuous integration badge when the repository has no runner
+  available to it. Hosted Actions minutes are free for public repositories and
+  metered for private ones, and no self-hosted runner has to exist, so a private
+  repository can be maintained to a high standard and still be unable to produce
+  a workflow run. None of those criteria said what happens then, which left the
+  result to the assessor and made it unreproducible — the defect
+  [decision 0011](docs/decisions/0011-criteria-are-decided-by-the-rule-text.md)
+  exists to prevent.
+- Defined runner availability as a property of the repository rather than of its
+  visibility, established from its Actions settings and the owning account's
+  allowance. A private repository with a minutes allowance or a self-hosted
+  runner has a runner and is assessed as written, and a missing workflow file is
+  never an exemption.
+- Narrowed `S04` so it is `Not applicable` where the repository has no runner. A
+  matrix over runtimes cannot be produced by one maintainer on one machine, so
+  the previous reading could only ever record `Fail` for a reason unrelated to
+  quality. This is the minor case in the compatibility table: a recorded `Fail`
+  can become `Not applicable`, and no recorded `Pass` is invalidated.
+- Left `S09`, `L04`, and `B05` untouched, and said so in the rule text. `S09` is
+  already limited to checks that exist, `L04` already accepts a validation
+  command in place of a CI check, and `B05` is the criterion that carries the
+  substitute work. Naming them keeps the next reader from inferring a scope the
+  section does not have.
+- No recorded `Pass` becomes a `Fail` from any of this, and unlike 1.6.1 that is
+  a property of the rule text rather than a sentence in this entry: reaching
+  `Pass` on the affected criteria already required a workflow run, so a
+  repository that reached one has a runner and this section never applies to it.
 
 - Added `R07`, requiring that published release notes are generated from the
   changelog entry for the version being released, gated by automation that fails

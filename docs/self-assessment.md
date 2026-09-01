@@ -1,7 +1,7 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.7.0
-- Assessed on: 2026-08-31
+- Standard version: 1.8.0
+- Assessed on: 2026-09-01
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
 
@@ -25,6 +25,16 @@ make every other badge in the estate worthless.
 | Documentation | Yes | The primary product is documentation |
 | Published Site | No | This repository defines the standard; it does not ship a product. See below |
 | Archived | No | Actively maintained |
+
+## Runner availability
+
+This repository **has a runner**: it is public and Actions is enabled, so hosted
+minutes cover it. [Automation Without A Runner](repository-quality-standard.md#automation-without-a-runner)
+therefore does not apply to any criterion here, and `S02`, `S03`, `S04`, `R03`,
+`R05`, `R07`, and the badge block are assessed exactly as written. The finding is
+recorded because the section requires it to be, and because a reader comparing
+this record against one from a private repository needs to see which of the two
+readings produced it.
 
 ## Closed gaps
 
@@ -175,7 +185,7 @@ environment.
 
 ## Reassessment
 
-Due by 2027-02-28, six months after the assessment date. The conformance check
+Due by 2027-03-01, six months after the assessment date. The conformance check
 fails once the record ages past that point and stays red until the repository is
 reassessed. Regenerating the badge makes it render as stale, which keeps the
 public signal honest, but does not clear the check.
