@@ -82,6 +82,24 @@ The badge is generated from the record and committed alongside it. No badge
 value is editable on its own, so the badge cannot claim something the record does
 not say. Where no record exists, no badge is published.
 
+## Starting a record
+
+A record names every criterion in the catalog, so it is generated rather than
+typed:
+
+```sh
+python3 scripts/conformance.py --init --repository /path/to/repository
+```
+
+It writes `.github/conformance.yml` with every criterion set to `unknown`, and
+refuses to overwrite an existing record, because a record holds an assessment
+that regenerating it cannot reproduce. The `assessed_on` field is a placeholder
+that `--check` rejects until it is replaced, so a generated file cannot pass for
+an assessment nobody made.
+
+[`templates/conformance.yml`](../templates/conformance.yml) is the same output,
+committed for repositories that would rather copy a file than run a script.
+
 ## Adoption
 
 Repositories consume the reusable workflow published here:
