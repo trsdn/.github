@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.8.0
+- Version: 1.9.0
 - Last reviewed: 2026-09-01
 - Review cadence: every six months, even when nothing changes
 
@@ -217,6 +217,11 @@ section describes.
 
 ## Software Repositories
 
+`S02`, `S03`, `S04`, and `S09` name a workflow run as their evidence. Where no
+runner is available to the repository,
+[Automation Availability](#automation-availability) states what is recorded
+instead.
+
 | ID | Requirement | Expected evidence |
 |---|---|---|
 | <a id="s01"></a>S01 | Setup is reproducible from a clean checkout | Lockfile or pinned dependencies plus documented commands |
@@ -284,6 +289,10 @@ guarded by a label, an approval, or a maintainer's attention.
 | <a id="d06"></a>D06 | Backup, migration, and destructive-operation risks are addressed when stateful | Runbook or explicit not-applicable result |
 
 ## Package And Release Repositories
+
+`R03`, `R05`, and `R07` require a runner. Where none is available,
+[Automation Availability](#automation-availability) states what is recorded
+instead.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
@@ -545,7 +554,9 @@ Repositories are published to an international audience. Language is therefore a
 property of the repository, not a matter of personal habit.
 
 Applies to the Software, Deployable, Package, Documentation, and Published Site
-profiles.
+profiles. `L04` accepts a command or a CI check; where no runner is available,
+[Automation Availability](#automation-availability) states which result the
+command produces.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
@@ -622,6 +633,58 @@ These criteria describe disclosure, not legal process. They do not require a
 record of processing, a data protection agreement, or legal review. They also do
 not restate the secret-handling requirements in `S05`, `S06`, `S07`, and `D02`.
 
+## Automation Availability
+
+Eight criteria name a workflow run as their evidence, and one required badge
+reports one. A repository with no runner cannot produce any of it, and none of
+those criteria say what an assessor records instead. This section says it once,
+because a rule restated in eight places drifts.
+
+**The property is the runner, not the visibility.** A repository is *without
+automation* when no runner is available to it: no self-hosted runner it can use,
+and no hosted minutes it can spend. Private repositories are the common case,
+because hosted minutes there are metered and billable rather than free, but
+visibility does not decide it. A private repository with a self-hosted runner
+has automation available. A public repository whose account has disabled Actions
+does not.
+
+**It has to be recorded before it can be used.** A repository in this state says
+so in the evidence its conformance record links to, in one sentence naming the
+absence and the reason for it. Without that sentence the assessor records the
+ordinary result, because an unstated possibility is not evidence and cannot be
+checked by anyone else. Recording it also keeps the answer honest as the
+repository changes: the sentence has to be removed when a runner appears.
+
+Where the state applies and is recorded, these results replace the ordinary
+ones:
+
+| What the criterion requires | Result when no runner is available |
+|---|---|
+| That a check exists and can be run: `S02`, `S03`, `L04` | `Pass` where the documented `B05` command runs that check and a maintainer can produce a successful run of it; `Partial` where the check is configured but no documented command runs it; `Fail` where the check does not exist |
+| That automation performs or enforces something: `S04`, `S09`, `R03`, `R05`, `R07` | `Not applicable` |
+
+The split is between a capability and a gate. A test suite, a linter, and a
+catalog check are things the repository owns; a runner only makes them
+convenient, and `B05` already requires the command that runs them, so the
+evidence exists without CI and `Pass` is the honest result. A matrix, a required
+check, a release built by a tag, a smoke test in a clean environment, and a
+release-notes gate are not properties of the repository at all — they are things
+a runner does. Where there is no runner, there is nothing to assess, which is
+what `Not applicable` means everywhere else in this document.
+
+**`P08`.** The CI badge is position 3 of the required block. Where no runner is
+available, that position is omitted and the remaining badges keep their order
+and their numbering intent; nothing takes its place. Committing an image
+asserting a CI status is not the alternative and remains a `Fail` under
+[Status Badges](#status-badges), which already rejects a committed image of a
+value that moves without a commit — and a badge reporting a result that was
+never computed is worse than one that is merely stale.
+
+**Everything else is assessed normally.** A repository with a runner available
+that chooses not to use it is not in this state, and its ordinary results stand,
+including `Fail`. So does every criterion not named in the table above: this
+section narrows eight criteria and one badge position, and nothing else.
+
 ## Status Badges
 
 Badges are the first thing a reader sees. They are held to the same rule as
@@ -634,7 +697,8 @@ Required badge block, in this order:
 
 1. license;
 2. platform or runtime requirement;
-3. CI status of the default branch;
+3. CI status of the default branch, except where
+   [Automation Availability](#automation-availability) omits it;
 4. latest release, where the repository publishes releases;
 5. conformance, where a conformance record exists.
 

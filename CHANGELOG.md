@@ -6,6 +6,33 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.9.0 - 2026-09-01
+
+- Added
+  [Automation Availability](docs/repository-quality-standard.md#automation-availability),
+  which states what an assessor records for the criteria that name a workflow
+  run as their evidence when the repository has no runner. Eight criteria and
+  one badge position were previously undecidable in that case: two assessors
+  reading `S02` would reasonably record `Fail` and `Not applicable`
+  respectively, which is the failure
+  [decision 0011](docs/decisions/0011-criteria-are-decided-by-the-rule-text.md)
+  exists to prevent. No criterion is added, renumbered, or retired.
+- Scoped the rule to whether a runner is available rather than to whether the
+  repository is private. Visibility is the common cause and not the property:
+  a private repository with a self-hosted runner has automation available, and
+  a public repository whose account has disabled Actions does not.
+- Split the outcome by what the criterion requires rather than listing eight
+  individual answers. `S02`, `S03`, and `L04` describe a check the repository
+  owns, so the documented `B05` command produces a `Pass`; `S04`, `S09`, `R03`,
+  `R05`, and `R07` describe something a runner does, so they are
+  `Not applicable`. `P08` omits the CI badge and promotes nothing into its
+  place; committing an image of a status no run produced remains a `Fail`.
+- Required the state to be recorded in the evidence the conformance record
+  links to before it can be claimed. An unstated possibility is not evidence,
+  and the sentence has to be removed when a runner appears.
+- This is a minor bump: it narrows criteria so that a result recorded as `Fail`
+  may become `Not applicable` or `Pass`, and widens nothing.
+
 ## 1.8.0 - 2026-09-01
 
 - Added `S11`, `S12`, and `S13`, covering the part of a repository that runs with
