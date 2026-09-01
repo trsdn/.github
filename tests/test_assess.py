@@ -39,7 +39,12 @@ def facts(**overrides) -> dict:
         "contents": {},
         "community_files": {},
         "secret_scanning": "",
-        "protection": {"visible": False, "required_checks": []},
+        "protection": {
+            "visible": False,
+            "required_checks": [],
+            "force_pushes": False,
+            "deletions": False,
+        },
     }
     base.update(overrides)
     return base
@@ -213,6 +218,52 @@ class AssessTests(unittest.TestCase):
             facts(paths=["README.md"], community_files={"readme": True, "license": True})
         )
         self.assertEqual(drafted["P03"], "fail")
+
+    # -- B16 is decided by two settings, and only when they are visible -----
+
+    def test_a_branch_that_blocks_both_settings_passes_b16(self) -> None:
+        drafted, _ = self.assess(
+            facts(
+                protection={
+                    "visible": True,
+                    "required_checks": ["Tests"],
+                    "force_pushes": False,
+                    "deletions": False,
+                }
+            )
+        )
+        self.assertEqual(drafted["B16"], "pass")
+
+    def test_a_branch_that_permits_one_setting_is_partial(self) -> None:
+        drafted, _ = self.assess(
+            facts(
+                protection={
+                    "visible": True,
+                    "required_checks": ["Tests"],
+                    "force_pushes": True,
+                    "deletions": False,
+                }
+            )
+        )
+        self.assertEqual(drafted["B16"], "partial")
+
+    def test_a_branch_that_permits_both_settings_fails_b16(self) -> None:
+        drafted, _ = self.assess(
+            facts(
+                protection={
+                    "visible": True,
+                    "required_checks": ["Tests"],
+                    "force_pushes": True,
+                    "deletions": True,
+                }
+            )
+        )
+        self.assertEqual(drafted["B16"], "fail")
+
+    def test_invisible_protection_leaves_b16_to_a_person(self) -> None:
+        """A 404 cannot tell a ruleset, an unprotected branch, and no plan apart."""
+        drafted, _ = self.assess(facts())
+        self.assertEqual(drafted["B16"], "unknown")
 
 
 if __name__ == "__main__":

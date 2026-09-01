@@ -27,6 +27,7 @@ assessment.
 | `B09` | The archived flag, and only when the repository is archived |
 | `B11` | Whether `.github/conformance.yml` exists |
 | `B12` | Whether the `trsdn-standard` topic is present |
+| `B16` | Whether classic branch protection blocks force pushes and deletion |
 | `P02`, `P06` | The community profile GitHub reports, which counts inherited files |
 | `P03` | A security policy in the tree or recognised by GitHub, absence only |
 | `P04`, `P10`, `P11` | Whether any intake template exists, absence only |
@@ -45,6 +46,13 @@ gathered rather than on headings; the script can only see that no template
 exists at all, so that is the only result it records. And `P03` is recorded as a
 failure only when no policy is found anywhere — the community profile API emits
 no `security` key, so its absence proves nothing.
+
+`B16` has a limit of its own. The script reads classic branch protection, so it
+decides the criterion only where that endpoint answers. A branch protected by a
+ruleset instead, a branch nothing covers, and a repository whose plan offers no
+mechanism all return the same `404`, and the standard gives those three cases
+`Pass`, `Fail`, and `Not applicable` respectively. The script cannot tell them
+apart, so it leaves `B16` unknown and a person settles it.
 
 Where the repository is private, the Public profile does not apply, and the
 script records `na` against every `P` criterion with that reason.

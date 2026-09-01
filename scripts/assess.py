@@ -197,6 +197,16 @@ def collect(client: GitHub, repository: str) -> dict:
             )
             if isinstance(protection, dict)
             else [],
+            "force_pushes": bool(
+                ((protection or {}).get("allow_force_pushes") or {}).get("enabled", False)
+            )
+            if isinstance(protection, dict)
+            else False,
+            "deletions": bool(
+                ((protection or {}).get("allow_deletions") or {}).get("enabled", False)
+            )
+            if isinstance(protection, dict)
+            else False,
         },
     }
 
@@ -277,6 +287,19 @@ def decide_s13(facts: dict) -> tuple[str, str]:
     )
 
 
+def decide_b16(facts: dict) -> tuple[str, str]:
+    """Decide `B16` from the two settings that keep the default branch."""
+    protection = facts["protection"]
+    force = bool(protection.get("force_pushes", False))
+    deletion = bool(protection.get("deletions", False))
+    if not force and not deletion:
+        return "pass", "the default branch blocks force pushes and deletion"
+    if force and deletion:
+        return "fail", "the default branch permits force pushes and deletion"
+    permitted = "force pushes" if force else "deletion"
+    return "partial", f"the default branch permits {permitted}"
+
+
 def decide_licence(facts: dict) -> dict[str, tuple[str, str]]:
     spdx = facts["licence"]
     decided: dict[str, tuple[str, str]] = {}
@@ -341,6 +364,7 @@ def decide(facts: dict, catalog_ids: list[str]) -> dict[str, tuple[str, str]]:
             if checks
             else ("fail", "the default branch is protected but requires no check")
         )
+        decided["B16"] = decide_b16(facts)
 
     forms = [path for path in paths if ISSUE_FORM.match(path)]
     template = [path for path in paths if PR_TEMPLATE.match(path)]

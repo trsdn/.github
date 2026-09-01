@@ -42,6 +42,10 @@ Versions follow the compatibility policy in the
   invalidated and every repository is simply due for reassessment. No criterion
   is renumbered or retired, and no prefix is claimed; `B` is already registered
   to Baseline.
+- Taught the draft assessor to decide `B16` from the branch protection facts it
+  already collects, and to leave it unknown where that endpoint does not answer.
+  A ruleset, an uncovered branch, and a plan without the mechanism all return
+  the same `404`, and the standard gives those three cases different results.
 
 ## 1.9.1 - 2026-09-01
 
