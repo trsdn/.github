@@ -6,7 +6,7 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
-## 1.11.0 - 2026-09-02
+## 1.11.0 - 2026-09-01
 
 - Restated both rows of the
   [Automation Availability](docs/repository-quality-standard.md#automation-availability)
