@@ -240,6 +240,71 @@ class ConformanceTests(ScriptTestCase):
         )
         self.assertAccepts(result)
 
+    # Starting a record -----------------------------------------------------
+
+    def init(self, *arguments: str):
+        return self.run_script("conformance.py", "--init", *arguments)
+
+    def test_init_names_every_criterion_in_the_catalog(self) -> None:
+        self.assertAccepts(self.init())
+        written = (self.repository / ".github" / "conformance.yml").read_text()
+        for identifier in ("B01", "B02", "S01"):
+            self.assertIn(f"  {identifier}: unknown", written)
+
+    def test_init_records_no_result_of_its_own(self) -> None:
+        """A generated file must not be able to pass for an assessment."""
+        self.assertAccepts(self.init())
+        self.assertRejects(self.check(), "assessed_on `YYYY-MM-DD` is not an ISO date")
+
+    def test_init_produces_a_record_that_validates_once_it_is_filled_in(self) -> None:
+        self.assertAccepts(self.init())
+        path = self.repository / ".github" / "conformance.yml"
+        filled = path.read_text().replace("YYYY-MM-DD", dt.date.today().isoformat())
+        path.write_text(filled.replace(": unknown", ": pass"))
+        self.generate_badge()
+        self.assertAccepts(self.check())
+
+    def test_init_refuses_to_overwrite_an_existing_record(self) -> None:
+        """A record holds an assessment that regenerating it cannot reproduce."""
+        self.write_record(record())
+        self.assertRejects(self.init(), "will not overwrite it")
+
+    def test_init_carries_the_catalog_version(self) -> None:
+        self.assertAccepts(self.init())
+        written = (self.repository / ".github" / "conformance.yml").read_text()
+        self.assertIn('standard_version: "2.0.0"', written)
+
+    def test_the_published_template_is_not_hand_maintained(self) -> None:
+        """The template lists every criterion, so it must be generated, not typed."""
+        expected = self.run_script(
+            "conformance.py", "--init", "--output", str(self.repository / "generated.yml")
+        )
+        self.assertAccepts(expected)
+        published = (ROOT / "templates" / "conformance.yml").read_text()
+        current = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPTS / "conformance.py"),
+                "--init",
+                "--repository",
+                str(ROOT),
+                "--output",
+                str(self.repository / "from-real-catalog.yml"),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertAccepts(current)
+        self.assertEqual(
+            published,
+            (self.repository / "from-real-catalog.yml").read_text(),
+            msg=(
+                "templates/conformance.yml has drifted from the catalog. Delete it and run "
+                "python3 scripts/conformance.py --init --output templates/conformance.yml"
+            ),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

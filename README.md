@@ -40,7 +40,14 @@ its meaning. See
 
 1. Assess the repository against a published version of the standard.
 2. Record the result in `.github/conformance.yml`, following the
-   [record format](docs/conformance-record.md).
+   [record format](docs/conformance-record.md). To start from a record that
+   already names every criterion, copy
+   [`templates/conformance.yml`](templates/conformance.yml) or generate one:
+
+   ```sh
+   python3 scripts/conformance.py --init --repository /path/to/repository
+   ```
+
 3. Generate the badge from the record and commit it.
 4. Add the `trsdn-standard` topic so the repository appears in the inventory.
 5. Call the reusable check:
@@ -108,6 +115,9 @@ repositories. Those controls must be enabled and verified per repository.
 
 - [`templates/AGENTS.md`](templates/AGENTS.md) — starting point for the agent
   readiness criteria `G01` to `G08`.
+- [`templates/conformance.yml`](templates/conformance.yml) — starting point for
+  the `B11` conformance record, naming every criterion in the catalog. Generated,
+  so it cannot fall behind the criteria it lists.
 - [`templates/repo-stats/`](templates/repo-stats/) — caller workflow and README
   snippet for the `P09` repository statistics card.
 - [`templates/release-notes/`](templates/release-notes/) — reference release

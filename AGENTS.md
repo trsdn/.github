@@ -36,6 +36,7 @@ statistics cards.
 | `docs/self-assessment.md` | This repository's own assessment, with per-criterion notes. |
 | `docs/decisions/` | Architectural decision records. |
 | `templates/AGENTS.md` | Starting point published for other repositories. |
+| `templates/conformance.yml` | Generated starting point for a conformance record. Never hand-edit. |
 | `scripts/standard.py`, `scripts/conformance.py`, `scripts/links.py` | Validation and generation tooling for the standard, Python standard library only. |
 | `scripts/profile_stats/` | Self-hosted GitHub statistics generator; runtime dependency is `requests`. |
 | `tests/` | Tests for the tooling in `scripts/`, run via `unittest`. |
@@ -165,6 +166,10 @@ ecosystem, or build tool.
   unless a maintainer explicitly instructs you to in the current request, and
   then only as described in [Releasing and publishing](#releasing-and-publishing).
 - Do not hand-edit `standard.yml` or anything under `.github/badges/`.
+- Do not hand-edit `templates/conformance.yml`. It lists every criterion, so a
+  typed copy falls behind the catalog the moment one is added. Delete it and run
+  `python3 scripts/conformance.py --init --output templates/conformance.yml`; a
+  test fails when it has drifted.
 - Do not change a conformance record to make a badge look better. The record
   follows the evidence; the badge follows the record.
 - Do not renumber existing criteria, including to "tidy up" a gap.
