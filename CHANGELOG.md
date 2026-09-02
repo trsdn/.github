@@ -6,6 +6,34 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.11.1 - 2026-09-02
+
+- Made
+  [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility)
+  decided by a property rather than by its four rows. Two changes this repository
+  had already shipped landed on no row: a criterion widening so a recorded `Fail`
+  could become a `Pass`, which is what correcting `R08`'s escape hatch did in
+  1.11.0, and applicability narrowing by a *section* rather than by a profile,
+  which is what [Automation
+  Availability](docs/repository-quality-standard.md#automation-availability) did
+  for `S04`, `S09`, `R03`, `R05`, and `R07` in 1.9.0 and for `P09` in 1.11.0. The
+  row covering `Not applicable` read "A profile's applicability narrows", and
+  that section is not a profile.
+- Both were released as minor, which was right, but the answer was reached by
+  reasoning from the two paragraphs under the table rather than from the table
+  itself. That reasoning was the actual rule and is now stated as one: the impact
+  is decided by what a change can do to a result already recorded against an
+  earlier version. The rows are retained as examples, and two are added for the
+  cases that were missing.
+- This is the same correction 1.9.1 and 1.11.0 applied elsewhere, and the third
+  instance of one pattern:
+  [decision 0011](docs/decisions/0011-criteria-are-decided-by-the-rule-text.md)
+  requires an outcome to attach to a property rather than to an enumeration, and
+  a four-row table with no residual case is an enumeration. This one governs
+  every change made to the document, including its own.
+- Patch, on its own terms: no recorded result can change, since this states the
+  rule that has been applied in practice since 1.9.0.
+
 ## 1.11.0 - 2026-09-01
 
 - Restated both rows of the
