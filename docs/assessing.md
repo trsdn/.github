@@ -27,6 +27,7 @@ assessment.
 | `B09` | The archived flag, and only when the repository is archived |
 | `B11` | Whether `.github/conformance.yml` exists |
 | `B12` | Whether the `trsdn-standard` topic is present |
+| `B16` | Whether a ruleset or classic branch protection blocks force pushes and deletion |
 | `P02`, `P06` | The community profile GitHub reports, which counts inherited files |
 | `P03` | A security policy in the tree or inherited from the account, and whether private reporting is enabled |
 | `P04`, `P10`, `P11` | Whether any intake template exists, absence only |
@@ -54,6 +55,17 @@ worse than no answer, because a draft that is silent invites a look and a draft
 that is confidently wrong does not. Where the evidence cannot be read at all —
 an unreadable ruleset, a reporting setting the token cannot see — the criterion
 stays `unknown` rather than becoming a failure.
+
+`B16` reads both mechanisms for the same reason `S09` does. Either can keep the
+branch, so a ruleset blocking force pushes settles that half whatever branch
+protection permits, and a ruleset blocking both decides the criterion on its own
+where there is no classic protection to read.
+
+A limit remains where neither answers. A branch nothing covers, a branch whose
+protection the token cannot see, and a repository whose plan offers no mechanism
+all return the same `404`, and the standard gives those cases `Fail`, no answer,
+and `Not applicable` respectively. The script cannot tell them apart, so it
+leaves `B16` unknown there and a person settles it.
 
 Where the repository is private, the Public profile does not apply, and the
 script records `na` against every `P` criterion with that reason.

@@ -6,6 +6,47 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.10.0 - 2026-09-01
+
+- Added `B16`, which requires that the default branch cannot be force-pushed
+  over or deleted, evidenced by a branch ruleset or classic branch protection.
+  `S09` covers required checks and nothing else, so
+  [Automation Availability](docs/repository-quality-standard.md#automation-availability)
+  correctly records it as `Not applicable` where no runner is available — and
+  once it does, no criterion asked for the branch to survive. `B06` asks only
+  that the merge policy be intentional, and "anyone may force push" is an
+  intentional policy. A private repository with no runner could therefore record
+  `Healthy` with a default branch that could be rewritten or deleted.
+- `B16` separates from `S09` by what it protects: `S09` gates what enters the
+  branch, `B16` keeps the branch. Blocking a force push and a deletion needs no
+  runner, so `B16` is assessed on its ordinary terms everywhere. It is not named
+  in the Automation Availability results table, and that section's closing
+  paragraph — "So does every criterion not named in the table above" — already
+  states that it is assessed normally, so no second statement was added.
+- Stated every case `B16` names. Both blocked is a `Pass`, one of the two is a
+  `Partial`, neither is a `Fail`, and so is a default branch no ruleset or
+  protection covers. A repository whose plan offers no ruleset or branch
+  protection mechanism at all records `Not applicable`, and has to say so in the
+  evidence its conformance record links to, on the same terms as a missing
+  runner. Whether the repository's own administrators may bypass the setting is
+  explicitly not part of the criterion, because the person who can lift the
+  protection is the person who set it.
+- Recorded the scope judgement as
+  [decision 0012](docs/decisions/0012-history-on-the-default-branch-is-protected.md),
+  including why narrowing `B06` was rejected: it would turn a recorded `Pass`
+  into a `Fail`, which is a major change under
+  [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility)
+  and would invalidate every result in the estate for a gap an appended
+  criterion closes at minor cost.
+- This is a minor bump: a criterion is added, so no recorded result is
+  invalidated and every repository is simply due for reassessment. No criterion
+  is renumbered or retired, and no prefix is claimed; `B` is already registered
+  to Baseline.
+- Taught the draft assessor to decide `B16` from the branch protection facts it
+  already collects, and to leave it unknown where that endpoint does not answer.
+  A ruleset, an uncovered branch, and a plan without the mechanism all return
+  the same `404`, and the standard gives those three cases different results.
+
 ## 1.9.1 - 2026-09-01
 
 - Closed a hole in the first
