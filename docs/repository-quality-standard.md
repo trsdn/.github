@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.9.0
+- Version: 1.9.1
 - Last reviewed: 2026-09-01
 - Review cadence: every six months, even when nothing changes
 
@@ -660,7 +660,7 @@ ones:
 
 | What the criterion requires | Result when no runner is available |
 |---|---|
-| That a check exists and can be run: `S02`, `S03`, `L04` | `Pass` where the documented `B05` command runs that check and a maintainer can produce a successful run of it; `Partial` where the check is configured but no documented command runs it; `Fail` where the check does not exist |
+| That a check exists and can be run: `S02`, `S03`, `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not |
 | That automation performs or enforces something: `S04`, `S09`, `R03`, `R05`, `R07` | `Not applicable` |
 
 The split is between a capability and a gate. A test suite, a linter, and a
@@ -671,6 +671,15 @@ check, a release built by a tag, a smoke test in a clean environment, and a
 release-notes gate are not properties of the repository at all — they are things
 a runner does. Where there is no runner, there is nothing to assess, which is
 what `Not applicable` means everywhere else in this document.
+
+The first row turns on one property, whether the check exists, so every
+repository lands on exactly one of its three results. A check that does not
+exist is a `Fail`. A check that exists is a `Pass` only where both remaining
+conditions hold together, and a `Partial` wherever either fails — so a check
+that no documented command runs, a check whose documented command produces no
+recorded successful run, and a check whose run fails are all `Partial` alike.
+None of the three is excused by the absence of a runner, because none of them
+is caused by it.
 
 **`P08`.** The CI badge is position 3 of the required block. Where no runner is
 available, that position is omitted and the remaining badges keep their order
