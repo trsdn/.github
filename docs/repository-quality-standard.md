@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.11.0
-- Last reviewed: 2026-09-01
+- Version: 1.11.1
+- Last reviewed: 2026-09-02
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across
@@ -31,10 +31,25 @@ setting, release artifact, or successful workflow run.
 This standard is versioned so that an assessment result stays reproducible. A
 result is always recorded against the exact version it was produced with.
 
+**The impact is decided by what the change can do to a result already recorded
+against an earlier version.** That is the property; the table below lists the
+changes that meet each case at the time of writing, and a change not listed is
+decided by the property rather than left undecided.
+
+- **Major**, where a recorded result could now be weaker than it was — a `Pass`
+  becoming a `Partial` or a `Fail` — or where a record cites an identifier that
+  no longer means what it did. Both invalidate a past assessment, which is the
+  only thing this policy is protecting.
+- **Minor**, where no recorded result can weaken, and some could strengthen,
+  become `Not applicable`, or newly need assessing. A repository is never made
+  wrong by such a change; it is due for reassessment.
+- **Patch**, where no recorded result can change at all.
+
 | Change | Version impact |
 |---|---|
 | A criterion is removed, renumbered, or its meaning narrows so that a recorded `Pass` could become a `Fail` | Major |
-| A profile's applicability narrows, so that a recorded `Fail` could become `Not applicable` | Minor |
+| Applicability narrows, so that a recorded `Fail` could become `Not applicable`, whether by a profile, a section, or a criterion's own text | Minor |
+| A criterion's meaning widens, so that a recorded `Fail` could become a `Pass` | Minor |
 | A criterion, profile, or section is added | Minor |
 | Wording, examples, formatting, or typos change without altering meaning | Patch |
 
@@ -42,10 +57,19 @@ Adding criteria is a minor change because a recorded result stays valid for the
 version it names. A repository does not silently regress when this document
 grows; it is simply due for reassessment.
 
-Narrowing a profile's applicability is minor for the same reason in reverse. No
-recorded `Pass` can turn into a `Fail`, so no past assessment is invalidated; the
-change can only excuse a repository from criteria it was previously measured
-against, and only at its next assessment.
+Narrowing applicability is minor for the same reason in reverse. No recorded
+`Pass` can turn into a `Fail`, so no past assessment is invalidated; the change
+can only excuse a repository from criteria it was previously measured against,
+and only at its next assessment. Widening is minor on the same test: a repository
+that recorded a `Fail` may now be able to record a `Pass`, and one that recorded
+a `Pass` is unaffected.
+
+The mechanism does not decide the impact. Applicability has narrowed by profile,
+and in 1.9.0 and 1.11.0 it narrowed by a section — [Automation
+Availability](#automation-availability) overriding results for criteria inside
+other profiles — and in 1.11.0 by a criterion's own text, when `R08`'s escape
+hatch was corrected. All three are minor, because a recorded `Pass` survives each
+of them.
 
 ### Criterion Identifiers Are Permanent
 
