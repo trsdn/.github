@@ -11,6 +11,7 @@ from .github_api import GitHubClient
 from .render.account import (
     render_activity_card,
     render_language_card,
+    render_momentum_card,
     render_now_building_card,
     render_overview_card,
     render_repos_table_card,
@@ -54,6 +55,7 @@ def account_command(args: argparse.Namespace) -> None:
         else bool(config.get("include_private")),
         include=repo_cfg.get("include", []),
         exclude=repo_cfg.get("exclude", []),
+        include_momentum="momentum" in config["cards"]["account"],
     )
     top_n = args.top_n or int(config.get("top_n", 12))
     selected = config.get("cards", {}).get("account") or []
@@ -61,6 +63,7 @@ def account_command(args: argparse.Namespace) -> None:
         "overview": lambda theme: render_overview_card(stats, theme),
         "activity": lambda theme: render_activity_card(stats, theme),
         "language": lambda theme: render_language_card(stats, theme),
+        "momentum": lambda theme: render_momentum_card(stats, theme),
         "repos-table": lambda theme: render_repos_table_card(stats, theme, top_n=top_n),
         "now-building": lambda theme: render_now_building_card(stats, theme),
     }

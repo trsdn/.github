@@ -72,3 +72,4 @@ class AccountStats:
     current_streak: int
     longest_streak: int
     weighted_languages: list[LanguageShare]
+    public_contribution_days: list[ContributionDay] | None = None

@@ -12,6 +12,7 @@ from math import ceil
 
 from ..languages import color_for
 from ..models import AccountStats, ContributionDay, LanguageShare
+from ..momentum import account_momentum
 from .svg import esc, footer, n, relative_time, svg_root, truncate
 from .theme import Theme, card_bg, defs
 
@@ -168,6 +169,105 @@ def render_activity_card(stats: AccountStats, theme: Theme) -> str:
         swatch_x += step
     body.append(f'<text x="{swatch_x + 2}" y="{legend_y}" class="tiny">More</text>')
     body.append(footer(width - MARGIN, legend_y, stats.generated_at))
+    return svg_root(width, height, "".join(body))
+
+
+def render_momentum_card(stats: AccountStats, theme: Theme) -> str:
+    momentum = account_momentum(stats)
+    current, previous = momentum.current, momentum.previous
+    current_total, previous_total = current.total, previous.total
+    if current_total is None or previous_total is None:
+        change = "Change unavailable: both periods need complete public data"
+    else:
+        delta = current_total - previous_total
+        if previous_total:
+            change = f"Change: {delta:+,} ({delta / previous_total:+.1%})"
+        elif current_total:
+            change = f"Change: +{delta:,} (previous period was zero; % undefined)"
+        else:
+            change = "Change: 0 (both periods zero; % undefined)"
+
+    notes = []
+    if current_total is None or previous_total is None:
+        notes.append(
+            f"Public data incomplete: {current.observed_days}/30 recent days, "
+            f"{previous.observed_days}/30 previous days; missing is not zero."
+        )
+    chart_heading = 220 + len(notes) * 22
+    chart_top, chart_bottom = chart_heading + 38, chart_heading + 98
+    labels_y = chart_bottom + 22
+    semantics_y = labels_y + 26
+    footer_y = semantics_y + FOOTER_GAP
+    width, height = 820, footer_y + BOTTOM_PAD
+    body = [defs(theme), card_bg(width, height, theme)]
+    body.append(
+        "<title>Momentum: public contributions over two consecutive 30-day periods</title>"
+        "<desc>Completed UTC days only. Weekly points are Monday to Sunday, clipped "
+        "to the displayed 60-day range. Missing data is not zero.</desc>"
+        '<text x="28" y="44" class="title">Momentum</text>'
+        '<text x="28" y="68" class="subtitle">'
+        "Public contributions | Completed UTC days; today excluded</text>"
+    )
+    for x, label, period in (
+        (28, "Last 30 days", current),
+        (292, "Previous 30 days", previous),
+    ):
+        total = f"{period.total:,}" if period.total is not None else "Unavailable"
+        body.append(_metric(x, 104, label, total))
+        body.append(
+            f'<text x="{x}" y="151" class="small">'
+            f"{period.start.isoformat()} to {period.end.isoformat()}</text>"
+        )
+    active = f"{current.active_days} / 30" if current.active_days is not None else "Unavailable"
+    body.append(_metric(568, 104, "Active days", active))
+    body.append(
+        '<text x="568" y="151" class="small">Last 30 days; at least 1 contribution</text>'
+        f'<text x="28" y="184" class="mono">{esc(change)}</text>'
+    )
+    for i, note in enumerate(notes):
+        body.append(f'<text x="28" y="{208 + i * 22}" class="small">{esc(note)}</text>')
+    body.append(
+        f'<text x="28" y="{chart_heading}" class="label">Weekly contributions</text>'
+        f'<text x="792" y="{chart_heading}" text-anchor="end" class="small">'
+        f"{previous.start.isoformat()} to {current.end.isoformat()} UTC</text>"
+    )
+    peak = max((week.total or 0 for week in momentum.weeks), default=0) or 1
+    points: list[str] = []
+
+    def flush() -> None:
+        if len(points) > 1:
+            body.append(
+                f'<polyline points="{" ".join(points)}" fill="none" '
+                f'stroke="{theme.accent}" stroke-width="2" stroke-linejoin="round"/>'
+            )
+        points.clear()
+
+    for i, week in enumerate(momentum.weeks):
+        x = 64 + i * 692 / (len(momentum.weeks) - 1)
+        label = week.start.strftime("%m-%d") + ("*" if week.days < 7 else "")
+        body.append(f'<text x="{x - 18:.2f}" y="{labels_y}" class="tiny">{label}</text>')
+        if week.total is None:
+            flush()
+            body.append(
+                f'<text x="{x - 18:.2f}" y="{chart_top + 30}" class="tiny">N/A'
+                f"<title>{week.start} to {week.end}: unavailable "
+                f"({week.observed_days}/{week.days} days)</title></text>"
+            )
+            continue
+        y = chart_bottom - (chart_bottom - chart_top) * week.total / peak
+        points.append(f"{x:.2f},{y:.2f}")
+        body.append(
+            f'<circle cx="{x:.2f}" cy="{y:.2f}" r="3" fill="{theme.accent}">'
+            f"<title>{week.start} to {week.end}: {week.total:,} public contributions "
+            f"({week.days} days{'; partial week' if week.days < 7 else ''})</title></circle>"
+            f'<text x="{x - 18:.2f}" y="{y - 10:.2f}" class="tiny">{week.total:,}</text>'
+        )
+    flush()
+    body.append(
+        f'<text x="28" y="{semantics_y}" class="small">'
+        "Mon-Sun totals; labels are week starts. * Partial boundary week, not extrapolated.</text>"
+    )
+    body.append(footer(width - MARGIN, footer_y, stats.generated_at))
     return svg_root(width, height, "".join(body))
 
 

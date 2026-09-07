@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+ACCOUNT_CARDS = {"overview", "activity", "language", "momentum", "repos-table", "now-building"}
+
 DEFAULT_CONFIG: dict[str, Any] = {
     "username": "trsdn",
     "top_n": 12,
@@ -12,7 +14,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "repo": {"include": [], "exclude": []},
     "cards": {
         "repo": ["repo-card"],
-        "account": ["overview", "activity", "language", "repos-table"],
+        "account": ["overview", "activity", "language", "momentum"],
     },
     "themes": {},
 }
@@ -111,4 +113,12 @@ def load_config(path: str | Path | None = None) -> dict[str, Any]:
     for key in ("include", "exclude"):
         if key in repo and not isinstance(repo[key], list):
             raise ValueError(f"repo.{key} must be a list")
+    cards = cfg.get("cards")
+    if not isinstance(cards, dict) or not isinstance(cards.get("account"), list):
+        raise ValueError("cards.account must be a list")
+    selected = cards["account"]
+    if any(not isinstance(name, str) or name not in ACCOUNT_CARDS for name in selected):
+        raise ValueError("cards.account contains an unknown account card")
+    if len(set(selected)) != len(selected):
+        raise ValueError("cards.account must not contain duplicate names")
     return cfg
