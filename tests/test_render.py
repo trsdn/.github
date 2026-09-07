@@ -20,6 +20,7 @@ from profile_stats.models import (
 from profile_stats.render.account import (
     render_activity_card,
     render_language_card,
+    render_momentum_card,
     render_now_building_card,
     render_overview_card,
     render_repos_table_card,
@@ -96,6 +97,15 @@ def account_stats():
         8,
         [LanguageShare("Python", 90, "#3572A5")],
     )
+
+
+def momentum_stats(now=datetime(2026, 9, 7, 12, tzinfo=UTC), previous=2, current=3):
+    start = now.astimezone(UTC).date() - timedelta(days=60)
+    days = [
+        ContributionDay(start + timedelta(days=i), previous if i < 30 else current)
+        for i in range(60)
+    ]
+    return replace(account_stats(), generated_at=now, public_contribution_days=days)
 
 
 def crowded_account_stats():
@@ -181,6 +191,7 @@ class RenderTests(unittest.TestCase):
             yield render_overview_card(stats, theme)
             yield render_activity_card(stats, theme)
             yield render_language_card(stats, theme)
+            yield render_momentum_card(stats, theme)
             yield render_repos_table_card(stats, theme)
             yield render_now_building_card(stats, theme)
             yield render_repo_card(repo_stats(), theme, datetime(2026, 8, 24, tzinfo=UTC))
@@ -206,6 +217,7 @@ class RenderTests(unittest.TestCase):
             render_overview_card(stats, LIGHT),
             render_activity_card(stats, LIGHT),
             render_language_card(stats, LIGHT),
+            render_momentum_card(stats, LIGHT),
             render_repos_table_card(stats, LIGHT),
             render_now_building_card(stats, LIGHT),
         ]:
@@ -227,6 +239,48 @@ class RenderTests(unittest.TestCase):
         for svg in self.all_cards(crowded_account_stats()):
             with self.subTest(svg=svg[:60]):
                 self.assertNotIn("<animate", svg)
+
+    def test_momentum_metrics_changes_and_static_theme_variants(self) -> None:
+        for previous, current, expected in (
+            (2, 3, "Change: +30 (+50.0%)"),
+            (2, 1, "Change: -30 (-50.0%)"),
+            (2, 0, "Change: -60 (-100.0%)"),
+            (2, 2, "Change: +0 (+0.0%)"),
+            (0, 1, "Change: +30 (previous period was zero; % undefined)"),
+            (0, 0, "Change: 0 (both periods zero; % undefined)"),
+            (40000, 50000, "Change: +300,000 (+25.0%)"),
+        ):
+            for theme in (LIGHT, DARK):
+                with self.subTest(previous=previous, current=current, theme=theme.name):
+                    svg = render_momentum_card(
+                        momentum_stats(previous=previous, current=current), theme
+                    )
+                    self.assertIn(expected, svg)
+                    self.assertIn("2026-08-08 to 2026-09-06", svg)
+                    self.assertIn("2026-07-09 to 2026-08-07", svg)
+                    self.assertIn(theme.accent, svg)
+                    self.assertIn("partial week", svg)
+                    self.assertIn("today excluded", svg)
+                    self.assert_well_formed(svg)
+                    self.assert_content_inside_card(svg)
+                    for unsafe in ("<animate", "<script", "<foreignObject", "<image", "href="):
+                        self.assertNotIn(unsafe, svg)
+
+    def test_momentum_gaps_are_not_plotted_as_zero_or_bridged(self) -> None:
+        stats = momentum_stats()
+        days = [d for i, d in enumerate(stats.public_contribution_days) if i != 20]
+        svg = render_momentum_card(replace(stats, public_contribution_days=days), LIGHT)
+        self.assertIn("Change unavailable", svg)
+        self.assertIn("30/30 recent days, 29/30 previous days", svg)
+        self.assertIn(">N/A", svg)
+        self.assertEqual(svg.count("<polyline"), 2)
+        self.assert_content_inside_card(svg)
+        for days in (None, []):
+            svg = render_momentum_card(replace(stats, public_contribution_days=days), LIGHT)
+            self.assertIn("0/30 recent days, 0/30 previous days", svg)
+            self.assertNotIn("<polyline", svg)
+            self.assertNotIn("<circle", svg)
+            self.assert_content_inside_card(svg)
 
     def test_overview_reports_sources_and_total_repositories(self) -> None:
         """Forks are excluded from the cards but not from GitHub's own count.

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
@@ -149,6 +150,100 @@ query AccountRepos($login: String!, $cursor: String) {
 }
 """
 
+_PUBLIC_COMMITS_QUERY = """
+query PublicContributions($login: String!, $from: DateTime!, $to: DateTime!) {
+  user(login: $login) {
+    contributionsCollection(from: $from, to: $to) {
+      totalRepositoriesWithContributedCommits
+      commitContributionsByRepository(maxRepositories: 100) {
+        repository { visibility }
+        contributions(first: 100) {
+          pageInfo { hasNextPage }
+          nodes { occurredAt commitCount isRestricted }
+        }
+      }
+    }
+  }
+}
+"""
+
+_PUBLIC_CONNECTIONS = {
+    "issueContributions": "issue { repository { visibility } }",
+    "pullRequestContributions": "pullRequest { repository { visibility } }",
+    "pullRequestReviewContributions": "repository { visibility }",
+    "repositoryContributions": "repository { visibility }",
+}
+
+
+def _collect_public_contribution_days(
+    client: GitHubClient,
+    username: str,
+    generated_at: datetime,
+    calendar_days: list[ContributionDay],
+) -> list[ContributionDay] | None:
+    """Count public, repository-attributed contributions, not private calendar totals."""
+    end = generated_at.astimezone(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+    start = end - timedelta(days=60)
+    variables = {
+        "login": username,
+        "from": start.isoformat(),
+        "to": (end - timedelta(seconds=1)).isoformat(),
+    }
+    # Reuse the calendar's coverage, never its potentially private counts.
+    counts = {d.day: 0 for d in calendar_days if start.date() <= d.day < end.date()}
+
+    def add(node: dict[str, Any], count: int) -> None:
+        occurred = parse_datetime(node["occurredAt"])
+        if occurred is None:
+            raise ValueError("public contribution is missing occurredAt")
+        day = occurred.astimezone(UTC).date()
+        if day in counts and not node["isRestricted"]:
+            counts[day] += count
+
+    collection = client.graphql(_PUBLIC_COMMITS_QUERY, variables)["user"]["contributionsCollection"]
+    groups = collection["commitContributionsByRepository"]
+    if len(groups) != collection["totalRepositoriesWithContributedCommits"] or any(
+        group["contributions"]["pageInfo"]["hasNextPage"] for group in groups
+    ):
+        logging.warning("Public contribution data is truncated; Momentum is unavailable")
+        return None
+    for group in groups:
+        if group["repository"]["visibility"] == "PUBLIC":
+            for node in group["contributions"]["nodes"]:
+                add(node, int(node["commitCount"]))
+
+    for field, selection in _PUBLIC_CONNECTIONS.items():
+        query = f"""
+query PublicContributionPage($login: String!, $from: DateTime!, $to: DateTime!, $cursor: String) {{
+  user(login: $login) {{
+    contributionsCollection(from: $from, to: $to) {{
+      {field}(first: 100, after: $cursor) {{
+        pageInfo {{ hasNextPage endCursor }}
+        nodes {{ occurredAt isRestricted {selection} }}
+      }}
+    }}
+  }}
+}}
+"""
+        cursor = None
+        while True:
+            page = client.graphql(query, {**variables, "cursor": cursor})["user"][
+                "contributionsCollection"
+            ][field]
+            for node in page["nodes"]:
+                if node["isRestricted"]:
+                    continue
+                resource = node.get("issue", node.get("pullRequest", node))
+                if resource["repository"]["visibility"] == "PUBLIC":
+                    add(node, 1)
+            if not page["pageInfo"]["hasNextPage"]:
+                break
+            next_cursor = page["pageInfo"]["endCursor"]
+            if not next_cursor or next_cursor == cursor:
+                raise ValueError(f"{field} pagination did not advance")
+            cursor = next_cursor
+    return [ContributionDay(day, count) for day, count in sorted(counts.items())]
+
 
 def _repo_from_node(repo: dict[str, Any]) -> RepoStats:
     release = repo.get("latestRelease")
@@ -227,9 +322,11 @@ def collect_account_stats(
     include_private: bool = False,
     include: list[str] | None = None,
     exclude: list[str] | None = None,
+    include_momentum: bool = True,
 ) -> AccountStats:
     generated_at = datetime.now(UTC)
-    since = generated_at - timedelta(days=370)
+    # GitHub accepts at most one year per contributionsCollection query.
+    since = generated_at.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=364)
     repos: list[RepoStats] = []
     contribution_days: list[ContributionDay] = []
     followers = 0
@@ -289,6 +386,11 @@ def collect_account_stats(
     merged_prs = client.search_count(f"author:{username} type:pr is:merged")
     authored_issues = client.search_count(f"author:{username} type:issue")
     code_reviews = client.search_count(f"reviewed-by:{username} type:pr")
+    public_days = (
+        _collect_public_contribution_days(client, username, generated_at, contribution_days)
+        if include_momentum
+        else None
+    )
     return AccountStats(
         username,
         generated_at,
@@ -305,4 +407,5 @@ def collect_account_stats(
         current_streak,
         longest_streak,
         weighted_languages,
+        public_days,
     )

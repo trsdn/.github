@@ -11,7 +11,7 @@ cards:
     - overview
     - activity
     - language
-    - repos-table
+    - momentum
 themes:
   light:
     accent: "#6d5dfc"
