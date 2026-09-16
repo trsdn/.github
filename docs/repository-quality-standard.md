@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.11.1
-- Last reviewed: 2026-09-02
+- Version: 1.11.2
+- Last reviewed: 2026-09-16
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across
@@ -835,6 +835,18 @@ Rules:
 
 A hardcoded `Swift 5.9` badge beside a manifest that has moved to 6.0 is the
 failure this section exists to prevent.
+
+Where a repository publishes downloadable GitHub Release assets, a live total
+download count is a useful optional signal. When maintainers choose to show it,
+use the release assets as the authority and link the badge to the releases page:
+
+```md
+[![Downloads](https://img.shields.io/github/downloads/OWNER/REPOSITORY/total?label=downloads)](https://github.com/OWNER/REPOSITORY/releases)
+```
+
+This badge is a recommendation, not part of the required badge block and not an
+additional condition for `P08`. GitHub counts asset downloads rather than unique
+users or installations, and checksum downloads are included in the total.
 
 Badge hosting is not a privacy question on GitHub. Markdown rendered on
 `github.com` loads every external image through GitHub's proxy, so the image host
