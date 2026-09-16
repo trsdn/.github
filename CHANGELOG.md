@@ -6,6 +6,15 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.11.2 - 2026-09-16
+
+- Added a recommended dynamic total-download badge for repositories that publish
+  downloadable GitHub Release assets.
+- Clarified that the badge reports asset downloads, not unique users or
+  installations, and includes checksum downloads.
+- Patch release: this is optional guidance and does not change any `P08`
+  assessment result.
+
 ## 1.11.1 - 2026-09-02
 
 - Made
