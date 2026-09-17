@@ -6,6 +6,21 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.12.0 - 2026-09-17
+
+- Retired `W05` and `W06`, which required every published site to vendor
+  **Instrument Workshop**, the shared design language. Added `W09`: a site's
+  visual design must be made for the project it describes, not left at a
+  framework default or reused unchanged from another project. Sites may still
+  use Instrument Workshop where it fits; nothing requires or recommends it as
+  the default any longer.
+  [Site Design](docs/repository-quality-standard.md#site-design) replaces the
+  former Design Language subsection. See
+  [decision 0013](docs/decisions/0013-sites-are-designed-not-templated.md).
+- Released as minor: retiring a criterion narrows applicability and adding one
+  widens the catalog, and neither can turn a recorded `Pass` into a `Fail`
+  under [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility).
+
 ## 1.11.1 - 2026-09-02
 
 - Made

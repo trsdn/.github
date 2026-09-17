@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.11.1
-- Last reviewed: 2026-09-02
+- Version: 1.12.0
+- Last reviewed: 2026-09-17
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across
@@ -488,10 +488,11 @@ Record the rationale rather than leaving the profile unclaimed.
 | <a id="w02"></a>W02 | The repository and the site link to each other | Repository homepage field, and a repository link in the site's persistent navigation or footer |
 | <a id="w03"></a>W03 | The landing view states what the project is, who it is for, and its current status before any scrolling | Site source |
 | <a id="w04"></a>W04 | The site carries the content baseline | [Site Content Baseline](#site-content-baseline) |
-| <a id="w05"></a>W05 | The site uses the shared design language rather than ad-hoc styling | [Design Language](#design-language) |
-| <a id="w06"></a>W06 | The design language version the site was built against is recorded | Version note, manifest entry, or vendored file header |
+| <a id="w05"></a>W05 | Retired 2026-09-17 (standard 1.12.0) — the shared-design-language mandate is replaced by `W09`; see [decision 0013](decisions/0013-sites-are-designed-not-templated.md) | None — retired |
+| <a id="w06"></a>W06 | Retired 2026-09-17 (standard 1.12.0) — recording a vendored design-language version is no longer required; see [decision 0013](decisions/0013-sites-are-designed-not-templated.md) | None — retired |
 | <a id="w07"></a>W07 | The site loads no third-party resources, sets no cookies, and carries no analytics | Site source and a documented network review |
 | <a id="w08"></a>W08 | The site states each fact once and links to the repository for depth | [Content Boundaries](#content-boundaries) |
+| <a id="w09"></a>W09 | The site's visual design is made for this project, not left at a framework or template default | [Site Design](#site-design) |
 
 A site is a shipped user interface, so [Accessibility](#accessibility) applies to
 it in full. Those criteria are not restated here.
@@ -527,41 +528,27 @@ started to duplicate the repository, which `W08` forbids.
 A site may be a single page. Nothing in this section requires more than one, and
 a single honest page beats a navigation tree over empty sections.
 
-### Design Language
+### Site Design
 
-The shared design language is **Instrument Workshop**. Sites use it rather than
-inventing styling per repository, so that the projects look like they come from
-the same hand and so that accessibility decisions — contrast, focus, target
-size, density — are made once rather than re-litigated per site.
+There is no shared design language every site is required to use, and no
+default one to reach for. `W09` asks whether a visitor can tell the page was
+built for what it describes, or whether it is unstyled HTML, a framework's
+default theme, or another project's site reused unchanged. That test is
+judgement, not a checklist, so what counts as evidence is a brief, honest look
+at the page rather than a single artifact.
 
-It is consumed by copying two stylesheets into the repository and loading the
-tokens first:
+Colour, type, and layout are chosen for the project's own subject matter, and
+the accessibility fundamentals that a shared system used to settle once —
+contrast, visible keyboard focus, a legible type scale, sane behaviour down to
+a phone width — are handled per site instead. `W07` still applies in full: a
+distinctive site self-hosts its own fonts, images, and scripts rather than
+reaching for a font CDN or an icon service.
 
-```html
-<link rel="stylesheet" href="/assets/core.tokens.css">
-<link rel="stylesheet" href="/assets/instrument-workshop.css">
-```
-
-`iw-root` goes on `<body>`, the theme is an attribute on `<html>`, and density is
-an attribute on any container. There is no package to install, no build step, and
-no framework or JavaScript requirement.
-
-Copying rather than depending is deliberate, and copying is expressly permitted.
-The design system is maintained separately and privately, so a public site cannot
-resolve it at build time. The stylesheets may be vendored into public
-repositories, which means the design language becomes visible in every site built
-from it — that is accepted, because a design language earns its value from
-consistent use rather than from being hidden. A vendored copy also means a site
-keeps rendering when the source repository moves, which is the same property
-`P09` wants from a statistics card.
-
-`W06` exists because a vendored copy has no version unless one is written down.
-Record which version was copied, in a manifest, a note, or a comment at the top
-of the vendored file. Without it, nobody can tell whether a site is three
-revisions behind or current.
-
-Deviating is allowed where the design language has no answer, and the deviation
-is recorded. Deviating because it was quicker is a `Fail`.
+This replaces the shared design language, **Instrument Workshop**, that earlier
+versions of this standard required every site to vendor (`W05`, `W06`; both
+retired — see [decision 0013](decisions/0013-sites-are-designed-not-templated.md)).
+A site is not penalised for still using it: nothing here forbids vendoring it
+where it genuinely fits, only the requirement that every site do so by default.
 
 ## Content Boundaries
 
