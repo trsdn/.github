@@ -1,7 +1,7 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.11.1
-- Assessed on: 2026-09-02
+- Standard version: 1.12.0
+- Assessed on: 2026-09-17
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
 
@@ -91,7 +91,7 @@ right to be ignored.
 
 ## Not applicable
 
-**Published Site `W01`-`W08`.** This repository defines the standard; it does not
+**Published Site `W01`-`W09`.** This repository defines the standard; it does not
 ship a product. Everyone who reads the standard reads it while working inside a
 repository — applying it, citing a criterion in an issue, or acting on it as an
 agent — and a page in front of it would add a surface to maintain while answering
