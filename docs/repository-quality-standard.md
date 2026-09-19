@@ -364,14 +364,28 @@ instead.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
-| <a id="r01"></a>R01 | Package metadata is complete and agrees with repository metadata | Package manifest |
+| <a id="r01"></a>R01 | Package metadata is complete and agrees with repository metadata, in the package manifest or, where the manifest format has no field for a property, in the artifact's own metadata | Package manifest, plus the artifact's metadata file for whatever the manifest cannot hold |
 | <a id="r02"></a>R02 | Versioning and compatibility policy are documented | README or release guide |
-| <a id="r03"></a>R03 | A tag produces installable artifacts through automation | Release workflow and uploaded release assets |
+| <a id="r03"></a>R03 | A tag produces installable artifacts through automation: a workflow the tag triggers, or a shared release pipeline run for that tag | Release workflow, or the shared pipeline's documented run, and the uploaded release assets |
 | <a id="r04"></a>R04 | Tag, package version, and release title are consistent | Release workflow validation |
 | <a id="r05"></a>R05 | A built artifact has been smoke-tested as a consumer receives it: the published file installed and launched, and its core function exercised. The result is recorded | A workflow that does it, or a dated record naming the version tested and what was exercised |
 | <a id="r06"></a>R06 | Release notes describe meaningful changes and upgrade concerns | GitHub release or changelog |
 | <a id="r07"></a>R07 | Release notes are generated from the changelog entry for the version being released, and automation fails the release when that entry is missing, empty, or still held in an unreleased section | Release workflow gate, in this repository or in a shared release pipeline this repository documents, plus a published release whose notes match its changelog entry |
 | <a id="r08"></a>R08 | A consumer can verify that a published artifact came from this repository or from the shared release pipeline that publishes its releases, or the repository states why they cannot | Registry provenance, a build attestation, the shared pipeline's documented and verifiable record, or a recorded statement |
+
+`R01` is about where the metadata lives, not about whether it exists. Some
+manifest formats have no field for a licence, a repository URL, or a description
+(SwiftPM is one). Where that is so, the metadata belongs in the file the artifact
+itself carries, such as an application's `Info.plist`, and the repository states
+which properties live where. The criterion is met when every property has a home
+and the homes agree; a property with none is not.
+
+`R03` asks that the artifact comes from automation rather than from a maintainer's
+machine, and that a tag identifies exactly what was built. It does not require the
+tag push itself to start the build. A shared release pipeline that a maintainer
+starts for a specific tag, builds from that tag's pinned commit, and publishes to
+the release qualifies, when the repository documents the command that starts it.
+A build made locally and uploaded by hand does not.
 
 `R06` and `R07` divide the work. `R06` is about content: notes a reader can act
 on. `R07` is about provenance: the notes a consumer actually receives are the
