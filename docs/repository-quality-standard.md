@@ -371,7 +371,7 @@ instead.
 | <a id="r05"></a>R05 | A built artifact has been smoke-tested as a consumer receives it: the published file installed and launched, and its core function exercised. The result is recorded | A workflow that does it, or a dated record naming the version tested and what was exercised |
 | <a id="r06"></a>R06 | Release notes describe meaningful changes and upgrade concerns | GitHub release or changelog |
 | <a id="r07"></a>R07 | Release notes are generated from the changelog entry for the version being released, and automation fails the release when that entry is missing, empty, or still held in an unreleased section | Release workflow gate, in this repository or in a shared release pipeline this repository documents, plus a published release whose notes match its changelog entry |
-| <a id="r08"></a>R08 | A consumer can verify that a published artifact came from this repository, or the repository states why they cannot | Registry provenance, a build attestation, or a recorded statement |
+| <a id="r08"></a>R08 | A consumer can verify that a published artifact came from this repository or from the shared release pipeline that publishes its releases, or the repository states why they cannot | Registry provenance, a build attestation, the shared pipeline's documented and verifiable record, or a recorded statement |
 
 `R06` and `R07` divide the work. `R06` is about content: notes a reader can act
 on. `R07` is about provenance: the notes a consumer actually receives are the
@@ -429,6 +429,14 @@ because key custody is a heavier burden and a worse failure mode than the
 absence it would replace, and it does not ask for a software bill of materials,
 which is ecosystem-specific tooling that few consumers of these repositories
 read.
+
+Where a shared pipeline the repository documents builds and publishes its
+releases, that pipeline's own verifiable record is sufficient evidence of origin.
+A macOS app released through a notarization broker is the model case: the
+Developer ID signature and Apple's notarization tie the artifact to the
+publisher's identity and can be checked by anyone with `codesign` and `spctl`,
+which is what the repository documents. The repository states what a consumer
+can check and how, and what the record does not prove.
 
 Where no such mechanism is available to this repository, a recorded statement of
 that fact is a `Pass`. Availability is the property, and it fails in two ways: an

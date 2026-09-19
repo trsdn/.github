@@ -17,7 +17,10 @@ Versions follow the compatibility policy in the
   result recorded. A clean environment and automation are no longer required,
   and `R05` no longer needs a runner, so it leaves the runner lists in
   [Automation Availability](docs/repository-quality-standard.md#automation-availability).
-- Released as minor: both changes widen a criterion, so a recorded `Fail` may now
+- Widened `R08`: where a shared pipeline the repository documents builds and
+  publishes its releases, that pipeline's own verifiable record (for a macOS app,
+  the Developer ID signature and notarization) is sufficient evidence of origin.
+- Released as minor: these changes widen a criterion, so a recorded `Fail` may now
   be a `Pass` and no recorded `Pass` can weaken, under
   [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility).
 
