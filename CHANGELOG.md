@@ -20,6 +20,10 @@ Versions follow the compatibility policy in the
 - Widened `R08`: where a shared pipeline the repository documents builds and
   publishes its releases, that pipeline's own verifiable record (for a macOS app,
   the Developer ID signature and notarization) is sufficient evidence of origin.
+- Widened `R03`: a shared release pipeline started for a specific tag counts as
+  automation; the tag push does not have to start it.
+- Widened `R01`: where the manifest format has no field for a property, the
+  artifact's own metadata file (for an application, `Info.plist`) is its home.
 - Released as minor: these changes widen a criterion, so a recorded `Fail` may now
   be a `Pass` and no recorded `Pass` can weaken, under
   [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility).
