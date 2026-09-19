@@ -6,6 +6,24 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.13.0 - 2026-09-19
+
+- Widened `R07`: the changelog gate may live in a shared release pipeline that
+  publishes the repository's releases, provided that pipeline refuses to publish
+  without the entry and the repository documents it. A repository does not have
+  to own a release workflow to keep release notes and changelog from drifting.
+- Widened `R05`: a built artifact needs to have been smoke-tested once as a
+  consumer receives it (the published file, installed and launched), with the
+  result recorded. A clean environment and automation are no longer required,
+  and `R05` no longer needs a runner, so it leaves the runner lists in
+  [Automation Availability](docs/repository-quality-standard.md#automation-availability).
+- Widened `R08`: where a shared pipeline the repository documents builds and
+  publishes its releases, that pipeline's own verifiable record (for a macOS app,
+  the Developer ID signature and notarization) is sufficient evidence of origin.
+- Released as minor: these changes widen a criterion, so a recorded `Fail` may now
+  be a `Pass` and no recorded `Pass` can weaken, under
+  [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility).
+
 ## 1.12.0 - 2026-09-17
 
 - Retired `W05` and `W06`, which required every published site to vendor

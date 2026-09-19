@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.12.0
+- Version: 1.13.0
 - Last reviewed: 2026-09-17
 - Review cadence: every six months, even when nothing changes
 
@@ -358,7 +358,7 @@ guarded by a label, an approval, or a maintainer's attention.
 
 ## Package And Release Repositories
 
-`R03`, `R05`, and `R07` require a runner. Where none is available,
+`R03` and `R07` require a runner. Where none is available,
 [Automation Availability](#automation-availability) states what is recorded
 instead.
 
@@ -368,10 +368,10 @@ instead.
 | <a id="r02"></a>R02 | Versioning and compatibility policy are documented | README or release guide |
 | <a id="r03"></a>R03 | A tag produces installable artifacts through automation | Release workflow and uploaded release assets |
 | <a id="r04"></a>R04 | Tag, package version, and release title are consistent | Release workflow validation |
-| <a id="r05"></a>R05 | Built artifacts are smoke-tested in a clean environment | CI or release workflow |
+| <a id="r05"></a>R05 | A built artifact has been smoke-tested as a consumer receives it: the published file installed and launched, and its core function exercised. The result is recorded | A workflow that does it, or a dated record naming the version tested and what was exercised |
 | <a id="r06"></a>R06 | Release notes describe meaningful changes and upgrade concerns | GitHub release or changelog |
-| <a id="r07"></a>R07 | Release notes are generated from the changelog entry for the version being released, and automation fails the release when that entry is missing, empty, or still held in an unreleased section | Release workflow gate plus a published release whose notes match its changelog entry |
-| <a id="r08"></a>R08 | A consumer can verify that a published artifact came from this repository, or the repository states why they cannot | Registry provenance, a build attestation, or a recorded statement |
+| <a id="r07"></a>R07 | Release notes are generated from the changelog entry for the version being released, and automation fails the release when that entry is missing, empty, or still held in an unreleased section | Release workflow gate, in this repository or in a shared release pipeline this repository documents, plus a published release whose notes match its changelog entry |
+| <a id="r08"></a>R08 | A consumer can verify that a published artifact came from this repository or from the shared release pipeline that publishes its releases, or the repository states why they cannot | Registry provenance, a build attestation, the shared pipeline's documented and verifiable record, or a recorded statement |
 
 `R06` and `R07` divide the work. `R06` is about content: notes a reader can act
 on. `R07` is about provenance: the notes a consumer actually receives are the
@@ -395,8 +395,25 @@ exits non-zero when the result is empty, and passes that same text to the
 release command as the notes body, so the published notes and the maintained
 entry cannot disagree.
 
+The gate does not have to live in this repository. A repository whose releases
+are built and published by a shared pipeline it does not own, such as a
+notarization broker or an organisation-wide release service, satisfies `R07`
+when that pipeline refuses to publish without the changelog entry and the
+repository documents that it does. The repository's part is to keep the entry;
+the pipeline's part is to refuse without it. The evidence is the pipeline's
+documented gate and a published release whose notes match the entry.
+
 A reusable starting point is published as
 [`templates/release-notes/`](../templates/release-notes/).
+
+`R05` asks for the fact, not the mechanism. Someone has to have taken the file a
+consumer downloads, installed it, launched it and used its core function, and
+written down that it worked and for which version. Doing that once is enough. A
+clean environment is not required: the failure it guards against is a build that
+only works on the machine that made it, and testing the *published* artifact
+rather than the local build catches that. Automating the test is encouraged,
+because it repeats on every release, but it is not required. A later release that
+changes how the artifact is built, signed, or packaged is due for a new record.
 
 `R08` covers the other half of what a consumer receives. `R03` establishes that
 a tag produces the artifact through automation and `R05` that the artifact
@@ -412,6 +429,14 @@ because key custody is a heavier burden and a worse failure mode than the
 absence it would replace, and it does not ask for a software bill of materials,
 which is ecosystem-specific tooling that few consumers of these repositories
 read.
+
+Where a shared pipeline the repository documents builds and publishes its
+releases, that pipeline's own verifiable record is sufficient evidence of origin.
+A macOS app released through a notarization broker is the model case: the
+Developer ID signature and Apple's notarization tie the artifact to the
+publisher's identity and can be checked by anyone with `codesign` and `spctl`,
+which is what the repository documents. The repository states what a consumer
+can check and how, and what the record does not prove.
 
 Where no such mechanism is available to this repository, a recorded statement of
 that fact is a `Pass`. Availability is the property, and it fails in two ways: an
@@ -698,7 +723,7 @@ not restate the secret-handling requirements in `S05`, `S06`, `S07`, and `D02`.
 
 ## Automation Availability
 
-Eight criteria name a workflow run as their evidence, and one required badge
+Seven criteria name a workflow run as their evidence, and one required badge
 reports one. A repository with no runner cannot produce any of it, and none of
 those criteria say what an assessor records instead. This section says it once,
 because a rule restated in eight places drifts.
@@ -724,7 +749,7 @@ ones:
 | Which criteria | Result when no runner is available |
 |---|---|
 | Those satisfied by a check the repository owns, which a runner only makes convenient. At this version `S02`, `S03`, and `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not |
-| Those whose evidence can only be produced by a workflow run. At this version `S04`, `S09`, `R03`, `R05`, `R07`, and `P09` | `Not applicable` |
+| Those whose evidence can only be produced by a workflow run. At this version `S04`, `S09`, `R03`, `R07`, and `P09` | `Not applicable` |
 
 **Membership is decided by the property, not by the list.** Each list names the
 criteria that match at the version on the cover, and is there so an assessor can
