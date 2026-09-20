@@ -20,6 +20,32 @@ Versions follow the compatibility policy in the
   checks that remain, with the limit stated.
 - Reworked `D03`: health verification must be a runnable command, and the way
   back must be documented. A rehearsed rollback is welcome and not required.
+- Went through all 104 criteria one at a time against an audit of whether the
+  text decides a result and whether an agent can meet it. Each criterion now
+  states its Pass, Partial, Fail and Not applicable boundaries, or relies on the
+  new default results, and where a threshold was needed it gives a minimum
+  reading. Nothing was renumbered, removed or added. The audit found no
+  criterion that needs a human, and two, `B05` and `R05`, that need a documented
+  procedure in the repository.
+- Added default results (multi-part criteria, `Not applicable`, judgement words,
+  the latest release) to
+  [Deciding Without The Maintainer](docs/repository-quality-standard.md#deciding-without-the-maintainer).
+- [Overall State](docs/repository-quality-standard.md#overall-state) is now
+  computed from the recorded results: `Healthy` when no criterion is `Fail`,
+  `Needs work` for any `Fail`, and `At risk` for a `Fail` on a named critical
+  criterion. This states what `scripts/conformance.py` already enforced.
+- Narrowed the **Deployable** profile to a standing deployment the maintainer
+  operates. An application installed from a release, or a script run by hand, is
+  no longer Deployable and records `D01`-`D06` as `Not applicable`.
+- Repository Statistics: the `P09` card may be published to a dedicated branch,
+  `STATS_TOKEN` is never required, and a runner with no card is a `Fail`.
+- `A01`-`A04` are `Not applicable` for a repository that is not archived, and
+  `B09` and `B12` are `Not applicable` for one that is.
+- `unknown` is stated to be a draft marker, not a result, and
+  `docs/conformance-record.md` no longer says otherwise.
+- `scripts/assess.py` counts templates inherited from the account for `P04`,
+  `P10` and `P11`, and decides `A01`-`A04`, `B09` and `B12` for archived
+  repositories.
 - Clarified the evidence for `X01` and `X03`: the assessing agent's review of the
   source counts.
 - Released as minor: these changes widen criteria, so a recorded `Fail` may now

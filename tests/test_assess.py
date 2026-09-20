@@ -222,9 +222,7 @@ class AssessTests(unittest.TestCase):
             self.assertEqual(drafted[identifier], "na")
 
     def test_inherited_templates_are_not_reported_missing(self) -> None:
-        drafted, _ = self.assess(
-            facts(inherited_issue_template=True, inherited_pr_template=True)
-        )
+        drafted, _ = self.assess(facts(inherited_issue_template=True, inherited_pr_template=True))
         self.assertEqual(drafted["P04"], "pass")
         self.assertNotEqual(drafted.get("P10"), "fail")
         self.assertNotEqual(drafted.get("P11"), "fail")

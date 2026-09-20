@@ -37,6 +37,18 @@ the published artifact, with a table of results that says when the criterion is
 requirement. `D03` asks for a runnable health command instead of a rehearsed
 rollback.
 
+Then go through every criterion, not only the ones that had been noticed. An
+audit of all 104 found that none needs a human and that two need a documented
+procedure in the repository, but that two thirds left the boundary between
+`Partial`, `Fail` and `Not applicable` unstated, and that eight contradicted the
+text around them. The fix is default results for the general cases, a computed
+overall state, and a per-criterion correction wherever the default is wrong or
+insufficient.
+
+The corrections may only clarify or widen, so that no recorded `Pass` weakens. A
+review of the merged result caught a dozen places where a clarification had
+narrowed a criterion, and each was reworded.
+
 ## Consequences
 
 - An agent can finish an assessment without asking, and the result is reproducible
