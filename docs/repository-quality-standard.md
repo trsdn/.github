@@ -128,7 +128,7 @@ Apply the baseline to every active repository, then add every matching profile.
 |---|---|
 | Public | The repository is publicly visible |
 | Software | It builds or executes application, library, CLI, script, or service code |
-| Deployable | It is deployed to a workstation, server, container, or cloud environment |
+| Deployable | The maintainer operates a standing deployment of it: a service on a server, container, or cloud environment, or an installation on a workstation that runs or is scheduled without the maintainer starting it. Software that users download or build and install, and a script or tool run by hand, is not Deployable. [Deployable Repositories](#deployable-repositories) decides the cases |
 | Package | It publishes a package, binary, image, or release artifact |
 | Documentation | Its primary product is documentation, research, content, or templates |
 | Published Site | It publishes a website, or it ships something whose audience uses it without ever needing the repository |
@@ -591,25 +591,93 @@ the workflow is guarded by a label, an approval, or a maintainer's attention.
 | <a id="d05"></a>D05 | Operational changes update durable history and inventory where applicable | Changelog and inventory entry |
 | <a id="d06"></a>D06 | Backup, migration, and destructive-operation risks are addressed when stateful | Runbook or explicit not-applicable result |
 
+The profile turns on one property: a *standing deployment*, something the
+maintainer puts in place and keeps running or scheduled, so that it has a target,
+configuration, and possibly state to look after.
+
+| The repository is | Deployable |
+|---|---|
+| A service, container, or cloud environment running on a server, host, or platform | Yes |
+| An installation on a workstation that the repository installs and that runs without the maintainer starting it: a launch agent, scheduled job, daemon, or self-hosted service | Yes |
+| An application or tool that users, the maintainer included, download or build and install from a release, such as a macOS app or a CLI | No: the Package profile decides it |
+| A script or tool the maintainer runs by hand when needed, with no install step that keeps it running | No |
+
+A repository that is both, such as an app with a backend service, is Deployable for
+the deployment only. Where the profile does not apply, `D01`-`D06` are recorded
+`Not applicable` with the sentence "not a standing deployment", naming which row
+above matched.
+
+The default results in [Deciding Without The Maintainer](#deciding-without-the-maintainer)
+apply. These are the boundaries they need here.
+
+- `D01`: the deployment command is whatever puts the deployment in place, such as
+  a compose command, a deploy script, `launchctl bootstrap`, or `make install`.
+  Each of the four parts is a part for the default rule.
+- `D02`: `Not applicable` where the deployment uses no secret, recorded with what
+  was looked for (environment files, configuration templates, workflow secrets,
+  documentation). Otherwise the parts are: no secret value in the current tree,
+  and the safe location documented for each secret name. History is `B04`'s.
+- `D03`: the parts are a health check that is a command or a stated observable
+  step, and documented steps for returning to the previous working state, which
+  may be as short as redeploying the previous tag or restoring a named backup.
+  The assessor does not run either against the target.
+- `D04`: *constrained* means no floating `latest` tag, no unbounded or absent
+  version range, and no unstated runtime version. A tag, a digest, a lockfile, a
+  bounded range, or a documented runtime version each constrain. The parts are the
+  runtime and the infrastructure dependencies (base image, provider, service
+  versions); all constrained is `Pass`, some is `Partial`, none is `Fail`.
+- `D05`: an *inventory* is a list of deployments kept outside this repository that
+  the repository names as one it maintains. Where none is named, only the
+  durable-history part is assessed, the record says no inventory is named, and the
+  result is `Pass` or `Fail` on it. The history part is met when the latest change
+  to how the deployment is configured or operated appears in the changelog,
+  a release, an ADR, or a linked issue.
+- `D06`: a deployment is *stateful* when it holds data that cannot be recreated
+  from this repository: a database, uploaded files, or configuration kept only on
+  the host. A cache or a derived index is not state. A deployment that is not
+  stateful is `Not applicable`. For a stateful one the parts are a stated backup
+  and restore path, and a note on each migration or destructive operation the
+  repository provides.
+
 ## Package And Release Repositories
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
 | <a id="r01"></a>R01 | Package metadata is complete and agrees with repository metadata, in the package manifest or, where the manifest format has no field for a property, in the artifact's own metadata | Package manifest, plus the artifact's metadata file for whatever the manifest cannot hold |
-| <a id="r02"></a>R02 | Versioning and compatibility policy are documented | README or release guide |
+| <a id="r02"></a>R02 | Versioning and compatibility policy are documented | README, release guide, or a versioning statement at the head of the changelog |
 | <a id="r03"></a>R03 | A tag identifies exactly what was built, and the artifacts come from a documented procedure: a workflow the tag triggers, a shared release pipeline run for that tag, or a documented manual release built from the tagged commit | Release workflow, the shared pipeline's documented run, or the documented manual steps, and the uploaded release assets |
-| <a id="r04"></a>R04 | Tag, package version, and release title are consistent | Release workflow validation |
+| <a id="r04"></a>R04 | Tag, package version, and release title are consistent | The latest release's tag, manifest version at that tag, and release title; a release workflow check is one way to show it, not the only one |
 | <a id="r05"></a>R05 | A smoke kit checks the published artifact as a consumer receives it, without anyone operating the product, and its result for the current build is recorded | A documented kit, and a workflow run or a dated record naming the version checked and the result |
-| <a id="r06"></a>R06 | Release notes describe meaningful changes and upgrade concerns | GitHub release or changelog |
+| <a id="r06"></a>R06 | Release notes describe meaningful changes and upgrade concerns | The latest GitHub release or its changelog entry |
 | <a id="r07"></a>R07 | The release notes a consumer receives are the changelog entry for the version being released, or link to it, and that entry exists and is not empty | A published release whose notes match or link to its changelog entry; where a gate exists, in this repository or in a shared release pipeline this repository documents, the gate too |
 | <a id="r08"></a>R08 | A consumer can verify that a published artifact came from this repository or from the shared release pipeline that publishes its releases, or the repository states that they cannot, or that it does not offer that and what a consumer can check instead | Registry provenance, a build attestation, the shared pipeline's documented and verifiable record, or a recorded statement |
+
+A repository that has published no release has nothing for `R03`-`R08` to assess:
+they are `Not applicable`, and the record says no release exists. Per the default
+rule, `R03`, `R04`, `R06`, `R07`, and `R08` are assessed on the latest published
+release, and `R05` on the build method that release used.
 
 `R01` is about where the metadata lives, not about whether it exists. Some
 manifest formats have no field for a licence, a repository URL, or a description
 (SwiftPM is one). Where that is so, the metadata belongs in the file the artifact
 itself carries, such as an application's `Info.plist`, and the repository states
-which properties live where. The criterion is met when every property has a home
-and the homes agree; a property with none is not.
+which properties live where. The properties are name, version, description,
+licence, and repository URL. It is `Pass` when every property has a home and the
+homes agree with each other and with the GitHub description, licence, and
+homepage; `Partial` when every property has a home and one disagrees, or some
+properties have no home; `Fail` when none is set anywhere the assessor can read.
+
+`R02` is met by a statement that names the versioning scheme and says what a
+consumer can rely on across versions. Naming SemVer is enough for both, because
+SemVer defines what breaking means. Another scheme, such as calendar versions,
+needs a sentence on what a new version may change. `Partial` where only the
+scheme is named; `Fail` where nothing is stated.
+
+`R04` compares three values for the latest release: the tag, the version the
+manifest holds at the tagged commit (or, where R01 places the version in the
+artifact's metadata, that value), and the release title. They agree when they name
+the same version after ignoring a leading `v` and any product name in the title.
+All three agreeing is `Pass`, two of three is `Partial`, and none is `Fail`.
 
 `R03` asks that a tag identifies exactly what was built and that a reader can
 tell how the artifact came to exist. It does not require automation and it does
@@ -629,10 +697,31 @@ nowhere. Automation is encouraged because it repeats without care, but a
 single-maintainer repository is not failed for releasing by hand a way it can
 describe.
 
+For a manual release the assessor cannot see how the assets were made, so it
+reads the documented steps and accepts them. It checks that the tag exists, that
+it names a commit in the repository, and that the steps say the build is made
+from that commit. It does not try to prove the assets match. The parts are the
+tag and the documented procedure: both is `Pass`, one is `Partial`, and neither
+is `Fail`.
+
 `R06` and `R07` divide the work. `R06` is about content: notes a reader can act
 on. `R07` is about provenance: the notes a consumer actually receives are the
 maintained entry for that exact version, and not a second description written at
 tag time.
+
+`R06` is assessed on the latest release. Its parts are notes that name specific
+changes a user can see (a feature, a fix, a removal, a changed behaviour), and,
+where the release contains a breaking change or raises a minimum requirement,
+notes that say so. `Pass` when both hold, and a release with nothing to warn about
+needs no warning. `Partial` when the notes name specific changes but omit a
+warning the release needed, or when they are generic, such as "bug fixes and
+improvements" or "updates". `Fail` when the notes are empty or only the version.
+`R07` is likewise assessed on the latest release. It is `Partial` when the
+changelog entry for the version exists and is not empty and the notes describe
+the version but neither match nor link to the entry, and `Fail` in the cases
+named below. Releases made before a criterion existed are not assessed.
+Where a shared pipeline holds the gate, the assessor reads the repository's
+documentation of it and accepts it, and does not test the pipeline.
 
 The gap `R07` closes is specific. A repository can keep an exemplary changelog
 and still publish releases whose notes are fixed boilerplate, because nothing
@@ -702,7 +791,31 @@ the one part that cannot be automated for an interface that needs an operator.
 A record stands for later releases until one changes how the artifact is built,
 signed, or packaged; only that release needs a new run. A release that changes
 only the code the artifact contains does not, because the build the run tested
-has not changed.
+has not changed. This is decided by comparing the build workflow or script, the
+signing and packaging configuration, and the entitlements between the recorded
+tag and the latest tag: if none of those files differ, the record is current.
+
+**Where the record lives.** In the evidence the conformance record links for
+`R05`: a workflow run, or a dated entry in a repository file such as the release
+guide or a `smoke-tests` section of the conformance evidence. The entry names the
+version checked, the date, the result, and who or what ran the kit. A run by the
+assessing agent is recorded as such, so a later reader knows it was not made by
+the maintainer.
+
+**What the assessor does not have.** Some kits need a platform the assessor may
+lack, such as macOS for `codesign` and `spctl`. An assessor without that platform
+does not run the kit, does not record a result it did not observe, and records
+what it could not run. Where a run by the maintainer or a workflow is recorded for
+the current build, that record decides; where none is, the result is `Partial`
+under the missing-run row above.
+
+**What the kit may do.** The kit runs the artifact only in the way a consumer
+would: it installs or unpacks it into a temporary location, starts it with the
+documented start command, runs no elevated privileges, uses no credentials, and
+removes what it installed. The assessor reads the kit before running it. A kit
+that does more, or that runs a file the assessor did not download from the
+release page, is not run by the assessor. It is recorded as not run, and the
+result follows the missing-run row above.
 
 `R08` covers the other half of what a consumer receives. `R03` establishes that
 a tag identifies what was built, by a documented procedure, and `R05` that the artifact
@@ -731,17 +844,27 @@ Where no such mechanism is used by this repository, a recorded statement of that
 fact is a `Pass`. That covers an ecosystem that issues no provenance at all, a
 repository with no runner, which cannot reach the mechanism its ecosystem does
 offer because every qualifying mechanism derives from a workflow identity, and a
-repository whose maintainer has decided the mechanism is not worth adopting for a
-project of its size. All three are recorded the same way. The criterion asks a
-repository to have answered the question, not to have adopted a mechanism.
+repository that does not use the mechanism, whatever the reason. All three are
+recorded the same way, and the assessor may write the statement itself from what
+it checked. It states the fact that the mechanism is not used, and does not claim
+a decision by the maintainer: the assessor cannot know one, and a reason is quoted
+only where the repository states it. This is an accepted path that costs nothing,
+and the criterion asks a repository to have answered the question, not to have
+adopted a mechanism. The assessor checks the fact by looking for an attestation,
+a provenance record, or trusted-publishing configuration, and finding none.
 
 The statement has to be true and has to say something a consumer can use. It
 names the mechanism that is not used, or that none exists, and states what a
 consumer can check instead, such as a published checksum, the release's tag, or
-that nothing beyond the release page's own account of the source is offered. A
+that nothing beyond the release page's own account of the source is offered. It
+lives in the README, the release guide, or the linked evidence. A
 statement that a mechanism is unavailable where it plainly is available is not a
 statement of a fact that holds, and stays a `Fail`; a statement that it is
-available and not used, with the reason, is a `Pass`. Neither case is excused by
+available and not used is a `Pass`. Where the repository claims a mechanism, the
+assessor verifies the latest release's artifact with the ecosystem's own command
+(for example `gh attestation verify`, or `codesign` and `spctl` on a Mac) when it
+has the tool, and otherwise accepts the documented mechanism and records that it
+did not verify it. Neither case is excused by
 [Automation Availability](#automation-availability), which does not narrow this
 criterion. A repository publishing a document, a site, or nothing installable is
 `Not applicable`; `R01` and `R05` are already `Not applicable` in that case for
@@ -753,6 +876,19 @@ Apply these requirements to anything a user installs, runs, or downloads:
 applications, installers, binaries, container images, published packages, and
 hosted sites. They make a shipped artifact traceable back to its source without
 guesswork.
+
+These criteria are about the published artifact, not the source. The assessor
+downloads the latest release asset, image, or package, or fetches the published
+site, and reads its metadata without running it: for a macOS application it
+unpacks the archive or mounts the disk image and reads `Info.plist`, and for an
+image or package it reads the labels or manifest. A value that appears only in
+source is not evidence that the artifact carries it. Where the artifact cannot be
+fetched, the assessor records that and what it read instead, such as the build
+configuration, and the result follows the readable evidence, as
+[Deciding Without The Maintainer](#deciding-without-the-maintainer) describes.
+A repository that ships nothing, meaning no release asset, image, package, or
+site, has `I01`-`I06` as `Not applicable`. A multi-part criterion here follows the
+default rule.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
@@ -770,6 +906,38 @@ shown in the About window; the release workflow injects the version from the
 tag. Equivalent fields exist for other ecosystems, such as `pyproject.toml`
 project URLs, npm `repository` and `bugs`, and OCI image labels
 `org.opencontainers.image.source` and `org.opencontainers.image.licenses`.
+
+The boundaries the default rule needs:
+
+- `I01`: the exact version is the release's version, not a placeholder such as
+  `1.0`, `0.0.0`, or an unresolved build variable. A name with a version that
+  differs from the release is `Partial`.
+- `I02`: any key or bundled file the assessor can read without running the
+  product, whose name says what it holds, is accepted. For a macOS bundle,
+  custom `Info.plist` keys such as `RepositoryURL` and `IssueTrackerURL` are the
+  suggested pair, and no particular names are required. The URLs are the
+  repository's own.
+- `I03`: the licence identifier is an SPDX identifier and the copyright holder is
+  a name. The bundled text is *required* when the repository's own licence text
+  says copies must carry it, which the assessor reads from the licence. It is met
+  by a licence file in the artifact or by the text in a bundled acknowledgements
+  or About resource. A licence that has no such term needs none.
+- `I04`: for a command-line tool the assessor runs `--version` and `--help`, which
+  is what a user does. For an interface it cannot operate, such as a graphical
+  application, source that renders the version and both links is accepted, and
+  the record says it read the source and did not operate the product. A site is
+  read from its fetched footer.
+- `I05`: only the surfaces the repository has are assessed, so a repository with
+  no store listing or site is not failed for lacking one. The icon in the artifact
+  is required, and each surface the repository has must show the same icon, meaning
+  one source image. `Not applicable` where the artifact has no place for an icon:
+  a command-line binary, a library package, or a container image.
+- `I06`: a value is produced by the build when it is derived from the tag or the
+  repository, or when it is set in one source-controlled place that the build
+  writes into the artifact, such as an Xcode `MARKETING_VERSION` or a manifest
+  version. A build script that a manual release runs counts as the build. A value
+  typed separately into the artifact's metadata as well is maintained by hand.
+  All values produced by the build is `Pass`, some is `Partial`, none is `Fail`.
 
 ## Documentation Repositories
 
