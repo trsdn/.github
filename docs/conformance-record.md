@@ -62,8 +62,13 @@ rationale in the linked assessment is a complete answer; an absent entry is not.
 Without this rule, "does not apply" and "was never looked at" become
 indistinguishable, and the record stops being evidence.
 
-`unknown` is available and is meant to be used. A record that claims certainty it
-does not have is worse than one that admits a gap.
+`unknown` marks a criterion nobody has inspected yet, in a draft. It is not a
+result, and `scripts/conformance.py --check` rejects a record that still contains
+one, together with the `YYYY-MM-DD` placeholder in `assessed_on`. Where the
+evidence cannot be read, the assessor records the result the readable evidence
+supports and says what it could not read, as
+[Deciding Without The Maintainer](repository-quality-standard.md#deciding-without-the-maintainer)
+describes.
 
 ## Ageing
 

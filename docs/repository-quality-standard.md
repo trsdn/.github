@@ -791,10 +791,10 @@ not restate the secret-handling requirements in `S05`, `S06`, `S07`, and `D02`.
 
 ## Automation Availability
 
-Seven criteria name a workflow run as their evidence, and one required badge
+Several criteria name a workflow run as their evidence, and one required badge
 reports one. A repository with no runner cannot produce any of it, and none of
 those criteria say what an assessor records instead. This section says it once,
-because a rule restated in eight places drifts.
+because a rule restated in every criterion drifts.
 
 **The property is the runner, not the visibility.** A repository is *without
 automation* when no runner is available to it: no self-hosted runner it can use,
@@ -1025,7 +1025,10 @@ Use one result for every applicable criterion.
 | Partial | Evidence exists, but a material part is missing |
 | Fail | Requirement applies and is not met |
 | N/A | Requirement does not apply and the rationale is recorded |
-| Unknown | Evidence has not been inspected |
+
+`unknown` is a draft marker in a generated record and is never a result. The
+validation rejects a record that still contains one, because it stands for
+evidence nobody has inspected.
 
 ### Deciding Without The Maintainer
 
@@ -1042,6 +1045,29 @@ unclear, apply these in order and stop at the first that fits.
 4. Otherwise the gap is real: `Partial` where a material part is missing, `Fail`
    where none of it is met.
 
+**Default results.** These apply wherever a criterion does not state its own
+boundaries, and a criterion that states them keeps them.
+
+- A criterion with several parts, whether listed in the requirement, the evidence
+  column, or joined by "and": every part met is `Pass`, at least one met and at
+  least one missing is `Partial`, and none met is `Fail`. A criterion with a
+  single part is `Pass` or `Fail`.
+- `Not applicable` where the repository has nothing the criterion is about, such
+  as no workflows for a workflow criterion, no user-facing strings for a
+  localization criterion, or no interface for an accessibility criterion. The
+  record says what was looked for. This differs from an intended deviation: the
+  requirement does not reach the repository at all.
+- A criterion applies to the current state of the repository and to its latest
+  published release, not to every release that ever existed.
+
+**Judgement words.** Where a criterion uses a word that needs a threshold, such
+as important, actionable, non-obvious, where practical, covers, or intentional,
+the assessor applies the reading a maintainer of a small project would accept,
+states that reading in the linked evidence, and applies it the same way in every
+repository it assesses. Stating a reading is not a defect. Leaving it unstated
+is, because a later reader cannot check a result against a threshold they cannot
+see.
+
 A deviation is *intended* when the repository has a reason for it. These are the
 reasons that make one intended. A reason that is not in the table is not one.
 
@@ -1057,12 +1083,10 @@ is a `Partial`, recorded as intended and with its reason. It stays visible so a
 later reader can see it was decided, and it does not count against the state
 below unless the gap is one of the critical or high-priority ones.
 
-**Intent does not excuse the critical and high-priority gaps** listed under the
-state table: committed secrets, an exposed write-capable service, missing
-recovery for irreplaceable state, an active deployment with no known source, no
-README, ambiguous public licensing, no software validation, unsupported
-dependencies, or unreproducible releases. A repository may have a reason for one
-of them, and the result is still the ordinary one.
+**Intent does not excuse the critical and high-priority criteria** named under
+[Overall State](#overall-state): `B04`, `D01`-`D04`, `D06`, `B02`, `B03`, `P01`,
+`B05`, `S02`, `B07`, `S08`, `S01`, `R03`, and `R04`. A repository may have a
+reason for missing one of them, and the result is still the ordinary one.
 
 Where evidence cannot be read at all, such as a setting the token cannot see, the
 assessor records the result the readable evidence supports and states what it
@@ -1074,21 +1098,35 @@ approved beforehand.
 
 ### Overall State
 
-Assign the overall state by impact, not by percentage.
+Assign the overall state by impact, not by percentage. The state follows from the
+recorded results, so an assessor reaches it without a further judgement and two
+assessors with the same results reach the same state.
 
 | State | Rule |
 |---|---|
-| Healthy | No critical or high-priority gaps; remaining gaps are minor |
-| Needs work | One or more high-priority gaps exist, but normal use remains supportable |
-| At risk | A critical gap exists in security, recoverability, deployment, or basic reproducibility |
-| Archive candidate | No clear owner or active purpose exists and no dependency requires it |
-| Archived | Archive requirements are met |
+| Healthy | No criterion is `Fail`. `Partial` and `N/A` results, including intended ones, do not lower the state |
+| Needs work | At least one criterion is `Fail`, and none of the critical criteria below is |
+| At risk | A critical criterion is `Fail` |
+| Archive candidate | `B10` and `B02` are both `Fail`, and no other repository in the account references this one |
+| Archived | The repository is archived and `A01`-`A04` are met |
 
-Critical gaps include committed secrets, an exposed write-capable service,
-missing recovery for irreplaceable state, or an active deployment with no known
-source or configuration. High-priority gaps include no README, ambiguous public
-licensing, no software validation, unsupported dependencies, or unreproducible
-releases.
+The critical criteria are the ones whose failure means a committed secret, an
+exposed write-capable service, missing recovery for irreplaceable state, or an
+active deployment with no known source or configuration:
+
+| Gap | Criteria |
+|---|---|
+| Secrets committed to the repository | `B04` |
+| Active deployment with no known source or configuration | `D01`, `D02` |
+| Missing recovery for irreplaceable state | `D03`, `D06` |
+| Exposed write-capable service | `D04` |
+
+The high-priority criteria, whose failure alone gives `Needs work`, are the ones
+that stand for no README (`B02`), ambiguous licensing (`B03`, `P01`), no software
+validation (`B05`, `S02`), unsupported dependencies (`B07`, `S08`), and
+unreproducible releases (`S01`, `R03`, `R04`). They are named so that intent
+cannot excuse them, as described under
+[Deciding Without The Maintainer](#deciding-without-the-maintainer).
 
 ## Changing This Standard
 
@@ -1098,7 +1136,11 @@ one.
 
 **A criterion that cannot be applied is a defect in the criterion.** If reaching
 a result requires an intention the rule text does not state, the text is
-unfinished, and reporting that is more useful than guessing at the intent. See
+unfinished. The assessor still records a result: the one the rule text supports
+on its plain reading, with that reading stated in the linked evidence. It then
+reports the defect as an issue against the repository publishing this document,
+which is a report to the standard and not a question to the repository's
+maintainer. See
 [decision 0011](decisions/0011-criteria-are-decided-by-the-rule-text.md).
 
 **Proposals and disputes both go in an issue against the repository publishing
@@ -1120,12 +1162,12 @@ criterion was wrong, the criterion changes and every repository assessed against
 the old version keeps its recorded result, because that result names the version
 it was produced with.
 
-**A repository may record a deviation instead of a `Fail`.** Where a criterion
-applies and the repository knowingly does not meet it, `Partial` with the
-rationale in the linked assessment is an honest answer and is preferred to a
-`Fail` that gets argued about, or to an `N/A` that claims the criterion does not
-apply when it does. What is not available is a result the evidence does not
-support.
+**A repository records the result its evidence supports, with the reason.**
+Where a criterion applies and the repository knowingly does not meet it,
+[Deciding Without The Maintainer](#deciding-without-the-maintainer) says which
+result that is. A stated reason never changes a result the evidence does not
+support: it is recorded next to the result, not in place of it, and an `N/A` that
+claims the criterion does not apply when it does is not available.
 
 One structural note, because it is not obvious and invites an incorrect fix. The
 issue forms in the publishing repository are inherited by every repository in
