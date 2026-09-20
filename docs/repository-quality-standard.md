@@ -459,14 +459,14 @@ running them is not required. A library that declares dependency ranges in its
 manifest instead of a lockfile meets the pinning part. A repository with no
 third-party dependencies and no setup step is `Not applicable`.
 
-`S02` passes when a suite exists, the latest run of it on the default branch
-succeeded, and at least one test asserts an error or failure path, such as
-rejected input, a raised error, or a non-zero exit. That is the minimum reading
-of "important behavior and failure paths" under
+`S02` passes when a suite exists, it has been run, and at least one test asserts
+an error or failure path, such as rejected input, a raised error, or a non-zero
+exit. That is the minimum reading of "important behavior and failure paths" under
 [Judgement words](#deciding-without-the-maintainer): the main entry point is
-exercised and one failure path is. Tests with no failure path, or a failing
-latest run, are a `Partial`; no tests are a `Fail`. The run is read from the
-workflow history or, where none is available, from the `B05` command as
+exercised and one failure path is. Tests with no failure path are a `Partial`; no
+tests are a `Fail`. That the run is green is read as evidence and decided by
+`B05` and `S09`, not here. The run is read from the workflow history or, where
+none is available, from the `B05` command as
 [Automation Availability](#automation-availability) states.
 
 `S03` counts four kinds of check: format, lint, type, and static analysis. A kind
@@ -576,9 +576,9 @@ content a contributor controls, of which `pull_request_target` and
 content passes, and it passes whether that is by design or by circumstance,
 because the criterion is about what an attacker can reach and not about intent.
 One that lets contributor-controlled content run in a job that can read a
-repository secret fails, and a write-capable `GITHUB_TOKEN` counts as one, so the
-`permissions` block of the job decides it. The result does not improve because
-the workflow is guarded by a label, an approval, or a maintainer's attention.
+repository secret fails. The result does not improve because the workflow is
+guarded by a label, an approval, or a maintainer's attention. What the
+workflow's own token may write is decided by `S11`, not here.
 
 ## Deployable Repositories
 
@@ -1246,7 +1246,7 @@ readings.
   settings, as in [Recommended Shape](#recommended-shape). It is *intentional*
   when it is committed, is not empty, and its instructions point at `AGENTS.md`
   or do not contradict it. A file that is only a placeholder, or whose content
-  contradicts `AGENTS.md`, is `Fail`. Where the platform does not offer the
+  contradicts `AGENTS.md`, is `Partial`. Where the platform does not offer the
   capability, meaning the repository is not hosted on GitHub or the account has
   no access to the app, the result is `Not applicable`, with what was checked
   recorded. An absent file where the platform does offer it is `Fail`.
@@ -1385,9 +1385,11 @@ product.
   that recorded. A native application with no source-level labels or
   identifiers to read and no inspector result is `Partial`, stating that only
   source was available.
-- **`X03`.** Three properties are assessed together. Contrast: body text is at
-  least 4.5:1 and large text at least 3:1 against its background, computed from
-  the design tokens or stylesheet, or supplied by platform semantic colours.
+- **`X03`.** Three properties are assessed together, and only evidence against a
+  property counts against it: a property the source gives no evidence about is
+  taken as holding. Contrast: where the design tokens or stylesheet let it be
+  computed, body text is at least 4.5:1 and large text at least 3:1 against its
+  background; platform semantic colours meet it by definition.
   Sizing: text sizes use relative units or platform text styles, not fixed
   pixel sizes for body text. Colour: no status or meaning depends on colour
   alone. `Pass` where all three hold in the reviewed source or a documented
@@ -1857,12 +1859,13 @@ The critical criteria are the ones whose failure means a committed secret, an
 exposed write-capable service, missing recovery for irreplaceable state, or an
 active deployment with no known source or configuration:
 
-| Gap | Criteria |
+| Criterion | Why its failure is critical |
 |---|---|
-| Secrets committed to the repository | `B04` |
-| Active deployment with no known source or configuration | `D01`, `D02` |
-| Missing recovery for irreplaceable state | `D03`, `D06` |
-| Exposed write-capable service | `D04` |
+| `B04` | A secret is committed to the repository |
+| `D01` | An active deployment has no documented target or command, so its source and configuration are unknown |
+| `D02` | An active deployment's secrets are committed or have no documented safe location |
+| `D03`, `D06` | An active deployment has no health check or way back, or risks irreplaceable state |
+| `D04` | A deployment's runtime and infrastructure are unconstrained. No criterion measures an exposed write-capable service directly, and this is the nearest one |
 
 The high-priority criteria, whose failure alone gives `Needs work`, are the ones
 that stand for no README (`B02`), ambiguous licensing (`B03`, `P01`), no software
