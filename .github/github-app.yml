@@ -18,14 +18,10 @@ instructions: |
 
 scripts:
   - name: Validate
-    command: >-
-      python3 scripts/standard.py --check &&
-      python3 scripts/conformance.py --check &&
-      python3 -m unittest discover -s tests &&
-      npx --yes markdownlint-cli2@0.18.1 "**/*.md"
+    command: python3 scripts/standard.py --check && python3 scripts/conformance.py --check && python3 -m unittest discover -s tests && npx --yes markdownlint-cli2@0.18.1 "**/*.md"
   - name: Regenerate
     command: python3 scripts/standard.py && python3 scripts/conformance.py
 
 automation:
   auto_issue_session: true
-  remote_control: false
+  remote_control: true
