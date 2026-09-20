@@ -46,6 +46,15 @@ Versions follow the compatibility policy in the
 - `scripts/assess.py` counts templates inherited from the account for `P04`,
   `P10` and `P11`, and decides `A01`-`A04`, `B09` and `B12` for archived
   repositories.
+- Closed ten gaps that a first assessment of a real repository exposed, each a
+  clarification or widening: `S02` defines the main entry point for a graphical
+  application, `S04` covers a range claim with a job on the newest version, `R05`
+  says when signature checks alone are a kit and what an assessor that does not
+  run downloaded software records, `B13` grades a stale restatement, `P08` treats
+  a computed badge as derived, `G02` accepts a linked green run, `G04` no longer
+  counts an agreeing repetition as divergence, static hosting such as GitHub Pages
+  is not Deployable, `L05` exempts sorting identifiers, and `W04` accepts a page
+  that describes the latest release.
 - Clarified the evidence for `X01` and `X03`: the assessing agent's review of the
   source counts.
 - Released as minor: these changes widen criteria, so a recorded `Fail` may now

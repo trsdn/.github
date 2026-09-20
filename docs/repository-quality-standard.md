@@ -224,7 +224,9 @@ ended. An archived repository is assessed under
 [Archived Repositories](#archived-repositories).
 
 `B13` is assessed on three kinds of fact in the README, `AGENTS.md`, the
-contributing guide, and `docs/`, and on nothing else: a command, a version or
+contributing guide, and `docs/`, and on nothing else. A restatement that has gone
+stale, so that it no longer agrees with its home, is a copy that disagrees. The
+three kinds are: a command, a version or
 supported runtime, and a policy such as reporting, contribution, or licence
 terms. A mention that links to the fact's home is not a restatement. `Pass` is no
 hand-maintained restatement of any of the three. `Partial` is one that agrees
@@ -467,7 +469,10 @@ third-party dependencies and no setup step is `Not applicable`.
 an error or failure path, such as rejected input, a raised error, or a non-zero
 exit. That is the minimum reading of "important behavior and failure paths" under
 [Judgement words](#deciding-without-the-maintainer): the main entry point is
-exercised and one failure path is. Tests with no failure path are a `Partial`; no
+exercised and one failure path is. The main entry point is the command, function
+or action the README names as what the software does. For a graphical
+application it is the logic behind that action, reached without its views, and a
+suite that exercises only a supporting part of it is a `Partial`. Tests with no failure path are a `Partial`; no
 tests are a `Fail`. That the run is green is read as evidence and decided by
 `B05` and `S09`, not here. The run is read from the workflow history or, where
 the repository is recorded as without automation, from the `B05` command as
@@ -483,7 +488,9 @@ repository whose language has no such tool is `Not applicable`.
 
 `S04` compares CI with the runtimes and platforms the README or manifest claims.
 One job per claimed version or platform is enough, and a repository claiming one
-runtime passes with one job. A claimed one missing from CI is a `Partial`, and
+runtime passes with one job. A claim stated as a range, such as "macOS 14 or
+later", is covered by a job on the newest version available to the runner, and a
+job on the lower bound is welcome and not required. A claimed one missing from CI is a `Partial`, and
 CI that exercises none of them is a `Fail`. A repository that claims no runtime
 or platform is `Not applicable`.
 
@@ -605,6 +612,7 @@ configuration, and possibly state to look after.
 | An installation on a workstation that the repository installs and that runs without the maintainer starting it: a launch agent, scheduled job, daemon, or self-hosted service | Yes |
 | An application or tool that users, the maintainer included, download or build and install from a release, such as a macOS app or a CLI | No: the Package profile decides it |
 | A script or tool the maintainer runs by hand when needed, with no install step that keeps it running | No |
+| A site served by GitHub Pages or an equivalent static host that builds or serves the repository's files, with no server the maintainer runs | No: the Published Site profile decides it |
 
 A repository that is both, such as an app with a backend service, is Deployable for
 the deployment only. Where the profile does not apply, `D01`-`D06` are recorded
@@ -776,12 +784,17 @@ What a kit covers depends on what the artifact is.
 | The artifact is | A kit is, for example |
 |---|---|
 | A command-line tool or library | `--version`, or a self-test, run on the installed file |
-| A signed application | The platform's signature and launch-policy check on the published file (on macOS `codesign --verify` and `spctl --assess`), plus a start that confirms the process runs |
+| A signed application | The platform's signature and launch-policy check on the published file (on macOS `codesign --verify` and `spctl --assess`), plus a start that confirms the process runs where an unattended start is possible. Where it is not, the signature and launch-policy check alone is the kit |
 | A container image | Pull, start, and a health command |
 | An application that cannot be started or exercised without an operator | The checks the platform allows without one, such as its signature, and a stated limit |
 
 Using the product's core function is welcome and is never required, because it is
 the one part that cannot be automated for an interface that needs an operator.
+
+An assessor that does not run downloaded software records the kit as present and
+its own run as not performed. That is the `Partial` row below, unless a run of
+the current build is already recorded by a workflow or a dated record, which is
+the `Pass` row.
 
 | Situation | Result |
 |---|---|
@@ -1087,7 +1100,8 @@ honest statement alone, without a screenshot or sample.
 
 - The name and a one-sentence statement of what the project is.
 - Status and version: maintained, experimental, or archived, and which release
-  the page describes.
+  the page describes. A page that says it describes the latest release, or links
+  to it, names one.
 - What it does, in the shortest honest form. A screenshot, an example, or a
   short sample where the product is visual or textual.
 - How to get it, or how to read it: download, install, or the entry point to the
@@ -1213,7 +1227,8 @@ readings.
 - `G02`: three parts, purpose, layout, and commands. *Authoritative* means
   `AGENTS.md` names the command as the one to use, or links to the document that
   does. The assessor runs the validation command from a clean checkout and it
-  must succeed. Build and run commands are required to be stated and are not
+  must succeed, or a linked green run of it on the default branch counts as
+  `B05` counts it. Build and run commands are required to be stated and are not
   required to be run, and a repository with nothing to build or run states
   none. A validation command that fails is `Partial`. A validation command that
   cannot run in the assessor's environment, because it needs a secret, a
@@ -1228,9 +1243,10 @@ readings.
 - `G04`: the tool-specific files are `.github/copilot-instructions.md`,
   `CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `.cursor/rules/`, `.windsurfrules`,
   and `.clinerules`. A file that exists meets the rule when it links to or
-  tells the agent to read `AGENTS.md` and does not repeat or contradict its
-  instructions. Where none of these files exists, the result is `Pass`, because
-  there is nothing to diverge.
+  tells the agent to read `AGENTS.md` and does not contradict its instructions.
+  Repeating an instruction that agrees is not divergence, and `B13` does not
+  assess these files. Where none of these files exists, the result is `Pass`,
+  because there is nothing to diverge.
 - `G05`: it is met when the command `B05` requires is named in `AGENTS.md`, or
   `AGENTS.md` links to the document that names it, and the command succeeds from a
   clean checkout, or a linked green run of it counts as `B05` counts it. One
@@ -1323,7 +1339,8 @@ to `L06`, and `L07` still applies.
   find it include `strftime` and `%Y` patterns in displayed strings, `toFixed(`,
   a currency symbol concatenated to a number, and `sort()` on displayed text
   without a collator. Machine-readable output such as ISO dates in files and logs
-  is not display formatting. Where nothing in the source formats these values for
+  is not display formatting, and neither is sorting identifiers, keys or file
+  names that a person does not read as text. Where nothing in the source formats these values for
   display the result is `Not applicable`.
 - `L06`: where the repository ships no translations, the result is `Not
   applicable`. Otherwise a translation is *traceable* when the catalog or a
@@ -1591,8 +1608,11 @@ Rules:
 - Every badge links to what it reports: the license file, the manifest or
   documented requirement, the workflow, the release, the conformance record.
 - Every badge value is derived from an authoritative source, or is covered by a
-  check that fails when it drifts. A hardcoded value duplicating a manifest is a
-  `Partial` at best.
+  check that fails when it drifts. A badge that a service computes from the
+  repository when it is requested, such as a licence badge read from the
+  repository's detected licence, is derived and is a `Pass`. A hardcoded value
+  duplicating a manifest, such as a fixed platform version, is a `Partial` unless
+  a check covers it.
 - Badges outside the required and optional sets need a stated reason. A wall of
   badges carries less information than four accurate ones.
 - A badge image may be committed to the repository only when a repository event
