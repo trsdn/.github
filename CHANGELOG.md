@@ -6,6 +6,34 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.14.0 - 2026-09-20
+
+- Widened `R03`: a manual release qualifies when the repository documents the
+  steps and the artifacts are built from the commit the tag names. Automation is
+  encouraged, not required.
+- Widened `R07`: the release notes may link to the changelog entry instead of
+  copying it. The failing gate is recommended, not required, and a link to an
+  entry with meaningful content also satisfies `R06`.
+- Widened `R08`: a true statement that a provenance mechanism is available and
+  not used, naming what a consumer can check instead, is a `Pass`. A statement
+  that a mechanism is unavailable where it plainly is available remains a `Fail`.
+- Clarified `R05`: a smoke-test record stands for later releases until one
+  changes how the artifact is built, signed, or packaged.
+- Widened `S12`: a third-party action may be pinned by a major-version tag in a
+  job with a read-only token and no secret. A commit SHA is asked for only where
+  the job can read a secret or write to the repository.
+- Stated in [Assessment](docs/repository-quality-standard.md#assessment) that an
+  assessment is made by whoever reads the evidence, normally an AI agent, and
+  that no maintainer has to perform or attend it. This changes no result.
+- `R03` and `R07` leave the runner-only list in
+  [Automation Availability](docs/repository-quality-standard.md#automation-availability),
+  because both can now be met without a workflow run. A repository with no runner
+  that recorded either as `Not applicable` is due for assessment on them. See
+  [decision 0014](docs/decisions/0014-release-and-pinning-criteria-scale-with-what-they-protect.md).
+- Released as minor: these changes widen a criterion, so a recorded `Fail` may now
+  be a `Pass` and no recorded `Pass` can weaken, under
+  [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility).
+
 ## 1.13.0 - 2026-09-19
 
 - Widened `R07`: the changelog gate may live in a shared release pipeline that

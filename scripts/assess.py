@@ -12,11 +12,11 @@ whether tests cover failure paths, or whether an issue form collects enough to
 triage. So it decides only the criteria that are settled by a fact it can read —
 a topic, a licence, a `permissions` block, an action reference — and leaves
 every other criterion `unknown`, which is not a result and is rejected by
-`conformance.py --check` until a person replaces it.
+`conformance.py --check` until the assessor replaces it.
 
 The draft keeps the `YYYY-MM-DD` placeholder in `assessed_on` for the same
-reason. A record is produced by a person looking at a repository, and a
-generated file must not be able to pass for one. The draft removes the
+reason. A record is produced by an assessor, a person or an AI agent, that read
+the evidence, and a generated file must not be able to pass for one. The draft removes the
 transcription, not the assessment.
 
 Collection is separated from decision so that the decisions are testable without

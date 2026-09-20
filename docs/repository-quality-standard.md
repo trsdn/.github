@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.13.0
-- Last reviewed: 2026-09-17
+- Version: 1.14.0
+- Last reviewed: 2026-09-20
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across
@@ -323,11 +323,19 @@ because that is where the risk actually differs.
 
 | Reference | Required form |
 |---|---|
-| An action from an account outside the one being assessed | A commit SHA, or a recorded reason why a tag is acceptable |
+| An action from an account outside the one being assessed, in a job that can read a secret or write to the repository | A commit SHA, or a recorded reason why a tag is acceptable |
+| An action from an account outside the one being assessed, in a job with a read-only token and no secret | A major-version tag is sufficient; a SHA is permitted and not required |
 | An action published by GitHub itself | A major-version tag is sufficient; a SHA is permitted and not required |
 | A workflow or action from within the account being assessed | A branch is permitted, including the default branch |
 
-The third row is a permission, not an obligation, and it is stated because the
+The first two rows divide on what a moved tag could reach, because that is where
+the risk actually differs. A hijacked action in a job with a read-only token and
+no secret can waste a run and lie about a result, but cannot exfiltrate a
+credential or change the repository. In a job that holds either, it can do both,
+which is why only that case asks for a SHA. The job's own `permissions` block and
+its secret usage are the evidence, and `S11` already requires the first.
+
+The last row is a permission, not an obligation, and it is stated because the
 alternative is worse: pinning a reusable workflow to a tag means re-tagging
 every repository that calls it before any fix reaches them. An account that
 publishes shared workflows accepts that it can break its own consumers, which is
@@ -358,20 +366,16 @@ guarded by a label, an approval, or a maintainer's attention.
 
 ## Package And Release Repositories
 
-`R03` and `R07` require a runner. Where none is available,
-[Automation Availability](#automation-availability) states what is recorded
-instead.
-
 | ID | Requirement | Expected evidence |
 |---|---|---|
 | <a id="r01"></a>R01 | Package metadata is complete and agrees with repository metadata, in the package manifest or, where the manifest format has no field for a property, in the artifact's own metadata | Package manifest, plus the artifact's metadata file for whatever the manifest cannot hold |
 | <a id="r02"></a>R02 | Versioning and compatibility policy are documented | README or release guide |
-| <a id="r03"></a>R03 | A tag produces installable artifacts through automation: a workflow the tag triggers, or a shared release pipeline run for that tag | Release workflow, or the shared pipeline's documented run, and the uploaded release assets |
+| <a id="r03"></a>R03 | A tag identifies exactly what was built, and the artifacts come from a documented procedure: a workflow the tag triggers, a shared release pipeline run for that tag, or a documented manual release built from the tagged commit | Release workflow, the shared pipeline's documented run, or the documented manual steps, and the uploaded release assets |
 | <a id="r04"></a>R04 | Tag, package version, and release title are consistent | Release workflow validation |
 | <a id="r05"></a>R05 | A built artifact has been smoke-tested as a consumer receives it: the published file installed and launched, and its core function exercised. The result is recorded | A workflow that does it, or a dated record naming the version tested and what was exercised |
 | <a id="r06"></a>R06 | Release notes describe meaningful changes and upgrade concerns | GitHub release or changelog |
-| <a id="r07"></a>R07 | Release notes are generated from the changelog entry for the version being released, and automation fails the release when that entry is missing, empty, or still held in an unreleased section | Release workflow gate, in this repository or in a shared release pipeline this repository documents, plus a published release whose notes match its changelog entry |
-| <a id="r08"></a>R08 | A consumer can verify that a published artifact came from this repository or from the shared release pipeline that publishes its releases, or the repository states why they cannot | Registry provenance, a build attestation, the shared pipeline's documented and verifiable record, or a recorded statement |
+| <a id="r07"></a>R07 | The release notes a consumer receives are the changelog entry for the version being released, or link to it, and that entry exists and is not empty | A published release whose notes match or link to its changelog entry; where a gate exists, in this repository or in a shared release pipeline this repository documents, the gate too |
+| <a id="r08"></a>R08 | A consumer can verify that a published artifact came from this repository or from the shared release pipeline that publishes its releases, or the repository states that they cannot, or that it does not offer that and what a consumer can check instead | Registry provenance, a build attestation, the shared pipeline's documented and verifiable record, or a recorded statement |
 
 `R01` is about where the metadata lives, not about whether it exists. Some
 manifest formats have no field for a licence, a repository URL, or a description
@@ -380,12 +384,23 @@ itself carries, such as an application's `Info.plist`, and the repository states
 which properties live where. The criterion is met when every property has a home
 and the homes agree; a property with none is not.
 
-`R03` asks that the artifact comes from automation rather than from a maintainer's
-machine, and that a tag identifies exactly what was built. It does not require the
-tag push itself to start the build. A shared release pipeline that a maintainer
-starts for a specific tag, builds from that tag's pinned commit, and publishes to
-the release qualifies, when the repository documents the command that starts it.
-A build made locally and uploaded by hand does not.
+`R03` asks that a tag identifies exactly what was built and that a reader can
+tell how the artifact came to exist. It does not require automation and it does
+not require the tag push itself to start the build. Three forms qualify:
+
+- A workflow the tag triggers.
+- A shared release pipeline that a maintainer starts for a specific tag, builds
+  from that tag's pinned commit, and publishes to the release, when the
+  repository documents the command that starts it.
+- A manual release, when the repository documents the steps, the build is made
+  from the commit the tag names, and the uploaded assets are the ones that build
+  produced.
+
+What does not qualify is an artifact nobody can trace to a tag: a build made from
+a working tree that was never committed, or one whose steps are written down
+nowhere. Automation is encouraged because it repeats without care, but a
+single-maintainer repository is not failed for releasing by hand a way it can
+describe.
 
 `R06` and `R07` divide the work. `R06` is about content: notes a reader can act
 on. `R07` is about provenance: the notes a consumer actually receives are the
@@ -397,25 +412,31 @@ and still publish releases whose notes are fixed boilerplate, because nothing
 connects the two. The entries then reach nobody — the changelog is read only by
 someone who already knows to open it, and the release page, which is the surface
 a consumer actually lands on, says nothing. `R06` on its own is satisfiable by a
-changelog nobody consumes, which is why `R07` asks for a gate rather than a
-habit.
+changelog nobody consumes, which is why `R07` asks that the release page and the
+changelog entry are connected.
 
-The gate fails the release when the changelog has no section for the version
-being tagged, when that section is empty, or when entries are still held in an
-unreleased section that the tagged version did not absorb. A repository that
-keeps no unreleased section satisfies the last condition by construction, having
-nowhere to strand an entry. A minimal gate extracts the section for the tag,
-exits non-zero when the result is empty, and passes that same text to the
-release command as the notes body, so the published notes and the maintained
-entry cannot disagree.
+The connection can be either of two things. The release notes can be the
+changelog entry's text, or they can link to that entry. A link to a changelog
+entry with meaningful content also satisfies `R06` for that release, so a
+repository does not have to write the same notes twice. What fails is a release
+whose notes say nothing about the version and point nowhere, and a version
+released with no changelog entry, an empty one, or one still held in an unreleased
+section the tagged version did not absorb.
 
-The gate does not have to live in this repository. A repository whose releases
+A gate that fails the release automatically is the most reliable way to keep the
+connection, and is recommended where a runner is available, not required. A
+minimal gate extracts the section for the tag, exits non-zero when the result is
+empty, and passes that same text to the release command as the notes body, so the
+published notes and the maintained entry cannot disagree. A repository without
+one keeps the same property by hand, and is assessed on the result: the published
+release either connects to its entry or it does not.
+
+A gate does not have to live in this repository. A repository whose releases
 are built and published by a shared pipeline it does not own, such as a
-notarization broker or an organisation-wide release service, satisfies `R07`
-when that pipeline refuses to publish without the changelog entry and the
-repository documents that it does. The repository's part is to keep the entry;
-the pipeline's part is to refuse without it. The evidence is the pipeline's
-documented gate and a published release whose notes match the entry.
+notarization broker or an organisation-wide release service, may rely on that
+pipeline refusing to publish without the changelog entry, when the repository
+documents that it does. The repository's part is to keep the entry; the
+pipeline's part is to refuse without it.
 
 A reusable starting point is published as
 [`templates/release-notes/`](../templates/release-notes/).
@@ -426,16 +447,19 @@ written down that it worked and for which version. Doing that once is enough. A
 clean environment is not required: the failure it guards against is a build that
 only works on the machine that made it, and testing the *published* artifact
 rather than the local build catches that. Automating the test is encouraged,
-because it repeats on every release, but it is not required. A later release that
-changes how the artifact is built, signed, or packaged is due for a new record.
+because it repeats on every release, but it is not required. A record stands for later
+releases until one changes how the artifact is built, signed, or packaged; only
+that release is due for a new record. A release that changes only the code the
+artifact contains does not need one, because the build the record tested has not
+changed.
 
 `R08` covers the other half of what a consumer receives. `R03` establishes that
-a tag produces the artifact through automation and `R05` that the artifact
+a tag identifies what was built, by a documented procedure, and `R05` that the artifact
 works, but neither lets somebody who downloads it later establish where it came
 from. A published name is not evidence of origin.
 
 Where the ecosystem issues provenance from the workflow that built the artifact,
-using it is the requirement: npm provenance, PyPI trusted publishing, and GitHub
+using it is the strongest answer and always a `Pass`: npm provenance, PyPI trusted publishing, and GitHub
 artifact attestations all qualify, and all of them derive from the workflow
 identity rather than from a key somebody has to look after. That is deliberate.
 This criterion does not ask for artifact signing with maintainer-held keys,
@@ -452,15 +476,21 @@ publisher's identity and can be checked by anyone with `codesign` and `spctl`,
 which is what the repository documents. The repository states what a consumer
 can check and how, and what the record does not prove.
 
-Where no such mechanism is available to this repository, a recorded statement of
-that fact is a `Pass`. Availability is the property, and it fails in two ways: an
-ecosystem that issues no provenance at all, and a repository with no runner,
-which cannot reach the mechanism its ecosystem does offer, because every
-qualifying mechanism derives from a workflow identity. Both are recorded the same
-way. The criterion asks a repository to have answered the question, not to have
-solved it where it has no means to. A repository that could use a mechanism and
-has not is neither case and is a `Fail`, since a statement is a `Pass` only where
-it records a fact that holds. Neither case is excused by
+Where no such mechanism is used by this repository, a recorded statement of that
+fact is a `Pass`. That covers an ecosystem that issues no provenance at all, a
+repository with no runner, which cannot reach the mechanism its ecosystem does
+offer because every qualifying mechanism derives from a workflow identity, and a
+repository whose maintainer has decided the mechanism is not worth adopting for a
+project of its size. All three are recorded the same way. The criterion asks a
+repository to have answered the question, not to have adopted a mechanism.
+
+The statement has to be true and has to say something a consumer can use. It
+names the mechanism that is not used, or that none exists, and states what a
+consumer can check instead, such as a published checksum, the release's tag, or
+that nothing beyond the release page's own account of the source is offered. A
+statement that a mechanism is unavailable where it plainly is available is not a
+statement of a fact that holds, and stays a `Fail`; a statement that it is
+available and not used, with the reason, is a `Pass`. Neither case is excused by
 [Automation Availability](#automation-availability), which does not narrow this
 criterion. A repository publishing a document, a site, or nothing installable is
 `Not applicable`; `R01` and `R05` are already `Not applicable` in that case for
@@ -763,7 +793,7 @@ ones:
 | Which criteria | Result when no runner is available |
 |---|---|
 | Those satisfied by a check the repository owns, which a runner only makes convenient. At this version `S02`, `S03`, and `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not |
-| Those whose evidence can only be produced by a workflow run. At this version `S04`, `S09`, `R03`, `R07`, and `P09` | `Not applicable` |
+| Those whose evidence can only be produced by a workflow run. At this version `S04`, `S09`, and `P09` | `Not applicable` |
 
 **Membership is decided by the property, not by the list.** Each list names the
 criteria that match at the version on the cover, and is there so an assessor can
@@ -775,8 +805,7 @@ The split is between a capability and a gate. A test suite, a linter, and a
 catalog check are things the repository owns; a runner only makes them
 convenient, and `B05` already requires the command that runs them, so the
 evidence exists without CI and `Pass` is the honest result. A matrix, a required
-check, a release built by a tag, a smoke test in a clean environment, a
-release-notes gate, and a generated activity card are not properties of the
+check, and a generated activity card are not properties of the
 repository at all — they are things a runner does. Where there
 is no runner, there is nothing to assess, which is what `Not applicable` means
 everywhere else in this document.
@@ -817,7 +846,7 @@ mechanism is available to the repository, which a repository with no runner can
 write without one, `W01` asks for a repeatable documented process rather than a
 workflow, and `S11`, `S12`, and `S13` are properties of a workflow file that
 hold whether or not it ever runs. This section narrows the criteria its two rows
-describe — nine at this version — and one badge position, and nothing else.
+describe — six at this version — and one badge position, and nothing else.
 
 ## Status Badges
 
@@ -956,6 +985,13 @@ Archived repositories do not need to satisfy the active baseline.
 | <a id="a04"></a>A04 | No active deployment or undocumented dependency remains | Deployment records or inventories |
 
 ## Assessment
+
+An assessment is made by whoever reads the evidence, and that is normally an AI
+agent working in the repository. A maintainer is not required to perform it or to
+be present for it. What makes a record valid is the evidence it links and the
+date it was made, not the identity of the assessor. The assessing agent uses
+[Drafting A Conformance Record](assessing.md) and states in the linked evidence
+what it read.
 
 Use one result for every applicable criterion.
 

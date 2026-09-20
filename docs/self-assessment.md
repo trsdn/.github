@@ -1,7 +1,7 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.12.0
-- Assessed on: 2026-09-17
+- Standard version: 1.14.0
+- Assessed on: 2026-09-20
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
 
@@ -183,7 +183,8 @@ releases carry a document, not a package.
   here is published by GitHub, which `S12` allows to be referenced by
   major-version tag; six of the fifteen references go further and pin a commit
   SHA with the version in a trailing comment. No action from outside the account
-  is used at all, so the row of the table that requires a SHA is never reached.
+  is used at all, so the two rows of the table for an outside account are never
+  reached.
 - `B14` — passes on new content rather than on what was already here. The
   repository configures `STATS_TOKEN`, so the criterion applies and could not be
   answered by the pre-existing "stop and rotate" instruction to agents, which
