@@ -76,8 +76,8 @@ SCAFFOLD = """\
 #
 # `assessed_on` is a placeholder, and the check rejects it until you replace it
 # with the date you assessed the repository. That is deliberate. A record is
-# produced by a person looking at a repository, and a generated file must not be
-# able to pass for one.
+# produced by an assessor, a person or an AI agent, that read the evidence, and
+# a generated file must not be able to pass for one.
 #
 # The badge is generated from this file. Change the evidence first, then this
 # record, then regenerate. Never the other way round.

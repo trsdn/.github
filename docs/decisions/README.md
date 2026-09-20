@@ -18,3 +18,4 @@ future reader can see why it is the way it is before changing it.
 | [0010](0010-release-notes-come-from-the-changelog.md) | Release notes are generated from the changelog, and `R06` stays as it is | Accepted |
 | [0011](0011-criteria-are-decided-by-the-rule-text.md) | A criterion is decided by its rule text alone, and a rule this repository cannot violate visibly is untested here | Accepted |
 | [0012](0012-history-on-the-default-branch-is-protected.md) | History on the default branch is protected by its own criterion rather than by narrowing `B06` | Accepted |
+| [0014](0014-release-and-pinning-criteria-scale-with-what-they-protect.md) | Release and pinning criteria ask for the property, and recommend the mechanism | Accepted |

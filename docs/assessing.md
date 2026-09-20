@@ -16,9 +16,10 @@ settles, and leaves every other criterion `unknown`.
 `unknown` is not a result. `scripts/conformance.py --check` rejects a record
 containing one, and the draft keeps the `YYYY-MM-DD` placeholder in
 `assessed_on`, which the same check also rejects. Both are deliberate. A record
-is produced by a person looking at a repository, and a generated file must not
-be able to pass for one. The script removes the transcription, not the
-assessment.
+is produced by an assessor that read the evidence, and a generated file must not
+be able to pass for one. The assessor is normally an AI agent working in the
+repository, and the maintainer is not required to be involved. The script removes
+the transcription, not the assessment.
 
 | Criterion | Decided from |
 |---|---|
@@ -38,7 +39,7 @@ assessment.
 | `S13` | Untrusted triggers and the secrets they can reach |
 | `G01` | Whether `AGENTS.md` is at the root |
 
-Everything else is left to a person, and the notes file lists it.
+Everything else is left to the assessor, and the notes file lists it.
 
 Two of these deserve their limits stated. `P10` and `P11` ask whether intake
 collects enough to act on, which the standard assesses on the information
@@ -65,7 +66,7 @@ A limit remains where neither answers. A branch nothing covers, a branch whose
 protection the token cannot see, and a repository whose plan offers no mechanism
 all return the same `404`, and the standard gives those cases `Fail`, no answer,
 and `Not applicable` respectively. The script cannot tell them apart, so it
-leaves `B16` unknown there and a person settles it.
+leaves `B16` unknown there and the assessor settles it.
 
 Where the repository is private, the Public profile does not apply, and the
 script records `na` against every `P` criterion with that reason.
@@ -87,7 +88,7 @@ evidence is not visible are left `unknown` rather than guessed at.
 
 ## Finishing the draft
 
-1. Work through the criteria the notes list as left to a person.
+1. Work through the criteria the notes list as left to the assessor.
 2. Replace `assessed_on` with the date you did that.
 3. Set `state` from the [Assessment](repository-quality-standard.md#assessment)
    rules, which assign it by impact rather than by percentage.
