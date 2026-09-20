@@ -554,6 +554,45 @@ project URLs, npm `repository` and `bugs`, and OCI image labels
 | <a id="t04"></a>T04 | Generated artifacts identify their source and regeneration process | Build or export documentation |
 | <a id="t05"></a>T05 | Stale or superseded material is archived or clearly marked | Status markers and archive structure |
 
+Each criterion here is decided by the default results in
+[Deciding Without The Maintainer](#deciding-without-the-maintainer), with the
+readings below. The assessor states in the linked evidence which files it read.
+
+- `T01`: the five things are five parts. *Visible* means stated in the README or
+  the documentation index, or in a header or front matter block of the documents
+  themselves, and reachable from the README or index. Freshness is a date or a
+  version a reader can see; status is a word such as maintained, draft, or
+  archived. A part met in the entry point and absent from the documents, or the
+  reverse, is met.
+- `T02`: *practical* means a command a single maintainer can run without a paid
+  tool. `Pass` is a link checker or a documented review command that exists and
+  runs clean on the current tree. A repository with no internal links has
+  nothing to check on that part, and a repository that generates no output has
+  nothing to check on the other; where both hold the result is `Not applicable`,
+  and where one holds the criterion is judged on the other. A checker that
+  exists and fails, or one that is not documented, is `Partial`. No check is
+  `Fail`.
+- `T03`: the rule applies to a sample of the README and the four most recently
+  changed documents. A claim of fact that a reader could not confirm from the
+  document itself carries a link, a citation, or a source note, and a conclusion
+  is worded or placed so it is not mistaken for one. A document that makes no
+  such claim, such as a procedure, a template, or a definition, is outside the
+  sample; where the whole sample is outside it the result is `Not applicable`.
+  Every sampled document meeting the rule is `Pass`, some is `Partial`, none is
+  `Fail`.
+- `T04`: a generated artifact is a file a tool writes rather than a person. It
+  *identifies its source and regeneration process* when the file carries a header
+  or comment naming the source and the command, or when a build or export
+  document names both for it. Where the repository generates nothing the result
+  is `Not applicable`.
+- `T05`: material is *stale* when it has not changed for the review cadence
+  of six months, carries no date or
+  status saying it is still current, and describes something a newer document or
+  the current tree has replaced. It is *marked* when it begins with a status line
+  such as superseded, deprecated, or archived that links to its replacement, or
+  when it sits in an archive directory. Where the assessor finds no stale or
+  superseded material the result is `Not applicable`.
+
 ## Published Sites
 
 A repository is read by contributors. A site is read by everyone else. The two
@@ -590,6 +629,43 @@ Record the rationale rather than leaving the profile unclaimed.
 A site is a shipped user interface, so [Accessibility](#accessibility) applies to
 it in full. Those criteria are not restated here.
 
+`W05` and `W06` are retired and are not assessed. The results below follow the
+default results in
+[Deciding Without The Maintainer](#deciding-without-the-maintainer), with these
+readings.
+
+- `W01`: two parts, a repeatable process and a sentence documenting it. The
+  process is a deployment workflow, or the Pages source setting naming a branch
+  and folder of committed source, or a build script; a repository with no runner
+  and a static `docs/` or `site/` folder meets it through the Pages setting. The
+  sentence is in the README, `AGENTS.md`, or `docs/` and says how the site is
+  published. A site whose source lives in another repository is not published
+  from this one, and the result here is `Not applicable`.
+- `W02`: two parts, one per direction. The homepage field alone meets the
+  repository half. The site half is a repository link that appears on every page,
+  in the header, the navigation, or the footer; a single-page site meets it with
+  the link anywhere on the page. One direction present is `Partial`.
+- `W03`: the three statements, what the project is, who it is for, and its status
+  as a word such as maintained, experimental, or archived, appear in the first
+  visible content in source order, with nothing but navigation ahead of them.
+  Reading the source is sufficient evidence. Where the page is rendered, the
+  reference viewport is 1280 by 800 pixels.
+- `W07`: three parts, no third-party resources, no cookies, and no analytics. The
+  *network review* is a list of the hosts the landing page requests. The
+  assessor produces it by searching the site source for `src`, `href`,
+  `@import`, `url(`, and `<script>` values that point to another host, and for
+  cookie writes and analytics code. A browser or a recorded request list is
+  an equal alternative and is not required. A search that finds no other host, no
+  cookie API use, and no analytics is a `Pass`. Links a visitor follows are not
+  loaded resources, and neither is the host that serves the site itself; a badge
+  image loaded from another host is a third-party resource. Where the assessor
+  can see the source only, it says so in the linked evidence.
+- `W08`: the test is [Content Boundaries](#content-boundaries). A contributor,
+  architecture, or changelog section on the site is a `Fail`. A fact repeated on
+  the site and in the README or `docs/`, with or without a link to its home, is
+  `Partial`. No repetition and no
+  such section is a `Pass`.
+
 `W07` is the same argument as `P09` and `Y02`. A font, script, or image loaded
 from another host observes every visitor on a page the maintainer controls, and
 adds an availability dependency on somebody else's free tier. Self-host it or do
@@ -598,7 +674,13 @@ without it.
 ### Site Content Baseline
 
 `W04` is satisfied when the landing view carries all of these. Order is a
-suggestion; presence is not.
+suggestion; presence is not. There are seven items: all seven is `Pass`, at least
+one and fewer than seven is `Partial`, and none is `Fail`, as the default results
+in [Deciding Without The Maintainer](#deciding-without-the-maintainer) state.
+The `Y01` sentence, the links, and the date are found by searching the landing
+source. An item that has nothing to show does not count against the page: a
+product with no visual or textual output meets the third item with its shortest
+honest statement alone, without a screenshot or sample.
 
 - The name and a one-sentence statement of what the project is.
 - Status and version: maintained, experimental, or archived, and which release
@@ -629,6 +711,18 @@ built for what it describes, or whether it is unstyled HTML, a framework's
 default theme, or another project's site reused unchanged. That test is
 judgement, not a checklist, so what counts as evidence is a brief, honest look
 at the page rather than a single artifact.
+
+An assessor reads the stylesheet and the theme configuration and concludes only
+what they show. `W09` is a `Fail` where the site has no stylesheet, or uses a
+framework or template theme with no override of its colour, type, or layout, or
+carries the stylesheet and assets of another project's site unchanged. It is a
+`Pass` where the site's own stylesheet or theme configuration sets colour, type,
+or layout values that differ from the theme's defaults and from any other site
+the assessor can compare it to. Whether the design suits the subject, and whether
+it is good, is taste and is outside what the criterion decides: a site that is
+not one of the three `Fail` cases is a `Pass`, and the assessor does not mark it
+down for looking plain. Rendering the page is not required. Where the assessor
+can see only source, it says so in the linked evidence.
 
 Colour, type, and layout are chosen for the project's own subject matter, and
 the accessibility fundamentals that a shared system used to settle once —
@@ -670,7 +764,14 @@ in `docs/`. If it answers *why was it built this way*, it belongs in a decision
 record.
 
 The same test resolves the site. If a paragraph is addressed to somebody who
-might change the code, it does not belong on the site.
+might change the code, it does not belong on the site. A paragraph is addressed
+to such a person when it describes how to build, test, or contribute, how the
+code is organised internally, or what changed between versions.
+
+`B13` is assessed on the repository's own surfaces and `W08` on the site against
+them. A fact repeated between the site and the repository is recorded against
+`W08`, and a fact repeated between two repository surfaces against `B13`, so one
+repetition is not counted twice.
 
 Duplication that a generator produces from a single source is not duplication.
 The badge, the conformance record, and the statistics card all restate facts that
@@ -702,6 +803,59 @@ require the full section. Documentation repositories require `G01` and `G03`.
 and an agent then follows whichever copy it happens to read. A tool-specific file
 should point at `AGENTS.md`, not paraphrase it.
 
+The results follow the default results in
+[Deciding Without The Maintainer](#deciding-without-the-maintainer), with these
+readings.
+
+- `G02`: three parts, purpose, layout, and commands. *Authoritative* means
+  `AGENTS.md` names the command as the one to use, or links to the document that
+  does. The assessor runs the validation command from a clean checkout and it
+  must succeed. Build and run commands are required to be stated and are not
+  required to be run, and a repository with nothing to build or run states
+  none. A validation command that fails is `Partial`. A validation command that
+  cannot run in the assessor's environment, because it needs a secret, a
+  service, the network, or is destructive, is `Partial` with the reason recorded
+  in the linked evidence.
+- `G03`: the topics are history rewriting, force pushes, secret handling,
+  deployments, releases, and data-destructive commands. A topic that concerns
+  something the repository does not have, such as deployments in a repository
+  that deploys nothing, need not be named, and the assessor records which topics
+  it treated that way. *Covering* a topic means `AGENTS.md` says what an agent
+  must not do or must ask before doing.
+- `G04`: the tool-specific files are `.github/copilot-instructions.md`,
+  `CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `.cursor/rules/`, `.windsurfrules`,
+  and `.clinerules`. A file that exists meets the rule when it links to or
+  tells the agent to read `AGENTS.md` and does not repeat or contradict its
+  instructions. Where none of these files exists, the result is `Pass`, because
+  there is nothing to diverge.
+- `G05`: it is met when the command `B05` requires is named in `AGENTS.md`, or
+  `AGENTS.md` links to the document that names it, and the command succeeds from a
+  clean checkout. One documented sequence that the documentation calls the
+  complete validation counts as the single command. `B05` decides whether a
+  command is documented and `G05` whether the agent is pointed at it, so a
+  repository with no `B05` command has no `G05` command either, and the result is
+  `Fail` on both. A command that cannot run in the assessor's environment is
+  `Partial`, with the reason recorded.
+- `G06`: the paths are those a tool writes, those copied in from elsewhere, and
+  those a person must not edit, including lockfiles. A path is *marked* when
+  `.gitignore` excludes it, `.gitattributes` flags it as `linguist-generated` or
+  `linguist-vendored`, or `AGENTS.md` names the path or a pattern that matches it.
+  Where the repository has no such path the result is `Not applicable`.
+- `G07`: this is one test with three accepted forms. It is met when the
+  repository documents a trailer rule, a pull-request label rule, or a review
+  expectation, in `AGENTS.md`, `CONTRIBUTING.md`, or the README. A repository with
+  no agent-authored commits is judged on the documentation alone, and commit
+  history is not sampled. No such documentation is `Fail`.
+- `G08`: `.github/github-app.yml` is the file the GitHub Copilot app reads for
+  repository-scoped configuration: instructions, named scripts, and automation
+  settings, as in [Recommended Shape](#recommended-shape). It is *intentional*
+  when it is committed, is not empty, and its instructions point at `AGENTS.md`
+  or do not contradict it. A file that is only a placeholder, or whose content
+  contradicts `AGENTS.md`, is `Fail`. Where the platform does not offer the
+  capability, meaning the repository is not hosted on GitHub or the account has
+  no access to the app, the result is `Not applicable`, with what was checked
+  recorded. An absent file where the platform does offer it is `Fail`.
+
 A reusable starting point is published as [`templates/AGENTS.md`](../templates/AGENTS.md).
 
 ## Language And Localization
@@ -730,6 +884,54 @@ store listings, install prompts, and website copy.
 
 `L07` applies even to repositories that ship a non-English product. The product
 language and the contributor language are separate decisions.
+
+The results follow the default results in
+[Deciding Without The Maintainer](#deciding-without-the-maintainer), with these
+readings. A repository with no user-facing surface is `Not applicable` on `L01`
+to `L06`, and `L07` still applies.
+
+- `L01`: the README says the primary language in one sentence, for example
+  "Primary language: English." Any exception follows the
+  [German-Content Exception](#german-content-exception) form: the subject matter
+  is inherently in that language, and the README says so in one sentence.
+  Silence is a `Fail`.
+- `L02`: the assessor samples the files that hold user-facing strings, meaning
+  resource and template files and the source files that print or display text,
+  and the `--help` output, up to twenty files. It looks for text in a language
+  other than the declared primary one. Strings in a catalog for a locale that
+  `L03` declares are not hardcoded strings. None found in the sample is `Pass`,
+  and where the assessor cannot reliably tell a language it says which files it
+  could not judge.
+- `L03`: one sentence in the README saying "English only" or listing the locales,
+  or a locale manifest such as a `locales/` directory, an i18n configuration, or a
+  string catalog. One sentence may carry `L01` and `L03` together, and each is
+  then recorded as met by it.
+- `L04`: *localized builds* are those that ship more than one locale. Where the
+  repository declares English only under `L03`, or ships one catalog or none, the
+  result is `Not applicable`, and
+  [Automation Availability](#automation-availability) is reached only where the
+  criterion applies. Where it applies, `Pass` is a documented command or CI
+  check that reports both missing and orphaned keys and runs clean, `Partial` is
+  a check that reports only one of them, or fails, or is not documented, and no
+  check is `Fail`.
+- `L05`: manual formatting is building a displayed date, number, currency amount,
+  or sorted text by hand instead of through a locale-aware API. Searches that
+  find it include `strftime` and `%Y` patterns in displayed strings, `toFixed(`,
+  a currency symbol concatenated to a number, and `sort()` on displayed text
+  without a collator. Machine-readable output such as ISO dates in files and logs
+  is not display formatting. Where nothing in the source formats these values for
+  display the result is `Not applicable`.
+- `L06`: where the repository ships no translations, the result is `Not
+  applicable`. Otherwise a translation is *traceable* when the catalog or a
+  translation note records the source string or its key beside it and says who or
+  what produced it, such as a translator's name or "machine-translated" and the
+  tool.
+- `L07`: the assessor reads the current README, `docs/`, code comments, and
+  identifiers, and samples the last twenty commit messages, issues, and pull
+  requests opened by the maintainer or an agent, and the latest release notes. History
+  older than the sample is not counted, and neither is text written by other
+  people. A surface that has no items, such as a repository with no issues, is
+  not counted.
 
 ### German-Content Exception
 
