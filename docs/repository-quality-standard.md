@@ -175,7 +175,8 @@ are stated here. `Default` means the default results apply as written.
 `B02` and `B10` share the status statement. One sentence in the README satisfies
 both, and neither restates it. For `B10`, the owner is the account that owns the
 repository unless the repository is owned by an organization, in which case a
-`CODEOWNERS` entry or a named person or team is needed.
+`CODEOWNERS` entry or a named person or team is needed. A commit to the default
+branch within the review cadence also meets the maintenance-status part.
 
 `B04` reads the current tracked files, `.gitignore`, and the file names
 `git ls-files` lists. A secret is a file of credential values, such as a private
@@ -199,13 +200,14 @@ recorded run of this command decides for `S02`, `S03`, and `L04`.
   squash, merge commit, and rebase merge is disabled, a ruleset or protection
   on the default branch requires a pull request, or the README, contributing
   guide, or agent instructions name the merge method used. All three methods
-  enabled with nothing stated is not met.
+  enabled with nothing stated is met only where the repository has a single
+  maintainer and no ruleset, because the default is then the maintainer's choice.
 - *Alerts* is met when no alert is open in these three sources, read with
   `gh api 'repos/OWNER/REPO/dependabot/alerts?state=open&severity=critical'`,
   `gh api 'repos/OWNER/REPO/code-scanning/alerts?state=open&severity=critical'`,
   and `gh api 'repos/OWNER/REPO/secret-scanning/alerts?state=open'`. Secret
   scanning alerts carry no severity and count as critical. An alert dismissed with
-  a recorded reason is not open. A source that is disabled contributes no
+  a recorded reason, such as revoked or a false positive, is not open. A source that is disabled contributes no
   alerts, and one the token cannot read is named in the linked evidence and the
   result follows the sources that could be read.
 
@@ -214,8 +216,8 @@ recorded run of this command decides for `S02`, `S03`, and `L04`.
 
 `B09` reads `gh repo view --json visibility,repositoryTopics,homepageUrl,isArchived`
 and the README. Visibility agrees when a repository the README or licence presents
-as open source is public, and one it presents as internal is private. At least
-one topic must be present. The homepage agrees when it is set and the README
+as open source is public, and one it presents as internal is private. Topics are
+owned by `B12` and `P07` and are not assessed here. The homepage agrees when it is set and the README
 names it, or is empty and the README names no site or documentation address. The
 archive state agrees when the flag matches a README that says maintenance has
 ended. An archived repository is assessed under
@@ -385,7 +387,9 @@ report, and the CI and release badges are conditional as
 [Status Badges](#status-badges) states.
 
 `P09` applies to every public repository that has a runner, and to none that
-does not, as [Automation Availability](#automation-availability) records. A
+does not, as [Automation Availability](#automation-availability) records, except
+that a repository with no runner which commits a card and presents it as
+generated is a `Fail`. A
 repository with a runner that shows no generated card, or one fetched from a
 third-party image service, is a `Fail`: the criterion asks for the card, and
 having no card is not the same as having nothing to show. The card does not have
@@ -466,7 +470,7 @@ exit. That is the minimum reading of "important behavior and failure paths" unde
 exercised and one failure path is. Tests with no failure path are a `Partial`; no
 tests are a `Fail`. That the run is green is read as evidence and decided by
 `B05` and `S09`, not here. The run is read from the workflow history or, where
-none is available, from the `B05` command as
+the repository is recorded as without automation, from the `B05` command as
 [Automation Availability](#automation-availability) states.
 
 `S03` counts four kinds of check: format, lint, type, and static analysis. A kind
@@ -586,7 +590,7 @@ workflow's own token may write is decided by `S11`, not here.
 |---|---|---|
 | <a id="d01"></a>D01 | Target, prerequisites, configuration, and deployment command are documented | Deployment guide or runbook |
 | <a id="d02"></a>D02 | Secrets are referenced, never committed, and their safe location is documented | Secret names and secret-store reference |
-| <a id="d03"></a>D03 | Health verification is a runnable command, and the way back to the previous working state is documented | Health command and runbook. A rollback that has been rehearsed is welcome and is not required |
+| <a id="d03"></a>D03 | Health verification is a command or a stated observable step, and the way back to the previous working state is documented | Health command or stated step, and runbook. A rollback that has been rehearsed is welcome and is not required |
 | <a id="d04"></a>D04 | Runtime and infrastructure dependencies are constrained | Container, IaC, deployment, or runtime files |
 | <a id="d05"></a>D05 | Operational changes update durable history and inventory where applicable | Changelog and inventory entry |
 | <a id="d06"></a>D06 | Backup, migration, and destructive-operation risks are addressed when stateful | Runbook or explicit not-applicable result |
@@ -784,7 +788,8 @@ the one part that cannot be automated for an interface that needs an operator.
 | A kit exists, an agent ran it against the current published artifact, and the version, date and result are recorded | `Pass` |
 | A kit exists, but its recorded run is for an earlier build method or is missing | `Partial` |
 | A kit exists and its run fails | `Fail` |
-| No kit exists and the artifact could be checked automatically | `Fail` |
+| No kit exists, but a dated record names the version that was installed and launched by hand and what was exercised | `Pass` |
+| No kit and no such record exist, and the artifact could be checked automatically | `Fail` |
 | No kit exists because the artifact cannot be checked without an operator, and the record says so with the checks that remain and what they do not cover | `Pass` |
 | Nothing installable is published | `Not applicable` |
 
@@ -863,8 +868,9 @@ statement of a fact that holds, and stays a `Fail`; a statement that it is
 available and not used is a `Pass`. Where the repository claims a mechanism, the
 assessor verifies the latest release's artifact with the ecosystem's own command
 (for example `gh attestation verify`, or `codesign` and `spctl` on a Mac) when it
-has the tool, and otherwise accepts the documented mechanism and records that it
-did not verify it. Neither case is excused by
+has the tool and records the outcome as evidence. The documented mechanism
+decides the result, so a verification the assessor could not run, or that does
+not reproduce, is recorded and does not by itself change it. Neither case is excused by
 [Automation Availability](#automation-availability), which does not narrow this
 criterion. A repository publishing a document, a site, or nothing installable is
 `Not applicable`; `R01` and `R05` are already `Not applicable` in that case for
@@ -1024,7 +1030,9 @@ Record the rationale rather than leaving the profile unclaimed.
 A site is a shipped user interface, so [Accessibility](#accessibility) applies to
 it in full. Those criteria are not restated here.
 
-`W05` and `W06` are retired and are not assessed. The results below follow the
+`W05` and `W06` are retired and are not assessed: a conformance record still
+lists each as `na` with the rationale "retired", because the record carries every
+criterion in the catalog. The results below follow the
 default results in
 [Deciding Without The Maintainer](#deciding-without-the-maintainer), with these
 readings.
@@ -1057,9 +1065,9 @@ readings.
   can see the source only, it says so in the linked evidence.
 - `W08`: the test is [Content Boundaries](#content-boundaries). A contributor,
   architecture, or changelog section on the site is a `Fail`. A fact repeated on
-  the site and in the README or `docs/`, with or without a link to its home, is
-  `Partial`. No repetition and no
-  such section is a `Pass`.
+  the site and in the README or `docs/` without a link to its home is `Partial`;
+  a mention that links to the fact's home is not a repetition, as `B13` states.
+  No repetition and no such section is a `Pass`.
 
 `W07` is the same argument as `P09` and `Y02`. A font, script, or image loaded
 from another host observes every visitor on a page the maintainer controls, and
@@ -1225,12 +1233,13 @@ readings.
   there is nothing to diverge.
 - `G05`: it is met when the command `B05` requires is named in `AGENTS.md`, or
   `AGENTS.md` links to the document that names it, and the command succeeds from a
-  clean checkout. One documented sequence that the documentation calls the
-  complete validation counts as the single command. `B05` decides whether a
-  command is documented and `G05` whether the agent is pointed at it, so a
-  repository with no `B05` command has no `G05` command either, and the result is
-  `Fail` on both. A command that cannot run in the assessor's environment is
-  `Partial`, with the reason recorded.
+  clean checkout, or a linked green run of it counts as `B05` counts it. One
+  documented sequence that the documentation calls the complete validation counts
+  as the single command. `B05` decides whether a command is documented and `G05`
+  whether the agent is pointed at it, so a repository with no `B05` command has
+  no `G05` command either, and the result is `Fail` on both, except that `G05` is
+  `Not applicable` where `B05` is. A command that cannot run in the assessor's
+  environment is `Partial`, with the reason recorded.
 - `G06`: the paths are those a tool writes, those copied in from elsewhere, and
   those a person must not edit, including lockfiles. A path is *marked* when
   `.gitignore` excludes it, `.gitattributes` flags it as `linguist-generated` or
@@ -1499,7 +1508,7 @@ ones:
 
 | Which criteria | Result when no runner is available |
 |---|---|
-| Those satisfied by a check the repository owns, which a runner only makes convenient. At this version `S02`, `S03`, and `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not |
+| Those satisfied by a check the repository owns, which a runner only makes convenient. At this version `S02`, `S03`, and `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not. A criterion's own boundaries still decide any further `Partial`, as `S02` and `S03` state |
 | Those whose evidence can only be produced by a workflow run. At this version `S04`, `S09`, and `P09` | `Not applicable` |
 
 **Membership is decided by the property, not by the list.** Each list names the
@@ -1799,9 +1808,10 @@ boundaries, and a criterion that states them keeps them.
   single part is `Pass` or `Fail`.
 - `Not applicable` where the repository has nothing the criterion is about, such
   as no workflows for a workflow criterion, no user-facing strings for a
-  localization criterion, or no interface for an accessibility criterion. The
-  record says what was looked for. This differs from an intended deviation: the
-  requirement does not reach the repository at all.
+  localization criterion, or no interface for an accessibility criterion. Every
+  `Not applicable` records one sentence naming the fact and what was looked for;
+  the fixed sentences some sections give are instances of it. This differs from
+  an intended deviation: the requirement does not reach the repository at all.
 - A criterion applies to the current state of the repository and to its latest
   published release, not to every release that ever existed.
 
@@ -1825,8 +1835,8 @@ reasons that make one intended. A reason that is not in the table is not one.
 
 A choice the repository has stated but that the criterion's text does not allow
 is a `Partial`, recorded as intended and with its reason. It stays visible so a
-later reader can see it was decided, and it does not count against the state
-below unless the gap is one of the critical or high-priority ones.
+later reader can see it was decided, and it does not lower the state below,
+because only a `Fail` does.
 
 **Intent does not excuse the critical and high-priority criteria** named under
 [Overall State](#overall-state): `B04`, `D01`-`D04`, `D06`, `B02`, `B03`, `P01`,
@@ -1867,12 +1877,13 @@ active deployment with no known source or configuration:
 | `D03`, `D06` | An active deployment has no health check or way back, or risks irreplaceable state |
 | `D04` | A deployment's runtime and infrastructure are unconstrained. No criterion measures an exposed write-capable service directly, and this is the nearest one |
 
-The high-priority criteria, whose failure alone gives `Needs work`, are the ones
-that stand for no README (`B02`), ambiguous licensing (`B03`, `P01`), no software
+The high-priority criteria, which are named so that intent cannot excuse them, are
+the ones that stand for no README (`B02`), ambiguous licensing (`B03`, `P01`), no software
 validation (`B05`, `S02`), unsupported dependencies (`B07`, `S08`), and
-unreproducible releases (`S01`, `R03`, `R04`). They are named so that intent
-cannot excuse them, as described under
-[Deciding Without The Maintainer](#deciding-without-the-maintainer).
+unreproducible releases (`S01`, `R03`, `R04`). Their failure gives `Needs work`
+like any other, and
+[Deciding Without The Maintainer](#deciding-without-the-maintainer) explains why
+intent does not change it.
 
 ## Changing This Standard
 
