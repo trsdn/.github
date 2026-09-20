@@ -6,6 +6,62 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.15.0 - 2026-09-20
+
+- Added [Deciding Without The Maintainer](docs/repository-quality-standard.md#deciding-without-the-maintainer)
+  to Assessment. The assessor decides every result itself, including which gaps
+  are intended, from a fixed list of reasons and a fixed order of questions. An
+  intended deviation the criterion does not allow is a `Partial` that does not
+  lower the state. Intent never excuses the critical and high-priority gaps.
+- Reworked `R05` around a smoke kit: a documented command that checks the
+  published artifact without anyone operating the product, run by an agent, with
+  the result recorded. Operating the core function is no longer required. A
+  repository whose artifact cannot be checked without an operator passes on the
+  checks that remain, with the limit stated.
+- Reworked `D03`: health verification must be a runnable command, and the way
+  back must be documented. A rehearsed rollback is welcome and not required.
+- Went through all 104 criteria one at a time against an audit of whether the
+  text decides a result and whether an agent can meet it. Each criterion now
+  states its Pass, Partial, Fail and Not applicable boundaries, or relies on the
+  new default results, and where a threshold was needed it gives a minimum
+  reading. Nothing was renumbered, removed or added. The audit found no
+  criterion that needs a human, and two, `B05` and `R05`, that need a documented
+  procedure in the repository.
+- Added default results (multi-part criteria, `Not applicable`, judgement words,
+  the latest release) to
+  [Deciding Without The Maintainer](docs/repository-quality-standard.md#deciding-without-the-maintainer).
+- [Overall State](docs/repository-quality-standard.md#overall-state) is now
+  computed from the recorded results: `Healthy` when no criterion is `Fail`,
+  `Needs work` for any `Fail`, and `At risk` for a `Fail` on a named critical
+  criterion. This states what `scripts/conformance.py` already enforced.
+- Narrowed the **Deployable** profile to a standing deployment the maintainer
+  operates. An application installed from a release, or a script run by hand, is
+  no longer Deployable and records `D01`-`D06` as `Not applicable`.
+- Repository Statistics: the `P09` card may be published to a dedicated branch,
+  `STATS_TOKEN` is never required, and a runner with no card is a `Fail`.
+- `A01`-`A04` are `Not applicable` for a repository that is not archived, and
+  `B09` and `B12` are `Not applicable` for one that is.
+- `unknown` is stated to be a draft marker, not a result, and
+  `docs/conformance-record.md` no longer says otherwise.
+- `scripts/assess.py` counts templates inherited from the account for `P04`,
+  `P10` and `P11`, and decides `A01`-`A04`, `B09` and `B12` for archived
+  repositories.
+- Closed ten gaps that a first assessment of a real repository exposed, each a
+  clarification or widening: `S02` defines the main entry point for a graphical
+  application, `S04` covers a range claim with a job on the newest version, `R05`
+  says when signature checks alone are a kit and what an assessor that does not
+  run downloaded software records, `B13` grades a stale restatement, `P08` treats
+  a computed badge as derived, `G02` accepts a linked green run, `G04` no longer
+  counts an agreeing repetition as divergence, static hosting such as GitHub Pages
+  is not Deployable, `L05` exempts sorting identifiers, and `W04` accepts a page
+  that describes the latest release.
+- Clarified the evidence for `X01` and `X03`: the assessing agent's review of the
+  source counts.
+- Released as minor: these changes widen criteria, so a recorded `Fail` may now
+  be a `Pass` and no recorded `Pass` can weaken, under
+  [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility).
+  See [decision 0015](docs/decisions/0015-the-assessor-decides-including-intended-gaps.md).
+
 ## 1.14.0 - 2026-09-20
 
 - Widened `R03`: a manual release qualifies when the repository documents the

@@ -25,13 +25,14 @@ the transcription, not the assessment.
 |---|---|
 | `B01` | The repository description, and only when it is empty |
 | `B03`, `P01` | The licence GitHub detects, against the OSI-approved list |
-| `B09` | The archived flag, and only when the repository is archived |
+| `A01`–`A04` | The archived flag: `A01` passes when it is set, and all four are `na` when it is not |
+| `B09` | The archived flag, and only when the repository is archived, when it is `na` |
 | `B11` | Whether `.github/conformance.yml` exists |
-| `B12` | Whether the `trsdn-standard` topic is present |
+| `B12` | Whether the `trsdn-standard` topic is present; `na` for an archived repository without it |
 | `B16` | Whether a ruleset or classic branch protection blocks force pushes and deletion |
 | `P02`, `P06` | The community profile GitHub reports, which counts inherited files |
 | `P03` | A security policy in the tree or inherited from the account, and whether private reporting is enabled |
-| `P04`, `P10`, `P11` | Whether any intake template exists, absence only |
+| `P04`, `P10`, `P11` | Whether any intake template exists, in the repository or inherited from the account, absence only |
 | `S05` | The secret scanning status, where the token can see it |
 | `S09` | Required status checks on the default branch, from rulesets and from branch protection |
 | `S11` | A `permissions` block in every workflow |
@@ -88,7 +89,14 @@ evidence is not visible are left `unknown` rather than guessed at.
 
 ## Finishing the draft
 
-1. Work through the criteria the notes list as left to the assessor.
+1. Work through the criteria the notes list as left to the assessor. Decide each
+   one yourself with
+   [Deciding Without The Maintainer](repository-quality-standard.md#deciding-without-the-maintainer),
+   including which gaps are intended. Do not leave a question for the maintainer
+   and do not leave a criterion `unknown`.
+   The Product Identity criteria (`I01`-`I03`, `I05`, `I06`) and `R05` are read
+   from the published artifact, not from the source: download the latest release
+   asset and inspect it, and record what you could not inspect.
 2. Replace `assessed_on` with the date you did that.
 3. Set `state` from the [Assessment](repository-quality-standard.md#assessment)
    rules, which assign it by impact rather than by percentage.

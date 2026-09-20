@@ -210,6 +210,28 @@ class AssessTests(unittest.TestCase):
         drafted, _ = self.assess(facts(topics=[]))
         self.assertEqual(drafted["B12"], "fail")
 
+    def test_an_archived_repository_without_the_topic_is_not_applicable_for_b12(self) -> None:
+        drafted, _ = self.assess(facts(topics=[], archived=True))
+        self.assertEqual(drafted["B12"], "na")
+        self.assertEqual(drafted["B09"], "na")
+        self.assertEqual(drafted["A01"], "pass")
+
+    def test_a_repository_that_is_not_archived_skips_the_archived_profile(self) -> None:
+        drafted, _ = self.assess(facts())
+        for identifier in ("A01", "A02", "A03", "A04"):
+            self.assertEqual(drafted[identifier], "na")
+
+    def test_inherited_templates_are_not_reported_missing(self) -> None:
+        drafted, _ = self.assess(facts(inherited_issue_template=True, inherited_pr_template=True))
+        self.assertEqual(drafted["P04"], "pass")
+        self.assertNotEqual(drafted.get("P10"), "fail")
+        self.assertNotEqual(drafted.get("P11"), "fail")
+
+    def test_no_template_anywhere_fails_intake(self) -> None:
+        drafted, _ = self.assess(facts())
+        self.assertEqual(drafted["P04"], "fail")
+        self.assertEqual(drafted["P11"], "fail")
+
     def test_a_missing_record_fails_b11(self) -> None:
         drafted, _ = self.assess(facts(paths=["README.md"]))
         self.assertEqual(drafted["B11"], "fail")

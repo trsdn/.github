@@ -236,6 +236,21 @@ def collect(client: GitHub, repository: str) -> dict:
                 inherited_policy = True
                 break
 
+    inherited_issue_template = False
+    inherited_pr_template = False
+    if not bool(meta.get("private")):
+        found, _ = client.json(f"/repos/{owner}/.github/contents/.github/ISSUE_TEMPLATE")
+        inherited_issue_template = found == 200
+        for path in (
+            ".github/PULL_REQUEST_TEMPLATE.md",
+            "PULL_REQUEST_TEMPLATE.md",
+            "docs/PULL_REQUEST_TEMPLATE.md",
+        ):
+            found, _ = client.json(f"/repos/{owner}/.github/contents/{path}")
+            if found == 200:
+                inherited_pr_template = True
+                break
+
     licence = meta.get("license") or {}
     analysis = meta.get("security_and_analysis") or {}
     files = (profile or {}).get("files") or {} if isinstance(profile, dict) else {}
@@ -257,6 +272,8 @@ def collect(client: GitHub, repository: str) -> dict:
         "community_files": {key: bool(value) for key, value in files.items()},
         "secret_scanning": (analysis.get("secret_scanning") or {}).get("status", ""),
         "inherited_security_policy": inherited_policy,
+        "inherited_issue_template": inherited_issue_template,
+        "inherited_pr_template": inherited_pr_template,
         "private_reporting": (
             ""
             if reporting_status != 200 or not isinstance(reporting, dict)
@@ -404,11 +421,15 @@ def decide(facts: dict, catalog_ids: list[str]) -> dict[str, tuple[str, str]]:
     paths = set(facts["paths"])
     community = facts["community_files"]
 
-    decided["B12"] = (
-        ("pass", f"carries the `{TOPIC}` topic")
-        if TOPIC in facts["topics"]
-        else ("fail", f"the `{TOPIC}` topic is missing, so the repository is not discoverable")
-    )
+    if TOPIC in facts["topics"]:
+        decided["B12"] = ("pass", f"carries the `{TOPIC}` topic")
+    elif facts["archived"]:
+        decided["B12"] = ("na", "an archived repository drops the topic")
+    else:
+        decided["B12"] = (
+            "fail",
+            f"the `{TOPIC}` topic is missing, so the repository is not discoverable",
+        )
 
     record = ".github/conformance.yml"
     decided["B11"] = (
@@ -457,12 +478,21 @@ def decide(facts: dict, catalog_ids: list[str]) -> dict[str, tuple[str, str]]:
     elif ruleset["blocks_force_push"] and ruleset["blocks_deletion"]:
         decided["B16"] = ("pass", "a ruleset blocks force pushes and deletion")
 
-    forms = [path for path in paths if ISSUE_FORM.match(path)]
-    template = [path for path in paths if PR_TEMPLATE.match(path)]
+    # A template inherited from the account's default community health files counts,
+    # because what is assessed is what a reporter is shown.
+    forms = [path for path in paths if ISSUE_FORM.match(path)] or bool(
+        facts.get("inherited_issue_template")
+    )
+    template = [path for path in paths if PR_TEMPLATE.match(path)] or bool(
+        facts.get("inherited_pr_template")
+    )
     if not forms and not template:
-        decided["P04"] = ("fail", "no issue template and no pull-request template")
-        decided["P10"] = ("fail", "no issue template of any kind")
-        decided["P11"] = ("fail", "no pull-request template")
+        decided["P04"] = (
+            "fail",
+            "no issue template and no pull-request template, in the repository or inherited",
+        )
+        decided["P10"] = ("fail", "no issue template of any kind, in the repository or inherited")
+        decided["P11"] = ("fail", "no pull-request template, in the repository or inherited")
     elif forms and template:
         decided["P04"] = ("pass", "issue and pull-request templates are present")
 
@@ -506,7 +536,11 @@ def decide(facts: dict, catalog_ids: list[str]) -> dict[str, tuple[str, str]]:
         )
 
     if facts["archived"]:
-        decided["B09"] = ("pass", "the repository is archived, which is an intentional state")
+        decided["B09"] = ("na", "an archived repository is assessed under the Archived profile")
+        decided["A01"] = ("pass", "GitHub reports the repository as archived")
+    else:
+        for identifier in ("A01", "A02", "A03", "A04"):
+            decided[identifier] = ("na", "the repository is not archived")
 
     if facts["private"]:
         for identifier in catalog_ids:

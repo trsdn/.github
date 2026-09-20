@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.14.0
+- Version: 1.15.0
 - Last reviewed: 2026-09-20
 - Review cadence: every six months, even when nothing changes
 
@@ -128,7 +128,7 @@ Apply the baseline to every active repository, then add every matching profile.
 |---|---|
 | Public | The repository is publicly visible |
 | Software | It builds or executes application, library, CLI, script, or service code |
-| Deployable | It is deployed to a workstation, server, container, or cloud environment |
+| Deployable | The maintainer operates a standing deployment of it: a service on a server, container, or cloud environment, or an installation on a workstation that runs or is scheduled without the maintainer starting it. Software that users download or build and install, and a script or tool run by hand, is not Deployable. [Deployable Repositories](#deployable-repositories) decides the cases |
 | Package | It publishes a package, binary, image, or release artifact |
 | Documentation | Its primary product is documentation, research, content, or templates |
 | Published Site | It publishes a website, or it ships something whose audience uses it without ever needing the repository |
@@ -142,12 +142,12 @@ Apply the baseline to every active repository, then add every matching profile.
 | <a id="b02"></a>B02 | README explains purpose, audience, status, setup or usage, and key links | `README.md` |
 | <a id="b03"></a>B03 | Licensing intent is explicit | `LICENSE` or a clear internal-use statement |
 | <a id="b04"></a>B04 | Secrets, local state, and generated output are ignored while maintained source is tracked | `.gitignore` and repository contents |
-| <a id="b05"></a>B05 | A reproducible validation command is documented | README or contributing guide plus a successful run |
-| <a id="b06"></a>B06 | The default branch has an intentional merge policy and no unresolved critical alerts | GitHub settings and Security tab |
+| <a id="b05"></a>B05 | A reproducible validation command is documented | README, contributing guide, or agent instructions, plus a successful run or a green run on the default branch |
+| <a id="b06"></a>B06 | The default branch has a stated merge policy and no open critical alerts | GitHub settings, repository text, and the alert APIs described below |
 | <a id="b07"></a>B07 | Dependencies and supported runtime versions are declared where applicable | Manifest, lockfile, or README |
 | <a id="b08"></a>B08 | User-facing or operational changes have durable history | Changelog, releases, ADRs, or linked issues |
-| <a id="b09"></a>B09 | Visibility, topics, homepage, and archive state are intentional | GitHub metadata |
-| <a id="b10"></a>B10 | Ownership and maintenance status are clear | `CODEOWNERS`, contributing guide, or README |
+| <a id="b09"></a>B09 | Visibility, topics, homepage, and archive state are set and agree with the README | GitHub metadata and `README.md` |
+| <a id="b10"></a>B10 | Ownership and maintenance status are stated | `CODEOWNERS`, contributing guide, or README |
 | <a id="b11"></a>B11 | The repository records which version of this standard it was assessed against, and when | Conformance record described in [Conformance Records](#conformance-records) |
 | <a id="b12"></a>B12 | Assessed repositories are discoverable as a set | The `trsdn-standard` GitHub topic |
 | <a id="b13"></a>B13 | Each fact has one home, and other documents link to it rather than restating it | [Content Boundaries](#content-boundaries) |
@@ -155,9 +155,93 @@ Apply the baseline to every active repository, then add every matching profile.
 | <a id="b15"></a>B15 | A repository that redistributes third-party code states how the obligations of those licences are met | Notice file, generated attribution list, or a recorded statement that nothing is redistributed |
 | <a id="b16"></a>B16 | The default branch cannot be force-pushed over or deleted | Branch ruleset or protection settings |
 
+The parts of these criteria that the default results in
+[Deciding Without The Maintainer](#deciding-without-the-maintainer) do not decide
+are stated here. `Default` means the default results apply as written.
+
+| ID | Pass | Partial | Fail | Not applicable |
+|---|---|---|---|---|
+| `B01` | The description is not empty and says what the repository is or does in words beyond its name | The description only restates the name or is generic, such as "my repo" | The description is empty | Default |
+| `B02` | All five parts are present. "Key links" means at least one link to documentation, the issue tracker, or the licence | The README exists and at least one, but not all, of the five parts is present | There is no README, or it contains none of the five | Default |
+| `B03` | A licence file with explicit terms, including one GitHub reports as unrecognised, or an internal-use or all-rights-reserved statement in a private or unlicensed repository | A file or statement is present but cannot be read as granting or withholding permission | Neither is present | Default |
+| `B04` | No secret, local-state file, or generated output is tracked, and `.gitignore` covers what the ecosystem in use usually produces | Local state or generated output is tracked, or the ecosystem's usual output is not ignored | A secret or credential file is tracked in the current tree | Default |
+| `B05` | A command is documented, runs from a clean checkout using only documented setup, and exits successfully | The command is documented but the run failed, needs setup that is not documented, or could not be made and no green run exists | No command is documented | The repository holds no executable code, configuration, or build, only prose or static assets |
+| `B07` | Every applicable part is declared: third-party dependencies and the runtime versions supported | One applicable part is declared and another is not | No applicable part is declared | Neither a third-party dependency nor a runtime exists |
+| `B08` | The latest release, or where none exists the latest user-facing or operational change, has an entry in a changelog, release notes, a decision record, or a linked issue or pull request | History exists but stops before the latest release or change | Releases or such changes exist and none is recorded | The repository has never been released and has no user-facing or operational change |
+| `B09` | Visibility, topics, homepage, and archive state are each set and agree with the README, as described below | At least one is set or agrees and at least one is not | None is set or agrees | Default |
+| `B10` | A maintenance statement and an owner are both present | Only one is present | Neither is present | Default |
+| `B11` | The record is present and `assessed_on` is within the review cadence on the cover | The record is present and older than the cadence | No record is present | Default |
+
+`B02` and `B10` share the status statement. One sentence in the README satisfies
+both, and neither restates it. For `B10`, the owner is the account that owns the
+repository unless the repository is owned by an organization, in which case a
+`CODEOWNERS` entry or a named person or team is needed. A commit to the default
+branch within the review cadence also meets the maintenance-status part.
+
+`B04` reads the current tracked files, `.gitignore`, and the file names
+`git ls-files` lists. A secret is a file of credential values, such as a private
+key or an `.env` with values, or a token in a recognisable format; a placeholder
+such as `.env.example` is not one. Generated output the repository documents as
+committed, with the command that regenerates it, is maintained source. `S05`
+owns secret scanning on commits and pull requests, and `B04` does not require it.
+
+`B05` counts the command as run when the assessor runs it and it exits
+successfully, or when the latest run of that command on the default branch is
+green and the evidence links it. Where the assessor cannot install the toolchain
+or reach the network and there is no green run, the result is `Partial`, with the
+reason recorded; the assessor does not leave the criterion open. A Markdown lint
+or link check counts as a command for a repository of prose. Where no runner is
+available, [Automation Availability](#automation-availability) states what a
+recorded run of this command decides for `S02`, `S03`, and `L04`.
+
+`B06` has two parts, and the default results apply to them.
+
+- *Merge policy* is met when the repository shows a choice: at least one of
+  squash, merge commit, and rebase merge is disabled, a ruleset or protection
+  on the default branch requires a pull request, or the README, contributing
+  guide, or agent instructions name the merge method used. All three methods
+  enabled with nothing stated is met only where the repository has a single
+  maintainer and no ruleset, because the default is then the maintainer's choice.
+- *Alerts* is met when no alert is open in these three sources, read with
+  `gh api 'repos/OWNER/REPO/dependabot/alerts?state=open&severity=critical'`,
+  `gh api 'repos/OWNER/REPO/code-scanning/alerts?state=open&severity=critical'`,
+  and `gh api 'repos/OWNER/REPO/secret-scanning/alerts?state=open'`. Secret
+  scanning alerts carry no severity and count as critical. An alert dismissed with
+  a recorded reason, such as revoked or a false positive, is not open. A source that is disabled contributes no
+  alerts, and one the token cannot read is named in the linked evidence and the
+  result follows the sources that could be read.
+
+`B16` owns blocking a force push and a deletion, and `S09` owns required checks.
+`B06` asks for neither.
+
+`B09` reads `gh repo view --json visibility,repositoryTopics,homepageUrl,isArchived`
+and the README. Visibility agrees when a repository the README or licence presents
+as open source is public, and one it presents as internal is private. Topics are
+owned by `B12` and `P07` and are not assessed here. The homepage agrees when it is set and the README
+names it, or is empty and the README names no site or documentation address. The
+archive state agrees when the flag matches a README that says maintenance has
+ended. An archived repository is assessed under
+[Archived Repositories](#archived-repositories).
+
+`B13` is assessed on three kinds of fact in the README, `AGENTS.md`, the
+contributing guide, and `docs/`, and on nothing else. A restatement that has gone
+stale, so that it no longer agrees with its home, is a copy that disagrees. The
+three kinds are: a command, a version or
+supported runtime, and a policy such as reporting, contribution, or licence
+terms. A mention that links to the fact's home is not a restatement. `Pass` is no
+hand-maintained restatement of any of the three. `Partial` is one that agrees
+with its home. `Fail` is copies that disagree. Generated restatement does not
+count, as [Content Boundaries](#content-boundaries) states.
+
 `B12` marks a repository as *governed by this standard*. It makes no claim about
 the outcome; the outcome lives only in the conformance record required by `B11`.
-Archived and explicitly out-of-scope repositories drop the topic.
+Every repository assessed against this standard carries the topic, whatever its
+profile, and a repository with the topic is `Pass`, archived or not. An archived
+repository may drop it, and a repository recorded as out of scope does not carry
+it; either without the topic is `Not applicable`, with the rationale recorded. A
+repository is out of scope when its README or description states that it is
+outside this standard and gives a reason. Any other repository without the topic
+is `Fail`.
 
 The inventory of assessed repositories is produced with:
 
@@ -189,7 +273,9 @@ it publishes — a bundled dependency, a vendored directory, a container layer, 
 a compiled artifact that statically links one. A repository whose dependencies
 are resolved by the consumer's package manager at install time redistributes
 nothing, and one sentence saying so is a `Pass`. A repository with no
-dependencies at all is `Not applicable`.
+dependencies at all is `Not applicable`. A repository that redistributes and
+states nothing is a `Fail`, and one that states its approach for some of the code
+it ships but not all of it is a `Partial`.
 
 Stating the approach is the requirement. Producing a per-dependency inventory,
 running a licence scanner, or adjudicating compatibility between licences is
@@ -243,19 +329,86 @@ what the criterion is for.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
-| <a id="p01"></a>P01 | An OSI-approved license is present | Root `LICENSE` or `LICENSE.md` recognized by GitHub |
-| <a id="p02"></a>P02 | Contribution and conduct expectations are documented | `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` |
-| <a id="p03"></a>P03 | Security reporting is private and documented | `SECURITY.md` and private vulnerability reporting |
-| <a id="p04"></a>P04 | Issue and pull-request intake is structured | Issue forms and pull-request template |
-| <a id="p05"></a>P05 | README covers install, configuration, examples, compatibility, security, and support status | `README.md` |
-| <a id="p06"></a>P06 | Community health files are recognized by GitHub | Community Standards page |
-| <a id="p07"></a>P07 | Metadata supports discovery | Description, topics, and a maintained homepage where useful |
+| <a id="p01"></a>P01 | An OSI-approved license is present | Root `LICENSE` or `LICENSE.md`, with the SPDX identifier GitHub detects |
+| <a id="p02"></a>P02 | Contribution and conduct expectations are documented | `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md`, in the repository or inherited from the account |
+| <a id="p03"></a>P03 | Security reporting is private and documented | `SECURITY.md`, in the repository or inherited, and a private reporting route |
+| <a id="p04"></a>P04 | Issue and pull-request intake is structured | Issue templates or forms and a pull-request template, in the repository or inherited |
+| <a id="p05"></a>P05 | README covers install, configuration, examples, compatibility, security, and support status | `README.md`, one sentence or a link per topic |
+| <a id="p06"></a>P06 | Community health files are recognized by GitHub | Community profile lists the README, license, contributing guide, and code of conduct |
+| <a id="p07"></a>P07 | Metadata supports discovery | Description, at least one topic, and a homepage that resolves where the repository has a site |
 | <a id="p08"></a>P08 | README status badges follow the badge convention | [Status Badges](#status-badges) |
 | <a id="p09"></a>P09 | Repository activity is shown from a self-hosted, generated source rather than a third-party image service | [Repository Statistics](#repository-statistics) |
-| <a id="p10"></a>P10 | Issue intake collects what triage needs, not only a free-text box | Issue forms whose fields cover the problem, the expected and actual result, how to reproduce it, and the version or environment it occurred in |
-| <a id="p11"></a>P11 | Pull-request intake collects what review needs | Pull-request template covering what the change does, how it was validated, what it risks, and what it relates to |
+| <a id="p10"></a>P10 | Issue intake collects what triage needs, not only a free-text box | Issue templates or forms, in the repository or inherited, whose fields cover the problem, the expected and actual result, how to reproduce it, and the version or environment it occurred in |
+| <a id="p11"></a>P11 | Pull-request intake collects what review needs | Pull-request template, in the repository or inherited, covering what the change does, how it was validated, what it risks, and what it relates to |
 
-`P04` asks whether intake is structured at all. `P10` and `P11` ask whether the
+`P01` passes when GitHub reports an SPDX identifier on the
+[OSI approved list](https://opensource.org/licenses). Where GitHub reports
+`NOASSERTION` or another non-listed identifier, the assessor reads the text and
+passes it when it is an unmodified OSI-approved license, and otherwise it is a
+`Fail`, as is a missing license.
+
+`P02` and `P03` count files inherited from the account's default community health
+files, because what is assessed is what a visitor is shown. Each is a two-part
+criterion under the default results: `P02` is `Pass` with both files, `Partial`
+with one. `P03` is `Pass` with a security policy and a private reporting route,
+where a private route is GitHub private vulnerability reporting or a private
+contact address the policy names. It is `Partial` with one of the two. Where the
+private-reporting setting cannot be read, the policy file alone decides the
+result, so a policy naming a private contact is a `Pass` and one that does not is
+a `Partial`, with the unreadable setting recorded.
+
+`P05` is met per topic by one sentence or by a link to where the repository
+states it, including a link to a policy or support file. The six topics are
+install, configuration, examples, compatibility, security, and support status.
+Install, configuration, examples, and compatibility are each `Not applicable`
+where the repository has nothing to install, configure, run, or depend on, as a
+documentation or templates repository does not. Security and support status
+always apply. Every applicable topic covered is `Pass`, some is `Partial`, and
+none is `Fail`.
+
+`P06` asks something the other criteria do not: whether GitHub recognizes the
+files by name and location, which is what puts them on the Community Standards
+page and in the sidebar. `P01` to `P04` ask whether the content is right. It
+counts four files, the README, the license, the contributing guide, and the code
+of conduct. The security policy and the templates are left to `P03` and `P04` so
+that a gap is not counted twice. All four recognized is `Pass`, some is
+`Partial`, none is `Fail`. Where the profile cannot be read, the assessor checks
+the four files against the locations GitHub recognizes: the root, `docs/`,
+`.github/`, and the account's default files.
+
+`P07` is decided on three parts: a non-empty description, at least one topic, and
+a homepage. The homepage is required only where the repository has a website or
+documentation site, and then it must resolve at assessment time. A repository
+without one is assessed on the other two. Whether the description states a
+purpose is `B01`, and the `trsdn-standard` topic is `B12`, so neither is repeated
+here.
+
+`P08` applies to every public repository. Its platform or runtime badge is `Not
+applicable` where the repository has no runtime or platform requirement to
+report, and the CI and release badges are conditional as
+[Status Badges](#status-badges) states.
+
+`P09` applies to every public repository that has a runner, and to none that
+does not, as [Automation Availability](#automation-availability) records, except
+that a repository with no runner which commits a card and presents it as
+generated is a `Fail`. A
+repository with a runner that shows no generated card, or one fetched from a
+third-party image service, is a `Fail`: the criterion asks for the card, and
+having no card is not the same as having nothing to show. The card does not have
+to be a commit to the default branch. A workflow that generates it on a schedule
+and publishes it to a dedicated branch, such as `stats`, with the README
+referencing the file there, satisfies the criterion, because the card is still in
+the repository and produced by a workflow. So does committing it to the default
+branch by pull request. The default branch and its ruleset are then unaffected,
+so `S09` and the pull-request rule of a repository are met, and the write
+permission the job needs is one the work requires, so `S11` is met.
+
+`P04` asks whether intake is structured at all. It counts an issue template
+whether it is a form (`.yml`) or a Markdown file (`.md`), and a pull-request
+template, each in the repository or inherited. A `config.yml` alone is not a
+template. Both present is `Pass`, one is `Partial`, neither is `Fail`. Where
+issues are disabled, the issue part is `Not applicable` and the pull-request
+template decides the result. `P10` and `P11` ask whether the
 structure collects enough to act on, because a form with one box labelled
 "Description" is structured and still leaves every report to be triaged by
 conversation.
@@ -276,7 +429,8 @@ Fields may be optional where the repository knows they will often not apply, and
 a template that lets a reporter say a field does not apply is preferred to one
 that forces an answer. What `P10` and `P11` reject is a template that never asks.
 
-A repository whose issues are disabled is `Not applicable` for `P10`, and so is
+A repository whose issues are disabled is `Not applicable` for `P10` and for the
+issue part of `P04`, and so is
 one that takes intake through a route GitHub forms cannot serve, provided the
 route is documented and collects the same information. Neither result is
 available for `P11`: every repository that accepts pull requests can carry a
@@ -292,19 +446,96 @@ instead.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
-| <a id="s01"></a>S01 | Setup is reproducible from a clean checkout | Lockfile or pinned dependencies plus documented commands |
-| <a id="s02"></a>S02 | Automated tests cover important behavior and failure paths | Test suite and CI run |
-| <a id="s03"></a>S03 | Formatting, linting, type, and static checks run automatically where supported | Tool configuration and CI workflow |
-| <a id="s04"></a>S04 | CI covers every materially supported runtime or platform | Focused CI matrix |
+| <a id="s01"></a>S01 | Setup is reproducible from a clean checkout | Lockfile or declared dependency versions, plus documented commands |
+| <a id="s02"></a>S02 | Automated tests cover important behavior and failure paths | Test suite, and a successful run in CI or of the `B05` command |
+| <a id="s03"></a>S03 | Formatting, linting, type, and static checks run automatically where supported | Tool configuration, run by a CI workflow or the `B05` command |
+| <a id="s04"></a>S04 | CI covers every materially supported runtime or platform | CI jobs or matrix covering each version or platform the README or manifest claims |
 | <a id="s05"></a>S05 | Secret scanning runs on commits and pull requests | GitHub secret scanning, Gitleaks, or equivalent |
-| <a id="s06"></a>S06 | Configuration is environment-driven and defaults do not expose private data | Example configuration and source review |
-| <a id="s07"></a>S07 | Errors and logs are actionable without leaking credentials or personal data | Tests or documented logging behavior |
-| <a id="s08"></a>S08 | Dependency updates and vulnerability triage have an owner and process | Dependabot or documented equivalent |
-| <a id="s09"></a>S09 | Existing required checks protect the default branch | Branch ruleset or protection settings |
+| <a id="s06"></a>S06 | Configuration is environment-driven and defaults do not expose private data | Example configuration and a read of the source |
+| <a id="s07"></a>S07 | Errors and logs are actionable without leaking credentials or personal data | Tests, documented logging behavior, or a read of the source |
+| <a id="s08"></a>S08 | Dependency updates and vulnerability triage have an owner and process | Dependabot or Renovate configuration, or a documented owner and process |
+| <a id="s09"></a>S09 | Existing required checks protect the default branch | Branch ruleset or protection settings requiring an existing check |
 | <a id="s10"></a>S10 | Architecture and non-obvious constraints are documented | README, `docs/`, or ADRs |
 | <a id="s11"></a>S11 | Workflow token permissions are declared and no broader than the work requires | A `permissions` block on every workflow or on each of its jobs |
 | <a id="s12"></a>S12 | An executable reference in a workflow cannot change underneath the repository | Action and reusable-workflow references |
 | <a id="s13"></a>S13 | A workflow triggered by an untrusted contribution cannot read repository secrets | Workflow triggers and secret usage, or an explicit not-applicable result |
+
+`S01` is decided by reading the lockfile or manifest and the documented commands;
+running them is not required. A library that declares dependency ranges in its
+manifest instead of a lockfile meets the pinning part. A repository with no
+third-party dependencies and no setup step is `Not applicable`.
+
+`S02` passes when a suite exists, it has been run, and at least one test asserts
+an error or failure path, such as rejected input, a raised error, or a non-zero
+exit. That is the minimum reading of "important behavior and failure paths" under
+[Judgement words](#deciding-without-the-maintainer): the main entry point is
+exercised and one failure path is. The main entry point is the command, function
+or action the README names as what the software does. For a graphical
+application it is the logic behind that action, reached without its views, and a
+suite that exercises only a supporting part of it is a `Partial`. Tests with no failure path are a `Partial`; no
+tests are a `Fail`. That the run is green is read as evidence and decided by
+`B05` and `S09`, not here. The run is read from the workflow history or, where
+the repository is recorded as without automation, from the `B05` command as
+[Automation Availability](#automation-availability) states.
+
+`S03` counts four kinds of check: format, lint, type, and static analysis. A kind
+counts only where the language's standard toolchain or a widely used tool for it
+provides one, and compiling counts as the type check for a compiled language. The
+minimum reading of "where supported" is a format or lint check that runs
+automatically, plus a type check where the toolchain provides one. Every
+supported kind running is `Pass`, some is `Partial`, and none is `Fail`. A
+repository whose language has no such tool is `Not applicable`.
+
+`S04` compares CI with the runtimes and platforms the README or manifest claims.
+One job per claimed version or platform is enough, and a repository claiming one
+runtime passes with one job. A claim stated as a range, such as "macOS 14 or
+later", is covered by a job on the newest version available to the runner, and a
+job on the lower bound is welcome and not required. A claimed one missing from CI is a `Partial`, and
+CI that exercises none of them is a `Fail`. A repository that claims no runtime
+or platform is `Not applicable`.
+
+`S05` passes with GitHub secret scanning enabled, or with a scanner workflow that
+runs on both pushes and pull requests. A scanner on only one of the two, or only
+on a schedule, is a `Partial`. Where the setting cannot be read and no workflow
+scans, the result is `Partial` with the unreadable setting recorded.
+
+`S06` is `Not applicable` where nothing in the repository reads configuration.
+Otherwise a committed credential or personal data as a default, such as a token,
+a personal email address, or a home-directory path, is a `Fail`. Configuration
+read from the environment or from a file with a committed example and no such
+default is `Pass`, and configuration partly hard-coded to one machine or host is
+a `Partial`. The assessor finds these by searching the source for hosts, paths,
+and credential-shaped strings.
+
+`S07` is `Not applicable` where the code emits no logs or error messages. The
+minimum reading of "actionable" is a message that names the failed operation and
+its cause, not a bare "error" or a stack trace alone. The assessor reads the
+source or the documented behavior and searches it for logging of environment
+variables, tokens, passwords, or request headers and bodies. Actionable messages
+and no such logging is `Pass`, one without the other is a `Partial`, and neither
+is a `Fail`.
+
+`S08` is `Not applicable` where the repository has no third-party dependencies
+declared in a manifest or lockfile or vendored. Otherwise a Dependabot or Renovate
+configuration, or a sentence in the README, contributing guide, or security policy
+naming who updates dependencies and triages advisories and how, is a `Pass`; in a
+single-maintainer repository the maintainer is the owner. Vulnerability alerts on
+with no update process is a `Partial`, and neither is a `Fail`.
+
+`S09` is `Not applicable` where the repository has no check to require, because
+`S02` and `S03` fail first. Otherwise a ruleset or protection that requires an
+existing check before merge is `Pass`, protection with no required check is
+`Partial`, and none on the default branch is a `Fail`. Where the settings cannot
+be read, the result is `Partial` with the unreadable setting recorded.
+
+`S10` passes when the README, `docs/`, or an ADR names the main components and any
+constraint a new contributor could break without knowing it, such as a required
+ordering, an external service, a compatibility target, or a generated file.
+Components without constraints, in a repository that has constraints, is a
+`Partial`, and nothing documented is a `Fail`. Where the assessor reads the entry
+points and workflows and finds no such constraint, and the repository is a single
+component, one sentence describing it is a `Pass` and the constraints part is
+`Not applicable`.
 
 Automation is the part of a repository that runs with the most authority and is
 read the least often. These three cover it.
@@ -313,7 +544,8 @@ read the least often. These three cover it.
 that grants only what the job uses. A repository whose workflows declare none
 inherits the account default, which is frequently write-capable, so the omission
 is a `Fail` rather than an oversight. Declaring it on some workflows and not
-others is a `Partial`.
+others is a `Partial`. A block of `write-all`, or a write scope no step of the
+job uses, is not minimal and is a `Partial`.
 
 `S12` treats a reference by a moving name as unpinned, on the same reasoning
 [Citing This Standard](#citing-this-standard) applies to citations: a name that
@@ -341,6 +573,11 @@ every repository that calls it before any fix reaches them. An account that
 publishes shared workflows accepts that it can break its own consumers, which is
 a risk it can see and fix, unlike a third party it cannot.
 
+A reason for a tag is recorded as a comment on the line of the reference or the
+line above it. Where every reference in scope takes its required form the result
+is `Pass`, where some do not it is a `Partial`, and where none does it is a
+`Fail`.
+
 A repository with no workflows is `Not applicable` for `S11` and `S12`.
 
 `S13` is about triggers that run with the repository's own token or secrets on
@@ -350,8 +587,9 @@ content a contributor controls, of which `pull_request_target` and
 content passes, and it passes whether that is by design or by circumstance,
 because the criterion is about what an attacker can reach and not about intent.
 One that lets contributor-controlled content run in a job that can read a
-repository secret fails, and the result does not improve because the workflow is
-guarded by a label, an approval, or a maintainer's attention.
+repository secret fails. The result does not improve because the workflow is
+guarded by a label, an approval, or a maintainer's attention. What the
+workflow's own token may write is decided by `S11`, not here.
 
 ## Deployable Repositories
 
@@ -359,30 +597,99 @@ guarded by a label, an approval, or a maintainer's attention.
 |---|---|---|
 | <a id="d01"></a>D01 | Target, prerequisites, configuration, and deployment command are documented | Deployment guide or runbook |
 | <a id="d02"></a>D02 | Secrets are referenced, never committed, and their safe location is documented | Secret names and secret-store reference |
-| <a id="d03"></a>D03 | Health verification and rollback or recovery are documented | Runbook and smoke or health command |
+| <a id="d03"></a>D03 | Health verification is a command or a stated observable step, and the way back to the previous working state is documented | Health command or stated step, and runbook. A rollback that has been rehearsed is welcome and is not required |
 | <a id="d04"></a>D04 | Runtime and infrastructure dependencies are constrained | Container, IaC, deployment, or runtime files |
 | <a id="d05"></a>D05 | Operational changes update durable history and inventory where applicable | Changelog and inventory entry |
 | <a id="d06"></a>D06 | Backup, migration, and destructive-operation risks are addressed when stateful | Runbook or explicit not-applicable result |
+
+The profile turns on one property: a *standing deployment*, something the
+maintainer puts in place and keeps running or scheduled, so that it has a target,
+configuration, and possibly state to look after.
+
+| The repository is | Deployable |
+|---|---|
+| A service, container, or cloud environment running on a server, host, or platform | Yes |
+| An installation on a workstation that the repository installs and that runs without the maintainer starting it: a launch agent, scheduled job, daemon, or self-hosted service | Yes |
+| An application or tool that users, the maintainer included, download or build and install from a release, such as a macOS app or a CLI | No: the Package profile decides it |
+| A script or tool the maintainer runs by hand when needed, with no install step that keeps it running | No |
+| A site served by GitHub Pages or an equivalent static host that builds or serves the repository's files, with no server the maintainer runs | No: the Published Site profile decides it |
+
+A repository that is both, such as an app with a backend service, is Deployable for
+the deployment only. Where the profile does not apply, `D01`-`D06` are recorded
+`Not applicable` with the sentence "not a standing deployment", naming which row
+above matched.
+
+The default results in [Deciding Without The Maintainer](#deciding-without-the-maintainer)
+apply. These are the boundaries they need here.
+
+- `D01`: the deployment command is whatever puts the deployment in place, such as
+  a compose command, a deploy script, `launchctl bootstrap`, or `make install`.
+  Each of the four parts is a part for the default rule.
+- `D02`: `Not applicable` where the deployment uses no secret, recorded with what
+  was looked for (environment files, configuration templates, workflow secrets,
+  documentation). Otherwise the parts are: no secret value in the current tree,
+  and the safe location documented for each secret name. History is `B04`'s.
+- `D03`: the parts are a health check that is a command or a stated observable
+  step, and documented steps for returning to the previous working state, which
+  may be as short as redeploying the previous tag or restoring a named backup.
+  The assessor does not run either against the target.
+- `D04`: *constrained* means no floating `latest` tag, no unbounded or absent
+  version range, and no unstated runtime version. A tag, a digest, a lockfile, a
+  bounded range, or a documented runtime version each constrain. The parts are the
+  runtime and the infrastructure dependencies (base image, provider, service
+  versions); all constrained is `Pass`, some is `Partial`, none is `Fail`.
+- `D05`: an *inventory* is a list of deployments kept outside this repository that
+  the repository names as one it maintains. Where none is named, only the
+  durable-history part is assessed, the record says no inventory is named, and the
+  result is `Pass` or `Fail` on it. The history part is met when the latest change
+  to how the deployment is configured or operated appears in the changelog,
+  a release, an ADR, or a linked issue.
+- `D06`: a deployment is *stateful* when it holds data that cannot be recreated
+  from this repository: a database, uploaded files, or configuration kept only on
+  the host. A cache or a derived index is not state. A deployment that is not
+  stateful is `Not applicable`. For a stateful one the parts are a stated backup
+  and restore path, and a note on each migration or destructive operation the
+  repository provides.
 
 ## Package And Release Repositories
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
 | <a id="r01"></a>R01 | Package metadata is complete and agrees with repository metadata, in the package manifest or, where the manifest format has no field for a property, in the artifact's own metadata | Package manifest, plus the artifact's metadata file for whatever the manifest cannot hold |
-| <a id="r02"></a>R02 | Versioning and compatibility policy are documented | README or release guide |
+| <a id="r02"></a>R02 | Versioning and compatibility policy are documented | README, release guide, or a versioning statement at the head of the changelog |
 | <a id="r03"></a>R03 | A tag identifies exactly what was built, and the artifacts come from a documented procedure: a workflow the tag triggers, a shared release pipeline run for that tag, or a documented manual release built from the tagged commit | Release workflow, the shared pipeline's documented run, or the documented manual steps, and the uploaded release assets |
-| <a id="r04"></a>R04 | Tag, package version, and release title are consistent | Release workflow validation |
-| <a id="r05"></a>R05 | A built artifact has been smoke-tested as a consumer receives it: the published file installed and launched, and its core function exercised. The result is recorded | A workflow that does it, or a dated record naming the version tested and what was exercised |
-| <a id="r06"></a>R06 | Release notes describe meaningful changes and upgrade concerns | GitHub release or changelog |
+| <a id="r04"></a>R04 | Tag, package version, and release title are consistent | The latest release's tag, manifest version at that tag, and release title; a release workflow check is one way to show it, not the only one |
+| <a id="r05"></a>R05 | A smoke kit checks the published artifact as a consumer receives it, without anyone operating the product, and its result for the current build is recorded | A documented kit, and a workflow run or a dated record naming the version checked and the result |
+| <a id="r06"></a>R06 | Release notes describe meaningful changes and upgrade concerns | The latest GitHub release or its changelog entry |
 | <a id="r07"></a>R07 | The release notes a consumer receives are the changelog entry for the version being released, or link to it, and that entry exists and is not empty | A published release whose notes match or link to its changelog entry; where a gate exists, in this repository or in a shared release pipeline this repository documents, the gate too |
 | <a id="r08"></a>R08 | A consumer can verify that a published artifact came from this repository or from the shared release pipeline that publishes its releases, or the repository states that they cannot, or that it does not offer that and what a consumer can check instead | Registry provenance, a build attestation, the shared pipeline's documented and verifiable record, or a recorded statement |
+
+A repository that has published no release has nothing for `R03`-`R08` to assess:
+they are `Not applicable`, and the record says no release exists. Per the default
+rule, `R03`, `R04`, `R06`, `R07`, and `R08` are assessed on the latest published
+release, and `R05` on the build method that release used.
 
 `R01` is about where the metadata lives, not about whether it exists. Some
 manifest formats have no field for a licence, a repository URL, or a description
 (SwiftPM is one). Where that is so, the metadata belongs in the file the artifact
 itself carries, such as an application's `Info.plist`, and the repository states
-which properties live where. The criterion is met when every property has a home
-and the homes agree; a property with none is not.
+which properties live where. The properties are name, version, description,
+licence, and repository URL. It is `Pass` when every property has a home and the
+homes agree with each other and with the GitHub description, licence, and
+homepage; `Partial` when every property has a home and one disagrees, or some
+properties have no home; `Fail` when none is set anywhere the assessor can read.
+
+`R02` is met by a statement that names the versioning scheme and says what a
+consumer can rely on across versions. Naming SemVer is enough for both, because
+SemVer defines what breaking means. Another scheme, such as calendar versions,
+needs a sentence on what a new version may change. `Partial` where only the
+scheme is named; `Fail` where nothing is stated.
+
+`R04` compares three values for the latest release: the tag, the version the
+manifest holds at the tagged commit (or, where R01 places the version in the
+artifact's metadata, that value), and the release title. They agree when they name
+the same version after ignoring a leading `v` and any product name in the title.
+All three agreeing is `Pass`, two of three is `Partial`, and none is `Fail`.
 
 `R03` asks that a tag identifies exactly what was built and that a reader can
 tell how the artifact came to exist. It does not require automation and it does
@@ -402,10 +709,31 @@ nowhere. Automation is encouraged because it repeats without care, but a
 single-maintainer repository is not failed for releasing by hand a way it can
 describe.
 
+For a manual release the assessor cannot see how the assets were made, so it
+reads the documented steps and accepts them. It checks that the tag exists, that
+it names a commit in the repository, and that the steps say the build is made
+from that commit. It does not try to prove the assets match. The parts are the
+tag and the documented procedure: both is `Pass`, one is `Partial`, and neither
+is `Fail`.
+
 `R06` and `R07` divide the work. `R06` is about content: notes a reader can act
 on. `R07` is about provenance: the notes a consumer actually receives are the
 maintained entry for that exact version, and not a second description written at
 tag time.
+
+`R06` is assessed on the latest release. Its parts are notes that name specific
+changes a user can see (a feature, a fix, a removal, a changed behaviour), and,
+where the release contains a breaking change or raises a minimum requirement,
+notes that say so. `Pass` when both hold, and a release with nothing to warn about
+needs no warning. `Partial` when the notes name specific changes but omit a
+warning the release needed, or when they are generic, such as "bug fixes and
+improvements" or "updates". `Fail` when the notes are empty or only the version.
+`R07` is likewise assessed on the latest release. It is `Partial` when the
+changelog entry for the version exists and is not empty and the notes describe
+the version but neither match nor link to the entry, and `Fail` in the cases
+named below. Releases made before a criterion existed are not assessed.
+Where a shared pipeline holds the gate, the assessor reads the repository's
+documentation of it and accepts it, and does not test the pipeline.
 
 The gap `R07` closes is specific. A repository can keep an exemplary changelog
 and still publish releases whose notes are fixed boilerplate, because nothing
@@ -441,17 +769,71 @@ pipeline's part is to refuse without it.
 A reusable starting point is published as
 [`templates/release-notes/`](../templates/release-notes/).
 
-`R05` asks for the fact, not the mechanism. Someone has to have taken the file a
-consumer downloads, installed it, launched it and used its core function, and
-written down that it worked and for which version. Doing that once is enough. A
-clean environment is not required: the failure it guards against is a build that
-only works on the machine that made it, and testing the *published* artifact
-rather than the local build catches that. Automating the test is encouraged,
-because it repeats on every release, but it is not required. A record stands for later
-releases until one changes how the artifact is built, signed, or packaged; only
-that release is due for a new record. A release that changes only the code the
-artifact contains does not need one, because the build the record tested has not
-changed.
+`R05` asks whether the artifact a consumer downloads can be checked
+automatically, and whether it was. The repository supplies a smoke kit: a
+documented command or script that takes the published file, installs or unpacks
+it, starts it, and reports a result an agent can read, an exit code or a stated
+output, without anyone operating the product. An agent runs the kit against the
+published artifact and records the version, the date, and the result. A workflow
+that runs it on every release is the strongest form and needs no further record.
+The failure this guards against is a build that only works on the machine that
+made it, which testing the *published* file rather than the local build catches.
+
+What a kit covers depends on what the artifact is.
+
+| The artifact is | A kit is, for example |
+|---|---|
+| A command-line tool or library | `--version`, or a self-test, run on the installed file |
+| A signed application | The platform's signature and launch-policy check on the published file (on macOS `codesign --verify` and `spctl --assess`), plus a start that confirms the process runs where an unattended start is possible. Where it is not, the signature and launch-policy check alone is the kit |
+| A container image | Pull, start, and a health command |
+| An application that cannot be started or exercised without an operator | The checks the platform allows without one, such as its signature, and a stated limit |
+
+Using the product's core function is welcome and is never required, because it is
+the one part that cannot be automated for an interface that needs an operator.
+
+An assessor that does not run downloaded software records the kit as present and
+its own run as not performed. That is the `Partial` row below, unless a run of
+the current build is already recorded by a workflow or a dated record, which is
+the `Pass` row.
+
+| Situation | Result |
+|---|---|
+| A kit exists, an agent ran it against the current published artifact, and the version, date and result are recorded | `Pass` |
+| A kit exists, but its recorded run is for an earlier build method or is missing | `Partial` |
+| A kit exists and its run fails | `Fail` |
+| No kit exists, but a dated record names the version that was installed and launched by hand and what was exercised | `Pass` |
+| No kit and no such record exist, and the artifact could be checked automatically | `Fail` |
+| No kit exists because the artifact cannot be checked without an operator, and the record says so with the checks that remain and what they do not cover | `Pass` |
+| Nothing installable is published | `Not applicable` |
+
+A record stands for later releases until one changes how the artifact is built,
+signed, or packaged; only that release needs a new run. A release that changes
+only the code the artifact contains does not, because the build the run tested
+has not changed. This is decided by comparing the build workflow or script, the
+signing and packaging configuration, and the entitlements between the recorded
+tag and the latest tag: if none of those files differ, the record is current.
+
+**Where the record lives.** In the evidence the conformance record links for
+`R05`: a workflow run, or a dated entry in a repository file such as the release
+guide or a `smoke-tests` section of the conformance evidence. The entry names the
+version checked, the date, the result, and who or what ran the kit. A run by the
+assessing agent is recorded as such, so a later reader knows it was not made by
+the maintainer.
+
+**What the assessor does not have.** Some kits need a platform the assessor may
+lack, such as macOS for `codesign` and `spctl`. An assessor without that platform
+does not run the kit, does not record a result it did not observe, and records
+what it could not run. Where a run by the maintainer or a workflow is recorded for
+the current build, that record decides; where none is, the result is `Partial`
+under the missing-run row above.
+
+**What the kit may do.** The kit runs the artifact only in the way a consumer
+would: it installs or unpacks it into a temporary location, starts it with the
+documented start command, runs no elevated privileges, uses no credentials, and
+removes what it installed. The assessor reads the kit before running it. A kit
+that does more, or that runs a file the assessor did not download from the
+release page, is not run by the assessor. It is recorded as not run, and the
+result follows the missing-run row above.
 
 `R08` covers the other half of what a consumer receives. `R03` establishes that
 a tag identifies what was built, by a documented procedure, and `R05` that the artifact
@@ -480,17 +862,28 @@ Where no such mechanism is used by this repository, a recorded statement of that
 fact is a `Pass`. That covers an ecosystem that issues no provenance at all, a
 repository with no runner, which cannot reach the mechanism its ecosystem does
 offer because every qualifying mechanism derives from a workflow identity, and a
-repository whose maintainer has decided the mechanism is not worth adopting for a
-project of its size. All three are recorded the same way. The criterion asks a
-repository to have answered the question, not to have adopted a mechanism.
+repository that does not use the mechanism, whatever the reason. All three are
+recorded the same way, and the assessor may write the statement itself from what
+it checked. It states the fact that the mechanism is not used, and does not claim
+a decision by the maintainer: the assessor cannot know one, and a reason is quoted
+only where the repository states it. This is an accepted path that costs nothing,
+and the criterion asks a repository to have answered the question, not to have
+adopted a mechanism. The assessor checks the fact by looking for an attestation,
+a provenance record, or trusted-publishing configuration, and finding none.
 
 The statement has to be true and has to say something a consumer can use. It
 names the mechanism that is not used, or that none exists, and states what a
 consumer can check instead, such as a published checksum, the release's tag, or
-that nothing beyond the release page's own account of the source is offered. A
+that nothing beyond the release page's own account of the source is offered. It
+lives in the README, the release guide, or the linked evidence. A
 statement that a mechanism is unavailable where it plainly is available is not a
 statement of a fact that holds, and stays a `Fail`; a statement that it is
-available and not used, with the reason, is a `Pass`. Neither case is excused by
+available and not used is a `Pass`. Where the repository claims a mechanism, the
+assessor verifies the latest release's artifact with the ecosystem's own command
+(for example `gh attestation verify`, or `codesign` and `spctl` on a Mac) when it
+has the tool and records the outcome as evidence. The documented mechanism
+decides the result, so a verification the assessor could not run, or that does
+not reproduce, is recorded and does not by itself change it. Neither case is excused by
 [Automation Availability](#automation-availability), which does not narrow this
 criterion. A repository publishing a document, a site, or nothing installable is
 `Not applicable`; `R01` and `R05` are already `Not applicable` in that case for
@@ -502,6 +895,19 @@ Apply these requirements to anything a user installs, runs, or downloads:
 applications, installers, binaries, container images, published packages, and
 hosted sites. They make a shipped artifact traceable back to its source without
 guesswork.
+
+These criteria are about the published artifact, not the source. The assessor
+downloads the latest release asset, image, or package, or fetches the published
+site, and reads its metadata without running it: for a macOS application it
+unpacks the archive or mounts the disk image and reads `Info.plist`, and for an
+image or package it reads the labels or manifest. A value that appears only in
+source is not evidence that the artifact carries it. Where the artifact cannot be
+fetched, the assessor records that and what it read instead, such as the build
+configuration, and the result follows the readable evidence, as
+[Deciding Without The Maintainer](#deciding-without-the-maintainer) describes.
+A repository that ships nothing, meaning no release asset, image, package, or
+site, has `I01`-`I06` as `Not applicable`. A multi-part criterion here follows the
+default rule.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
@@ -520,6 +926,38 @@ tag. Equivalent fields exist for other ecosystems, such as `pyproject.toml`
 project URLs, npm `repository` and `bugs`, and OCI image labels
 `org.opencontainers.image.source` and `org.opencontainers.image.licenses`.
 
+The boundaries the default rule needs:
+
+- `I01`: the exact version is the release's version, not a placeholder such as
+  `1.0`, `0.0.0`, or an unresolved build variable. A name with a version that
+  differs from the release is `Partial`.
+- `I02`: any key or bundled file the assessor can read without running the
+  product, whose name says what it holds, is accepted. For a macOS bundle,
+  custom `Info.plist` keys such as `RepositoryURL` and `IssueTrackerURL` are the
+  suggested pair, and no particular names are required. The URLs are the
+  repository's own.
+- `I03`: the licence identifier is an SPDX identifier and the copyright holder is
+  a name. The bundled text is *required* when the repository's own licence text
+  says copies must carry it, which the assessor reads from the licence. It is met
+  by a licence file in the artifact or by the text in a bundled acknowledgements
+  or About resource. A licence that has no such term needs none.
+- `I04`: for a command-line tool the assessor runs `--version` and `--help`, which
+  is what a user does. For an interface it cannot operate, such as a graphical
+  application, source that renders the version and both links is accepted, and
+  the record says it read the source and did not operate the product. A site is
+  read from its fetched footer.
+- `I05`: only the surfaces the repository has are assessed, so a repository with
+  no store listing or site is not failed for lacking one. The icon in the artifact
+  is required, and each surface the repository has must show the same icon, meaning
+  one source image. `Not applicable` where the artifact has no place for an icon:
+  a command-line binary, a library package, or a container image.
+- `I06`: a value is produced by the build when it is derived from the tag or the
+  repository, or when it is set in one source-controlled place that the build
+  writes into the artifact, such as an Xcode `MARKETING_VERSION` or a manifest
+  version. A build script that a manual release runs counts as the build. A value
+  typed separately into the artifact's metadata as well is maintained by hand.
+  All values produced by the build is `Pass`, some is `Partial`, none is `Fail`.
+
 ## Documentation Repositories
 
 | ID | Requirement | Expected evidence |
@@ -529,6 +967,45 @@ project URLs, npm `repository` and `bugs`, and OCI image labels
 | <a id="t03"></a>T03 | Sources and evidence are distinguishable from conclusions | Citations, references, or source notes |
 | <a id="t04"></a>T04 | Generated artifacts identify their source and regeneration process | Build or export documentation |
 | <a id="t05"></a>T05 | Stale or superseded material is archived or clearly marked | Status markers and archive structure |
+
+Each criterion here is decided by the default results in
+[Deciding Without The Maintainer](#deciding-without-the-maintainer), with the
+readings below. The assessor states in the linked evidence which files it read.
+
+- `T01`: the five things are five parts. *Visible* means stated in the README or
+  the documentation index, or in a header or front matter block of the documents
+  themselves, and reachable from the README or index. Freshness is a date or a
+  version a reader can see; status is a word such as maintained, draft, or
+  archived. A part met in the entry point and absent from the documents, or the
+  reverse, is met.
+- `T02`: *practical* means a command a single maintainer can run without a paid
+  tool. `Pass` is a link checker or a documented review command that exists and
+  runs clean on the current tree. A repository with no internal links has
+  nothing to check on that part, and a repository that generates no output has
+  nothing to check on the other; where both hold the result is `Not applicable`,
+  and where one holds the criterion is judged on the other. A checker that
+  exists and fails, or one that is not documented, is `Partial`. No check is
+  `Fail`.
+- `T03`: the rule applies to a sample of the README and the four most recently
+  changed documents. A claim of fact that a reader could not confirm from the
+  document itself carries a link, a citation, or a source note, and a conclusion
+  is worded or placed so it is not mistaken for one. A document that makes no
+  such claim, such as a procedure, a template, or a definition, is outside the
+  sample; where the whole sample is outside it the result is `Not applicable`.
+  Every sampled document meeting the rule is `Pass`, some is `Partial`, none is
+  `Fail`.
+- `T04`: a generated artifact is a file a tool writes rather than a person. It
+  *identifies its source and regeneration process* when the file carries a header
+  or comment naming the source and the command, or when a build or export
+  document names both for it. Where the repository generates nothing the result
+  is `Not applicable`.
+- `T05`: material is *stale* when it has not changed for the review cadence
+  of six months, carries no date or
+  status saying it is still current, and describes something a newer document or
+  the current tree has replaced. It is *marked* when it begins with a status line
+  such as superseded, deprecated, or archived that links to its replacement, or
+  when it sits in an archive directory. Where the assessor finds no stale or
+  superseded material the result is `Not applicable`.
 
 ## Published Sites
 
@@ -566,6 +1043,45 @@ Record the rationale rather than leaving the profile unclaimed.
 A site is a shipped user interface, so [Accessibility](#accessibility) applies to
 it in full. Those criteria are not restated here.
 
+`W05` and `W06` are retired and are not assessed: a conformance record still
+lists each as `na` with the rationale "retired", because the record carries every
+criterion in the catalog. The results below follow the
+default results in
+[Deciding Without The Maintainer](#deciding-without-the-maintainer), with these
+readings.
+
+- `W01`: two parts, a repeatable process and a sentence documenting it. The
+  process is a deployment workflow, or the Pages source setting naming a branch
+  and folder of committed source, or a build script; a repository with no runner
+  and a static `docs/` or `site/` folder meets it through the Pages setting. The
+  sentence is in the README, `AGENTS.md`, or `docs/` and says how the site is
+  published. A site whose source lives in another repository is not published
+  from this one, and the result here is `Not applicable`.
+- `W02`: two parts, one per direction. The homepage field alone meets the
+  repository half. The site half is a repository link that appears on every page,
+  in the header, the navigation, or the footer; a single-page site meets it with
+  the link anywhere on the page. One direction present is `Partial`.
+- `W03`: the three statements, what the project is, who it is for, and its status
+  as a word such as maintained, experimental, or archived, appear in the first
+  visible content in source order, with nothing but navigation ahead of them.
+  Reading the source is sufficient evidence. Where the page is rendered, the
+  reference viewport is 1280 by 800 pixels.
+- `W07`: three parts, no third-party resources, no cookies, and no analytics. The
+  *network review* is a list of the hosts the landing page requests. The
+  assessor produces it by searching the site source for `src`, `href`,
+  `@import`, `url(`, and `<script>` values that point to another host, and for
+  cookie writes and analytics code. A browser or a recorded request list is
+  an equal alternative and is not required. A search that finds no other host, no
+  cookie API use, and no analytics is a `Pass`. Links a visitor follows are not
+  loaded resources, and neither is the host that serves the site itself; a badge
+  image loaded from another host is a third-party resource. Where the assessor
+  can see the source only, it says so in the linked evidence.
+- `W08`: the test is [Content Boundaries](#content-boundaries). A contributor,
+  architecture, or changelog section on the site is a `Fail`. A fact repeated on
+  the site and in the README or `docs/` without a link to its home is `Partial`;
+  a mention that links to the fact's home is not a repetition, as `B13` states.
+  No repetition and no such section is a `Pass`.
+
 `W07` is the same argument as `P09` and `Y02`. A font, script, or image loaded
 from another host observes every visitor on a page the maintainer controls, and
 adds an availability dependency on somebody else's free tier. Self-host it or do
@@ -574,11 +1090,18 @@ without it.
 ### Site Content Baseline
 
 `W04` is satisfied when the landing view carries all of these. Order is a
-suggestion; presence is not.
+suggestion; presence is not. There are seven items: all seven is `Pass`, at least
+one and fewer than seven is `Partial`, and none is `Fail`, as the default results
+in [Deciding Without The Maintainer](#deciding-without-the-maintainer) state.
+The `Y01` sentence, the links, and the date are found by searching the landing
+source. An item that has nothing to show does not count against the page: a
+product with no visual or textual output meets the third item with its shortest
+honest statement alone, without a screenshot or sample.
 
 - The name and a one-sentence statement of what the project is.
 - Status and version: maintained, experimental, or archived, and which release
-  the page describes.
+  the page describes. A page that says it describes the latest release, or links
+  to it, names one.
 - What it does, in the shortest honest form. A screenshot, an example, or a
   short sample where the product is visual or textual.
 - How to get it, or how to read it: download, install, or the entry point to the
@@ -605,6 +1128,18 @@ built for what it describes, or whether it is unstyled HTML, a framework's
 default theme, or another project's site reused unchanged. That test is
 judgement, not a checklist, so what counts as evidence is a brief, honest look
 at the page rather than a single artifact.
+
+An assessor reads the stylesheet and the theme configuration and concludes only
+what they show. `W09` is a `Fail` where the site has no stylesheet, or uses a
+framework or template theme with no override of its colour, type, or layout, or
+carries the stylesheet and assets of another project's site unchanged. It is a
+`Pass` where the site's own stylesheet or theme configuration sets colour, type,
+or layout values that differ from the theme's defaults and from any other site
+the assessor can compare it to. Whether the design suits the subject, and whether
+it is good, is taste and is outside what the criterion decides: a site that is
+not one of the three `Fail` cases is a `Pass`, and the assessor does not mark it
+down for looking plain. Rendering the page is not required. Where the assessor
+can see only source, it says so in the linked evidence.
 
 Colour, type, and layout are chosen for the project's own subject matter, and
 the accessibility fundamentals that a shared system used to settle once —
@@ -646,7 +1181,14 @@ in `docs/`. If it answers *why was it built this way*, it belongs in a decision
 record.
 
 The same test resolves the site. If a paragraph is addressed to somebody who
-might change the code, it does not belong on the site.
+might change the code, it does not belong on the site. A paragraph is addressed
+to such a person when it describes how to build, test, or contribute, how the
+code is organised internally, or what changed between versions.
+
+`B13` is assessed on the repository's own surfaces and `W08` on the site against
+them. A fact repeated between the site and the repository is recorded against
+`W08`, and a fact repeated between two repository surfaces against `B13`, so one
+repetition is not counted twice.
 
 Duplication that a generator produces from a single source is not duplication.
 The badge, the conformance record, and the statistics card all restate facts that
@@ -678,6 +1220,62 @@ require the full section. Documentation repositories require `G01` and `G03`.
 and an agent then follows whichever copy it happens to read. A tool-specific file
 should point at `AGENTS.md`, not paraphrase it.
 
+The results follow the default results in
+[Deciding Without The Maintainer](#deciding-without-the-maintainer), with these
+readings.
+
+- `G02`: three parts, purpose, layout, and commands. *Authoritative* means
+  `AGENTS.md` names the command as the one to use, or links to the document that
+  does. The assessor runs the validation command from a clean checkout and it
+  must succeed, or a linked green run of it on the default branch counts as
+  `B05` counts it. Build and run commands are required to be stated and are not
+  required to be run, and a repository with nothing to build or run states
+  none. A validation command that fails is `Partial`. A validation command that
+  cannot run in the assessor's environment, because it needs a secret, a
+  service, the network, or is destructive, is `Partial` with the reason recorded
+  in the linked evidence.
+- `G03`: the topics are history rewriting, force pushes, secret handling,
+  deployments, releases, and data-destructive commands. A topic that concerns
+  something the repository does not have, such as deployments in a repository
+  that deploys nothing, need not be named, and the assessor records which topics
+  it treated that way. *Covering* a topic means `AGENTS.md` says what an agent
+  must not do or must ask before doing.
+- `G04`: the tool-specific files are `.github/copilot-instructions.md`,
+  `CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `.cursor/rules/`, `.windsurfrules`,
+  and `.clinerules`. A file that exists meets the rule when it links to or
+  tells the agent to read `AGENTS.md` and does not contradict its instructions.
+  Repeating an instruction that agrees is not divergence, and `B13` does not
+  assess these files. Where none of these files exists, the result is `Pass`,
+  because there is nothing to diverge.
+- `G05`: it is met when the command `B05` requires is named in `AGENTS.md`, or
+  `AGENTS.md` links to the document that names it, and the command succeeds from a
+  clean checkout, or a linked green run of it counts as `B05` counts it. One
+  documented sequence that the documentation calls the complete validation counts
+  as the single command. `B05` decides whether a command is documented and `G05`
+  whether the agent is pointed at it, so a repository with no `B05` command has
+  no `G05` command either, and the result is `Fail` on both, except that `G05` is
+  `Not applicable` where `B05` is. A command that cannot run in the assessor's
+  environment is `Partial`, with the reason recorded.
+- `G06`: the paths are those a tool writes, those copied in from elsewhere, and
+  those a person must not edit, including lockfiles. A path is *marked* when
+  `.gitignore` excludes it, `.gitattributes` flags it as `linguist-generated` or
+  `linguist-vendored`, or `AGENTS.md` names the path or a pattern that matches it.
+  Where the repository has no such path the result is `Not applicable`.
+- `G07`: this is one test with three accepted forms. It is met when the
+  repository documents a trailer rule, a pull-request label rule, or a review
+  expectation, in `AGENTS.md`, `CONTRIBUTING.md`, or the README. A repository with
+  no agent-authored commits is judged on the documentation alone, and commit
+  history is not sampled. No such documentation is `Fail`.
+- `G08`: `.github/github-app.yml` is the file the GitHub Copilot app reads for
+  repository-scoped configuration: instructions, named scripts, and automation
+  settings, as in [Recommended Shape](#recommended-shape). It is *intentional*
+  when it is committed, is not empty, and its instructions point at `AGENTS.md`
+  or do not contradict it. A file that is only a placeholder, or whose content
+  contradicts `AGENTS.md`, is `Partial`. Where the platform does not offer the
+  capability, meaning the repository is not hosted on GitHub or the account has
+  no access to the app, the result is `Not applicable`, with what was checked
+  recorded. An absent file where the platform does offer it is `Fail`.
+
 A reusable starting point is published as [`templates/AGENTS.md`](../templates/AGENTS.md).
 
 ## Language And Localization
@@ -707,6 +1305,55 @@ store listings, install prompts, and website copy.
 `L07` applies even to repositories that ship a non-English product. The product
 language and the contributor language are separate decisions.
 
+The results follow the default results in
+[Deciding Without The Maintainer](#deciding-without-the-maintainer), with these
+readings. A repository with no user-facing surface is `Not applicable` on `L01`
+to `L06`, and `L07` still applies.
+
+- `L01`: the README says the primary language in one sentence, for example
+  "Primary language: English." Any exception follows the
+  [German-Content Exception](#german-content-exception) form: the subject matter
+  is inherently in that language, and the README says so in one sentence.
+  Silence is a `Fail`.
+- `L02`: the assessor samples the files that hold user-facing strings, meaning
+  resource and template files and the source files that print or display text,
+  and the `--help` output, up to twenty files. It looks for text in a language
+  other than the declared primary one. Strings in a catalog for a locale that
+  `L03` declares are not hardcoded strings. None found in the sample is `Pass`,
+  and where the assessor cannot reliably tell a language it says which files it
+  could not judge.
+- `L03`: one sentence in the README saying "English only" or listing the locales,
+  or a locale manifest such as a `locales/` directory, an i18n configuration, or a
+  string catalog. One sentence may carry `L01` and `L03` together, and each is
+  then recorded as met by it.
+- `L04`: *localized builds* are those that ship more than one locale. Where the
+  repository declares English only under `L03`, or ships one catalog or none, the
+  result is `Not applicable`, and
+  [Automation Availability](#automation-availability) is reached only where the
+  criterion applies. Where it applies, `Pass` is a documented command or CI
+  check that reports both missing and orphaned keys and runs clean, `Partial` is
+  a check that reports only one of them, or fails, or is not documented, and no
+  check is `Fail`.
+- `L05`: manual formatting is building a displayed date, number, currency amount,
+  or sorted text by hand instead of through a locale-aware API. Searches that
+  find it include `strftime` and `%Y` patterns in displayed strings, `toFixed(`,
+  a currency symbol concatenated to a number, and `sort()` on displayed text
+  without a collator. Machine-readable output such as ISO dates in files and logs
+  is not display formatting, and neither is sorting identifiers, keys or file
+  names that a person does not read as text. Where nothing in the source formats these values for
+  display the result is `Not applicable`.
+- `L06`: where the repository ships no translations, the result is `Not
+  applicable`. Otherwise a translation is *traceable* when the catalog or a
+  translation note records the source string or its key beside it and says who or
+  what produced it, such as a translator's name or "machine-translated" and the
+  tool.
+- `L07`: the assessor reads the current README, `docs/`, code comments, and
+  identifiers, and samples the last twenty commit messages, issues, and pull
+  requests opened by the maintainer or an agent, and the latest release notes. History
+  older than the sample is not counted, and neither is text written by other
+  people. A surface that has no items, such as a repository with no issues, is
+  not counted.
+
 ### German-Content Exception
 
 A repository whose subject matter is inherently German — genealogy, archival,
@@ -728,11 +1375,60 @@ criterion here requires a paid tool or a specialist.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
-| <a id="x01"></a>X01 | The product is fully operable by keyboard, including focus order and a visible focus indicator | Documented manual check or an automated test |
-| <a id="x02"></a>X02 | Interactive elements expose an accessible name and role to assistive technology | Platform accessibility labels in source, or an inspector result |
-| <a id="x03"></a>X03 | Text contrast and text sizing respect platform settings, and meaning is never conveyed by colour alone | Design tokens, source review, or a documented check |
+| <a id="x01"></a>X01 | The product is fully operable by keyboard, including focus order and a visible focus indicator | An automated test, a review of the source by the assessing agent for focusable and keyboard-reachable controls, or a documented check |
+| <a id="x02"></a>X02 | Interactive elements expose an accessible name and role to assistive technology | Platform accessibility labels in source, an inspector result, or source review by the assessing agent |
+| <a id="x03"></a>X03 | Text contrast and text sizing respect platform settings, and meaning is never conveyed by colour alone | Design tokens, a review of the source by the assessing agent, or a documented check |
 | <a id="x04"></a>X04 | Command-line and terminal output stays usable without colour and without Unicode decoration | A documented plain-output or no-colour mode |
 | <a id="x05"></a>X05 | Known accessibility limitations are stated rather than left implicit | README or a dedicated accessibility note |
+
+The assessing agent decides `X01` to `X03` by reading source, and records in the
+linked evidence what it read and what it found. It does not need to run the
+product.
+
+- **`X01`.** For a website or web application, read for controls that are not
+  reachable or operable by keyboard (click handlers on non-interactive elements
+  with no `tabindex` and key handler, positive `tabindex` values that break
+  order) and for a suppressed focus outline with no replacement. For a native
+  application, read for gesture-only interactions with no keyboard or
+  accessibility equivalent, and for custom controls that replace standard ones.
+  Standard platform controls are keyboard operable and show focus by default.
+  `Pass` where no control found in the reviewed source is unreachable by
+  keyboard and no focus indicator is suppressed, or where a documented manual
+  check or automated test says so. `Partial` where one or more named controls
+  are affected but the main flow is operable. `Fail` where the main flow is not
+  operable by keyboard. A command-line tool with no interactive full-screen
+  interface is `Pass`, because the terminal is keyboard-operated; record that as
+  the reason. Where a native application offers no source-level signal either
+  way, record `Partial` and state that the assessment is limited to source.
+- **`X02`.** An interactive element is a control a user activates or edits.
+  Read for an accessible name on each: a text label, `aria-label`, `<label>`,
+  `accessibilityLabel`, `accessibilityIdentifier`, or `AutomationProperties`
+  equivalent, with icon-only controls the usual gap. `Pass` where every
+  interactive element found has a name and a role, by explicit label or by
+  using a standard control that supplies both. `Partial` where some
+  interactive elements lack a name in source. `Fail` where none are labelled. A
+  text-only command-line tool has no interactive elements and is `Pass` with
+  that recorded. A native application with no source-level labels or
+  identifiers to read and no inspector result is `Partial`, stating that only
+  source was available.
+- **`X03`.** Three properties are assessed together, and only evidence against a
+  property counts against it: a property the source gives no evidence about is
+  taken as holding. Contrast: where the design tokens or stylesheet let it be
+  computed, body text is at least 4.5:1 and large text at least 3:1 against its
+  background; platform semantic colours meet it by definition.
+  Sizing: text sizes use relative units or platform text styles, not fixed
+  pixel sizes for body text. Colour: no status or meaning depends on colour
+  alone. `Pass` where all three hold in the reviewed source or a documented
+  check. `Partial` where at least one holds and a named gap remains in another.
+  `Fail` where none holds. A command-line tool is `Pass` here where it sets no
+  colours or sizes of its own; its colour use is assessed under `X04`.
+- **`X04`.** `Pass` where a plain or no-colour mode is documented, including
+  documented support for `NO_COLOR`. `Partial` where a mode exists but is not
+  documented. `Not applicable` where the product has no terminal output.
+- **`X05`.** `Pass` where limitations are stated, or where the repository states
+  explicitly that none are known. `Partial` where a statement exists but omits a
+  limitation the assessor found under `X01` to `X03`. `Fail` where there is no
+  statement at all.
 
 `X05` is deliberate. Stating a known gap honestly is a `Pass`; leaving a reader
 to discover it is not.
@@ -745,6 +1441,12 @@ product handles once it runs.
 Applies to the Deployable and Package profiles, and to any repository that
 processes user data or contacts a network service.
 
+A repository whose only network contact is build, install, or CI tooling does
+not contact a network service in the sense of this section. Where a repository
+neither processes user data nor contacts a network service from the product
+itself, record `Not applicable` with that rationale for `Y02` to `Y06`; `Y01` is
+still answered, with the explicit "none" statement.
+
 Most of these projects are local-first tools with no backend, so the honest
 answer is usually that nothing is collected and nothing is sent. The purpose of
 this section is to make that answer stated and checkable instead of assumed.
@@ -753,7 +1455,7 @@ this section is to make that answer stated and checkable instead of assumed.
 |---|---|---|
 | <a id="y01"></a>Y01 | The data the product collects, stores, or transmits is stated, including the explicit "none" case | README or privacy note |
 | <a id="y02"></a>Y02 | Every outbound network destination and its purpose is documented | README, privacy note, or configuration |
-| <a id="y03"></a>Y03 | Telemetry, analytics, and crash reporting are off by default or opt-in, and are disclosed | Source review plus a documented setting |
+| <a id="y03"></a>Y03 | Telemetry, analytics, and crash reporting are off by default or opt-in, and are disclosed | Source review plus a documented setting, or source review showing none is present |
 | <a id="y04"></a>Y04 | Local storage locations for user data are documented, and the user can find, export, or delete them | README or runbook |
 | <a id="y05"></a>Y05 | Third-party services and AI providers that receive user content are named | README or privacy note |
 | <a id="y06"></a>Y06 | Retention and deletion behaviour is stated where data outlives a session | README, runbook, or an explicit not-applicable result |
@@ -761,16 +1463,47 @@ this section is to make that answer stated and checkable instead of assumed.
 `Y01` is load-bearing. A single sentence such as "this application stores all
 data locally and contacts no network service" is a `Pass`.
 
+The assessing agent decides these by reading the README or privacy note and
+comparing it with source: network libraries and URLs (`fetch`, `requests`,
+`URLSession`, and the like), analytics and crash-reporting dependencies, and the
+paths the code writes to.
+
+- **`Y01`.** There is no `Not applicable` result. `Pass` where the statement is
+  present and source does not contradict it. `Partial` where the statement omits
+  something the source shows. `Fail` where there is no statement, or where it
+  says none and source collects or transmits.
+- **`Y02`.** A destination counts when the product's own code contacts it at run
+  time, including default update checks. Build and install tooling, and hosts the
+  user supplies themselves, do not count, though a user-configurable endpoint is
+  named as such. `Pass` where every destination found in source is documented
+  with its purpose, or where the product contacts none and says so. `Partial`
+  where the list omits a destination found or is a sample. `Fail` where none is
+  documented and the code contacts one.
+- **`Y03`.** Where no telemetry, analytics, or crash reporting is present in
+  source or dependencies, that is `Pass`, and no setting need be documented.
+  Where present, `Pass` when it is off by default or opt-in and disclosed
+  (disclosure in the `Y01` or `Y02` text counts), `Partial` when it is off or
+  opt-in but not disclosed, and `Fail` when it is on by default.
+- **`Y04`.** Documenting where user data is stored is enough for `Pass`, where
+  the location is an ordinary file or directory the user can reach. `Partial`
+  where only some locations are documented. `Fail` where the product writes user
+  data and no location is documented. `Not applicable` where the product writes
+  no user data.
+- **`Y05`.** `Pass` where every third party or AI provider found in source that
+  receives user content is named, or where `Y01` and `Y02` state that none does.
+  `Partial` where some are named and one found is missing. `Fail` where the code
+  sends content to one and none is named.
+
 These criteria describe disclosure, not legal process. They do not require a
 record of processing, a data protection agreement, or legal review. They also do
 not restate the secret-handling requirements in `S05`, `S06`, `S07`, and `D02`.
 
 ## Automation Availability
 
-Seven criteria name a workflow run as their evidence, and one required badge
+Several criteria name a workflow run as their evidence, and one required badge
 reports one. A repository with no runner cannot produce any of it, and none of
 those criteria say what an assessor records instead. This section says it once,
-because a rule restated in eight places drifts.
+because a rule restated in every criterion drifts.
 
 **The property is the runner, not the visibility.** A repository is *without
 automation* when no runner is available to it: no self-hosted runner it can use,
@@ -792,7 +1525,7 @@ ones:
 
 | Which criteria | Result when no runner is available |
 |---|---|
-| Those satisfied by a check the repository owns, which a runner only makes convenient. At this version `S02`, `S03`, and `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not |
+| Those satisfied by a check the repository owns, which a runner only makes convenient. At this version `S02`, `S03`, and `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not. A criterion's own boundaries still decide any further `Partial`, as `S02` and `S03` state |
 | Those whose evidence can only be produced by a workflow run. At this version `S04`, `S09`, and `P09` | `Not applicable` |
 
 **Membership is decided by the property, not by the list.** Each list names the
@@ -854,12 +1587,14 @@ Badges are the first thing a reader sees. They are held to the same rule as
 built artifacts in `I06`: their values are produced from an authoritative source,
 not maintained by hand.
 
-Applies wherever `P08` applies.
+Applies to the repositories `P08` applies to, which are the public repositories.
 
 Required badge block, in this order:
 
 1. license;
-2. platform or runtime requirement;
+2. platform or runtime requirement, omitted where the repository states none, as
+   a documentation or template repository does not; the omission is `Pass` and
+   its reason is recorded;
 3. CI status of the default branch, except where
    [Automation Availability](#automation-availability) omits it;
 4. latest release, where the repository publishes releases;
@@ -867,11 +1602,17 @@ Required badge block, in this order:
 
 Rules:
 
+- A committed or static image of the conformance badge is a `Pass` where a
+  check fails when it disagrees with the conformance record, and otherwise
+  follows the drift rule below.
 - Every badge links to what it reports: the license file, the manifest or
   documented requirement, the workflow, the release, the conformance record.
 - Every badge value is derived from an authoritative source, or is covered by a
-  check that fails when it drifts. A hardcoded value duplicating a manifest is a
-  `Partial` at best.
+  check that fails when it drifts. A badge that a service computes from the
+  repository when it is requested, such as a licence badge read from the
+  repository's detected licence, is derived and is a `Pass`. A hardcoded value
+  duplicating a manifest, such as a fixed platform version, is a `Partial` unless
+  a check covers it.
 - Badges outside the required and optional sets need a stated reason. A wall of
   badges carries less information than four accurate ones.
 - A badge image may be committed to the repository only when a repository event
@@ -905,6 +1646,10 @@ repository was last touched, the current release, contributor count, language
 mix. A reader uses it to judge whether a project is alive before reading any
 code.
 
+Results in this section follow the general rules of this standard for a
+criterion with several parts; the boundaries below cover only what those rules
+leave open.
+
 `P09` applies the same rule the badge section applies to values: the card is
 generated from an authoritative source and committed to the repository. It is
 not fetched from a third-party rendering service at read time.
@@ -928,6 +1673,26 @@ Rules:
   effect through GitHub's image proxy.
 - The card embeds no external references: no remote fonts, no `<image href>` to
   another host. It is self-contained or it reintroduces the problem it solves.
+
+- Where the card is committed is not fixed. The workflow may commit it to a
+  branch other than the default, for example `stats`, and the README may
+  reference it there. That satisfies the rule and is the route where the default
+  branch is protected: the scheduled commit never reaches the default branch, so
+  neither the pull-request rule nor `S09` applies to it. The card may instead
+  reach the default branch through a pull request.
+- A card generated from public data needs only the workflow's built-in token. A
+  `STATS_TOKEN` secret is needed only to count private repositories and is never
+  a requirement of `P09`. The assessing agent does not create it; a card that
+  can be reproduced without it is what is assessed.
+
+Results. `Pass` where a workflow generates the card on a schedule, in light and
+dark variants, with no external references. `Partial` where the card is
+generated but lacks a variant, a schedule, or self-containment. `Fail` where the
+card is a third-party image, or a committed SVG no workflow reproduces. Where a
+runner is available and no card is published, the result is `Fail`, because the
+criterion asks that activity is shown from a generated source. Where no runner
+is available, [Automation Availability](#automation-availability) gives
+`Not applicable`.
 
 The shared implementation is the reusable workflow described in
 [Repository Stats](repo-stats.md). A repository may generate the card another
@@ -982,7 +1747,40 @@ Archived repositories do not need to satisfy the active baseline.
 | <a id="a01"></a>A01 | GitHub archive state is enabled | GitHub settings |
 | <a id="a02"></a>A02 | README states why and when maintenance ended | `README.md` |
 | <a id="a03"></a>A03 | A successor or migration destination is linked when one exists | `README.md` |
-| <a id="a04"></a>A04 | No active deployment or undocumented dependency remains | Deployment records or inventories |
+| <a id="a04"></a>A04 | No active deployment or undocumented dependency remains | Deployment records, Pages status, scheduled workflows, published packages, and dependents the README names |
+
+The Archived profile applies once GitHub reports the repository as archived, so
+`A01` is met by the fact that placed the repository here. The assessor still
+reads the flag with `gh repo view --json isArchived` and records it, because the
+flag can be lifted. `A01` is `Pass` when it is set and `Fail` when it is not.
+A repository whose README says development has ended but which is not archived is
+not in this profile. It is assessed against the baseline, its `B10` records the
+status, and `A01`-`A04` are `Not applicable` with the rationale that it is not
+archived. Archiving it is a maintainer action, and the linked evidence may note
+that it is outstanding.
+
+The baseline and the criteria of every other profile do not need to be satisfied
+by an archived repository. Each is recorded `Not applicable` with the rationale
+that the repository is archived, except `B11`, which keeps its ordinary result.
+
+`A02` is `Pass` when the README says why maintenance ended and gives a date, in
+the year or more precisely; `Partial` when it gives one and not the other; and
+`Fail` when it says nothing.
+
+`A03` is `Not applicable` when the assessor has read the README, the description,
+and the homepage and finds no successor or migration destination named, and the
+record says where it looked. It is `Pass` when one is named and linked in the
+README, `Partial` when it is named without a link, and `Fail` when it is named
+only outside the README.
+
+`A04` reads what the repository exposes: `gh api repos/OWNER/REPO/deployments`,
+`gh api repos/OWNER/REPO/pages`, `gh workflow list` for an enabled scheduled
+workflow, the releases and packages it publishes, and the dependents its README
+names. An active deployment is one of those still serving or running. An
+undocumented dependency is a named dependent the README does not mention as
+affected. What lives on an operator's own host cannot be seen, and the record
+says it was not visible, then decides from what was. Neither found is `Pass`,
+exactly one is `Partial`, and both is `Fail`.
 
 ## Assessment
 
@@ -1001,23 +1799,111 @@ Use one result for every applicable criterion.
 | Partial | Evidence exists, but a material part is missing |
 | Fail | Requirement applies and is not met |
 | N/A | Requirement does not apply and the rationale is recorded |
-| Unknown | Evidence has not been inspected |
 
-Assign the overall state by impact, not by percentage.
+`unknown` is a draft marker in a generated record and is never a result. The
+validation rejects a record that still contains one, because it stands for
+evidence nobody has inspected.
+
+### Deciding Without The Maintainer
+
+The assessor reaches every result itself and does not leave a question for the
+maintainer. `Unknown` is a draft state, not a result. Where the right result is
+unclear, apply these in order and stop at the first that fits.
+
+1. The requirement is met as written: `Pass`.
+2. The property is met by other means than the evidence column names: `Pass`,
+   with the means named in the linked evidence.
+3. The repository cannot meet the requirement, or should not be asked to, for one
+   of the reasons in the table below, and the assessor has checked that the
+   reason holds: the result in the table, with the reason and the check recorded.
+4. Otherwise the gap is real: `Partial` where a material part is missing, `Fail`
+   where none of it is met.
+
+**Default results.** These apply wherever a criterion does not state its own
+boundaries, and a criterion that states them keeps them.
+
+- A criterion with several parts, whether listed in the requirement, the evidence
+  column, or joined by "and": every part met is `Pass`, at least one met and at
+  least one missing is `Partial`, and none met is `Fail`. A criterion with a
+  single part is `Pass` or `Fail`.
+- `Not applicable` where the repository has nothing the criterion is about, such
+  as no workflows for a workflow criterion, no user-facing strings for a
+  localization criterion, or no interface for an accessibility criterion. Every
+  `Not applicable` records one sentence naming the fact and what was looked for;
+  the fixed sentences some sections give are instances of it. This differs from
+  an intended deviation: the requirement does not reach the repository at all.
+- A criterion applies to the current state of the repository and to its latest
+  published release, not to every release that ever existed.
+
+**Judgement words.** Where a criterion uses a word that needs a threshold, such
+as important, actionable, non-obvious, where practical, covers, or intentional,
+the assessor applies the reading a maintainer of a small project would accept,
+states that reading in the linked evidence, and applies it the same way in every
+repository it assesses. Stating a reading is not a defect. Leaving it unstated
+is, because a later reader cannot check a result against a threshold they cannot
+see.
+
+A deviation is *intended* when the repository has a reason for it. These are the
+reasons that make one intended. A reason that is not in the table is not one.
+
+| Reason | What the assessor checks | Result |
+|---|---|---|
+| The platform does not offer the capability: no runner, no ruleset on the plan, no provenance in the ecosystem, no way to operate an interface without an operator | The absence is real, read from settings, plan, or ecosystem, and not merely asserted | The result the criterion or [Automation Availability](#automation-availability) states; otherwise `Not applicable` |
+| The property is met by cheaper means than the criterion names, which suits a single-maintainer project | The other means exists and gives the consumer the same assurance | `Pass` |
+| The criterion assumes a wider scope than the repository claims: one supported platform, one language, one audience | The repository claims only that scope and the criterion is met within it | `Pass` |
+| The repository states the choice and its reason in its README, `AGENTS.md`, or the linked evidence, and the criterion's own text allows a stated choice | The statement is true and gives a reason from this table | `Pass` |
+
+A choice the repository has stated but that the criterion's text does not allow
+is a `Partial`, recorded as intended and with its reason. It stays visible so a
+later reader can see it was decided, and it does not lower the state below,
+because only a `Fail` does.
+
+**Intent does not excuse the critical and high-priority criteria** named under
+[Overall State](#overall-state): `B04`, `D01`-`D04`, `D06`, `B02`, `B03`, `P01`,
+`B05`, `S02`, `B07`, `S08`, `S01`, `R03`, and `R04`. A repository may have a
+reason for missing one of them, and the result is still the ordinary one.
+
+Where evidence cannot be read at all, such as a setting the token cannot see, the
+assessor records the result the readable evidence supports and states what it
+could not read. It does not leave the criterion open for the maintainer.
+
+A maintainer who disagrees with a result disputes it through an issue, as
+[Changing This Standard](#changing-this-standard) describes. Nothing has to be
+approved beforehand.
+
+### Overall State
+
+Assign the overall state by impact, not by percentage. The state follows from the
+recorded results, so an assessor reaches it without a further judgement and two
+assessors with the same results reach the same state.
 
 | State | Rule |
 |---|---|
-| Healthy | No critical or high-priority gaps; remaining gaps are minor |
-| Needs work | One or more high-priority gaps exist, but normal use remains supportable |
-| At risk | A critical gap exists in security, recoverability, deployment, or basic reproducibility |
-| Archive candidate | No clear owner or active purpose exists and no dependency requires it |
-| Archived | Archive requirements are met |
+| Healthy | No criterion is `Fail`. `Partial` and `N/A` results, including intended ones, do not lower the state |
+| Needs work | At least one criterion is `Fail`, and none of the critical criteria below is |
+| At risk | A critical criterion is `Fail` |
+| Archive candidate | `B10` and `B02` are both `Fail`, and no other repository in the account references this one |
+| Archived | The repository is archived and `A01`-`A04` are met |
 
-Critical gaps include committed secrets, an exposed write-capable service,
-missing recovery for irreplaceable state, or an active deployment with no known
-source or configuration. High-priority gaps include no README, ambiguous public
-licensing, no software validation, unsupported dependencies, or unreproducible
-releases.
+The critical criteria are the ones whose failure means a committed secret, an
+exposed write-capable service, missing recovery for irreplaceable state, or an
+active deployment with no known source or configuration:
+
+| Criterion | Why its failure is critical |
+|---|---|
+| `B04` | A secret is committed to the repository |
+| `D01` | An active deployment has no documented target or command, so its source and configuration are unknown |
+| `D02` | An active deployment's secrets are committed or have no documented safe location |
+| `D03`, `D06` | An active deployment has no health check or way back, or risks irreplaceable state |
+| `D04` | A deployment's runtime and infrastructure are unconstrained. No criterion measures an exposed write-capable service directly, and this is the nearest one |
+
+The high-priority criteria, which are named so that intent cannot excuse them, are
+the ones that stand for no README (`B02`), ambiguous licensing (`B03`, `P01`), no software
+validation (`B05`, `S02`), unsupported dependencies (`B07`, `S08`), and
+unreproducible releases (`S01`, `R03`, `R04`). Their failure gives `Needs work`
+like any other, and
+[Deciding Without The Maintainer](#deciding-without-the-maintainer) explains why
+intent does not change it.
 
 ## Changing This Standard
 
@@ -1027,7 +1913,11 @@ one.
 
 **A criterion that cannot be applied is a defect in the criterion.** If reaching
 a result requires an intention the rule text does not state, the text is
-unfinished, and reporting that is more useful than guessing at the intent. See
+unfinished. The assessor still records a result: the one the rule text supports
+on its plain reading, with that reading stated in the linked evidence. It then
+reports the defect as an issue against the repository publishing this document,
+which is a report to the standard and not a question to the repository's
+maintainer. See
 [decision 0011](decisions/0011-criteria-are-decided-by-the-rule-text.md).
 
 **Proposals and disputes both go in an issue against the repository publishing
@@ -1049,12 +1939,12 @@ criterion was wrong, the criterion changes and every repository assessed against
 the old version keeps its recorded result, because that result names the version
 it was produced with.
 
-**A repository may record a deviation instead of a `Fail`.** Where a criterion
-applies and the repository knowingly does not meet it, `Partial` with the
-rationale in the linked assessment is an honest answer and is preferred to a
-`Fail` that gets argued about, or to an `N/A` that claims the criterion does not
-apply when it does. What is not available is a result the evidence does not
-support.
+**A repository records the result its evidence supports, with the reason.**
+Where a criterion applies and the repository knowingly does not meet it,
+[Deciding Without The Maintainer](#deciding-without-the-maintainer) says which
+result that is. A stated reason never changes a result the evidence does not
+support: it is recorded next to the result, not in place of it, and an `N/A` that
+claims the criterion does not apply when it does is not available.
 
 One structural note, because it is not obvious and invites an incorrect fix. The
 issue forms in the publishing repository are inherited by every repository in
