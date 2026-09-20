@@ -142,12 +142,12 @@ Apply the baseline to every active repository, then add every matching profile.
 | <a id="b02"></a>B02 | README explains purpose, audience, status, setup or usage, and key links | `README.md` |
 | <a id="b03"></a>B03 | Licensing intent is explicit | `LICENSE` or a clear internal-use statement |
 | <a id="b04"></a>B04 | Secrets, local state, and generated output are ignored while maintained source is tracked | `.gitignore` and repository contents |
-| <a id="b05"></a>B05 | A reproducible validation command is documented | README or contributing guide plus a successful run |
-| <a id="b06"></a>B06 | The default branch has an intentional merge policy and no unresolved critical alerts | GitHub settings and Security tab |
+| <a id="b05"></a>B05 | A reproducible validation command is documented | README, contributing guide, or agent instructions, plus a successful run or a green run on the default branch |
+| <a id="b06"></a>B06 | The default branch has a stated merge policy and no open critical alerts | GitHub settings, repository text, and the alert APIs described below |
 | <a id="b07"></a>B07 | Dependencies and supported runtime versions are declared where applicable | Manifest, lockfile, or README |
 | <a id="b08"></a>B08 | User-facing or operational changes have durable history | Changelog, releases, ADRs, or linked issues |
-| <a id="b09"></a>B09 | Visibility, topics, homepage, and archive state are intentional | GitHub metadata |
-| <a id="b10"></a>B10 | Ownership and maintenance status are clear | `CODEOWNERS`, contributing guide, or README |
+| <a id="b09"></a>B09 | Visibility, topics, homepage, and archive state are set and agree with the README | GitHub metadata and `README.md` |
+| <a id="b10"></a>B10 | Ownership and maintenance status are stated | `CODEOWNERS`, contributing guide, or README |
 | <a id="b11"></a>B11 | The repository records which version of this standard it was assessed against, and when | Conformance record described in [Conformance Records](#conformance-records) |
 | <a id="b12"></a>B12 | Assessed repositories are discoverable as a set | The `trsdn-standard` GitHub topic |
 | <a id="b13"></a>B13 | Each fact has one home, and other documents link to it rather than restating it | [Content Boundaries](#content-boundaries) |
@@ -155,9 +155,89 @@ Apply the baseline to every active repository, then add every matching profile.
 | <a id="b15"></a>B15 | A repository that redistributes third-party code states how the obligations of those licences are met | Notice file, generated attribution list, or a recorded statement that nothing is redistributed |
 | <a id="b16"></a>B16 | The default branch cannot be force-pushed over or deleted | Branch ruleset or protection settings |
 
+The parts of these criteria that the default results in
+[Deciding Without The Maintainer](#deciding-without-the-maintainer) do not decide
+are stated here. `Default` means the default results apply as written.
+
+| ID | Pass | Partial | Fail | Not applicable |
+|---|---|---|---|---|
+| `B01` | The description is not empty and says what the repository is or does in words beyond its name | The description only restates the name or is generic, such as "my repo" | The description is empty | Default |
+| `B02` | All five parts are present. "Key links" means at least one link to documentation, the issue tracker, or the licence | The README exists and at least one, but not all, of the five parts is present | There is no README, or it contains none of the five | Default |
+| `B03` | A licence file with explicit terms, including one GitHub reports as unrecognised, or an internal-use or all-rights-reserved statement in a private or unlicensed repository | A file or statement is present but cannot be read as granting or withholding permission | Neither is present | Default |
+| `B04` | No secret, local-state file, or generated output is tracked, and `.gitignore` covers what the ecosystem in use usually produces | Local state or generated output is tracked, or the ecosystem's usual output is not ignored | A secret or credential file is tracked in the current tree | Default |
+| `B05` | A command is documented, runs from a clean checkout using only documented setup, and exits successfully | The command is documented but the run failed, needs setup that is not documented, or could not be made and no green run exists | No command is documented | The repository holds no executable code, configuration, or build, only prose or static assets |
+| `B07` | Every applicable part is declared: third-party dependencies and the runtime versions supported | One applicable part is declared and another is not | No applicable part is declared | Neither a third-party dependency nor a runtime exists |
+| `B08` | The latest release, or where none exists the latest user-facing or operational change, has an entry in a changelog, release notes, a decision record, or a linked issue or pull request | History exists but stops before the latest release or change | Releases or such changes exist and none is recorded | The repository has never been released and has no user-facing or operational change |
+| `B09` | Visibility, topics, homepage, and archive state are each set and agree with the README, as described below | At least one is set or agrees and at least one is not | None is set or agrees | Default |
+| `B10` | A maintenance statement and an owner are both present | Only one is present | Neither is present | Default |
+| `B11` | The record is present and `assessed_on` is within the review cadence on the cover | The record is present and older than the cadence | No record is present | Default |
+
+`B02` and `B10` share the status statement. One sentence in the README satisfies
+both, and neither restates it. For `B10`, the owner is the account that owns the
+repository unless the repository is owned by an organization, in which case a
+`CODEOWNERS` entry or a named person or team is needed.
+
+`B04` reads the current tracked files, `.gitignore`, and the file names
+`git ls-files` lists. A secret is a file of credential values, such as a private
+key or an `.env` with values, or a token in a recognisable format; a placeholder
+such as `.env.example` is not one. Generated output the repository documents as
+committed, with the command that regenerates it, is maintained source. `S05`
+owns secret scanning on commits and pull requests, and `B04` does not require it.
+
+`B05` counts the command as run when the assessor runs it and it exits
+successfully, or when the latest run of that command on the default branch is
+green and the evidence links it. Where the assessor cannot install the toolchain
+or reach the network and there is no green run, the result is `Partial`, with the
+reason recorded; the assessor does not leave the criterion open. A Markdown lint
+or link check counts as a command for a repository of prose. Where no runner is
+available, [Automation Availability](#automation-availability) states what a
+recorded run of this command decides for `S02`, `S03`, and `L04`.
+
+`B06` has two parts, and the default results apply to them.
+
+- *Merge policy* is met when the repository shows a choice: at least one of
+  squash, merge commit, and rebase merge is disabled, a ruleset or protection
+  on the default branch requires a pull request, or the README, contributing
+  guide, or agent instructions name the merge method used. All three methods
+  enabled with nothing stated is not met.
+- *Alerts* is met when no alert is open in these three sources, read with
+  `gh api 'repos/OWNER/REPO/dependabot/alerts?state=open&severity=critical'`,
+  `gh api 'repos/OWNER/REPO/code-scanning/alerts?state=open&severity=critical'`,
+  and `gh api 'repos/OWNER/REPO/secret-scanning/alerts?state=open'`. Secret
+  scanning alerts carry no severity and count as critical. An alert dismissed with
+  a recorded reason is not open. A source that is disabled contributes no
+  alerts, and one the token cannot read is named in the linked evidence and the
+  result follows the sources that could be read.
+
+`B16` owns blocking a force push and a deletion, and `S09` owns required checks.
+`B06` asks for neither.
+
+`B09` reads `gh repo view --json visibility,repositoryTopics,homepageUrl,isArchived`
+and the README. Visibility agrees when a repository the README or licence presents
+as open source is public, and one it presents as internal is private. At least
+one topic must be present. The homepage agrees when it is set and the README
+names it, or is empty and the README names no site or documentation address. The
+archive state agrees when the flag matches a README that says maintenance has
+ended. An archived repository is assessed under
+[Archived Repositories](#archived-repositories).
+
+`B13` is assessed on three kinds of fact in the README, `AGENTS.md`, the
+contributing guide, and `docs/`, and on nothing else: a command, a version or
+supported runtime, and a policy such as reporting, contribution, or licence
+terms. A mention that links to the fact's home is not a restatement. `Pass` is no
+hand-maintained restatement of any of the three. `Partial` is one that agrees
+with its home. `Fail` is copies that disagree. Generated restatement does not
+count, as [Content Boundaries](#content-boundaries) states.
+
 `B12` marks a repository as *governed by this standard*. It makes no claim about
 the outcome; the outcome lives only in the conformance record required by `B11`.
-Archived and explicitly out-of-scope repositories drop the topic.
+Every repository assessed against this standard carries the topic, whatever its
+profile, and a repository with the topic is `Pass`, archived or not. An archived
+repository may drop it, and a repository recorded as out of scope does not carry
+it; either without the topic is `Not applicable`, with the rationale recorded. A
+repository is out of scope when its README or description states that it is
+outside this standard and gives a reason. Any other repository without the topic
+is `Fail`.
 
 The inventory of assessed repositories is produced with:
 
@@ -189,7 +269,9 @@ it publishes — a bundled dependency, a vendored directory, a container layer, 
 a compiled artifact that statically links one. A repository whose dependencies
 are resolved by the consumer's package manager at install time redistributes
 nothing, and one sentence saying so is a `Pass`. A repository with no
-dependencies at all is `Not applicable`.
+dependencies at all is `Not applicable`. A repository that redistributes and
+states nothing is a `Fail`, and one that states its approach for some of the code
+it ships but not all of it is a `Partial`.
 
 Stating the approach is the requirement. Producing a per-dependency inventory,
 running a licence scanner, or adjudicating compatibility between licences is
@@ -1006,7 +1088,40 @@ Archived repositories do not need to satisfy the active baseline.
 | <a id="a01"></a>A01 | GitHub archive state is enabled | GitHub settings |
 | <a id="a02"></a>A02 | README states why and when maintenance ended | `README.md` |
 | <a id="a03"></a>A03 | A successor or migration destination is linked when one exists | `README.md` |
-| <a id="a04"></a>A04 | No active deployment or undocumented dependency remains | Deployment records or inventories |
+| <a id="a04"></a>A04 | No active deployment or undocumented dependency remains | Deployment records, Pages status, scheduled workflows, published packages, and dependents the README names |
+
+The Archived profile applies once GitHub reports the repository as archived, so
+`A01` is met by the fact that placed the repository here. The assessor still
+reads the flag with `gh repo view --json isArchived` and records it, because the
+flag can be lifted. `A01` is `Pass` when it is set and `Fail` when it is not.
+A repository whose README says development has ended but which is not archived is
+not in this profile. It is assessed against the baseline, its `B10` records the
+status, and `A01`-`A04` are `Not applicable` with the rationale that it is not
+archived. Archiving it is a maintainer action, and the linked evidence may note
+that it is outstanding.
+
+The baseline and the criteria of every other profile do not need to be satisfied
+by an archived repository. Each is recorded `Not applicable` with the rationale
+that the repository is archived, except `B11`, which keeps its ordinary result.
+
+`A02` is `Pass` when the README says why maintenance ended and gives a date, in
+the year or more precisely; `Partial` when it gives one and not the other; and
+`Fail` when it says nothing.
+
+`A03` is `Not applicable` when the assessor has read the README, the description,
+and the homepage and finds no successor or migration destination named, and the
+record says where it looked. It is `Pass` when one is named and linked in the
+README, `Partial` when it is named without a link, and `Fail` when it is named
+only outside the README.
+
+`A04` reads what the repository exposes: `gh api repos/OWNER/REPO/deployments`,
+`gh api repos/OWNER/REPO/pages`, `gh workflow list` for an enabled scheduled
+workflow, the releases and packages it publishes, and the dependents its README
+names. An active deployment is one of those still serving or running. An
+undocumented dependency is a named dependent the README does not mention as
+affected. What lives on an operator's own host cannot be seen, and the record
+says it was not visible, then decides from what was. Neither found is `Pass`,
+exactly one is `Partial`, and both is `Fail`.
 
 ## Assessment
 
