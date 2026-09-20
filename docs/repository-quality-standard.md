@@ -728,11 +728,58 @@ criterion here requires a paid tool or a specialist.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
-| <a id="x01"></a>X01 | The product is fully operable by keyboard, including focus order and a visible focus indicator | Documented manual check or an automated test |
-| <a id="x02"></a>X02 | Interactive elements expose an accessible name and role to assistive technology | Platform accessibility labels in source, or an inspector result |
+| <a id="x01"></a>X01 | The product is fully operable by keyboard, including focus order and a visible focus indicator | Documented manual check, an automated test, or source review by the assessing agent |
+| <a id="x02"></a>X02 | Interactive elements expose an accessible name and role to assistive technology | Platform accessibility labels in source, an inspector result, or source review by the assessing agent |
 | <a id="x03"></a>X03 | Text contrast and text sizing respect platform settings, and meaning is never conveyed by colour alone | Design tokens, source review, or a documented check |
 | <a id="x04"></a>X04 | Command-line and terminal output stays usable without colour and without Unicode decoration | A documented plain-output or no-colour mode |
 | <a id="x05"></a>X05 | Known accessibility limitations are stated rather than left implicit | README or a dedicated accessibility note |
+
+The assessing agent decides `X01` to `X03` by reading source, and records in the
+linked evidence what it read and what it found. It does not need to run the
+product.
+
+- **`X01`.** For a website or web application, read for controls that are not
+  reachable or operable by keyboard (click handlers on non-interactive elements
+  with no `tabindex` and key handler, positive `tabindex` values that break
+  order) and for a suppressed focus outline with no replacement. For a native
+  application, read for gesture-only interactions with no keyboard or
+  accessibility equivalent, and for custom controls that replace standard ones.
+  Standard platform controls are keyboard operable and show focus by default.
+  `Pass` where no control found in the reviewed source is unreachable by
+  keyboard and no focus indicator is suppressed, or where a documented manual
+  check or automated test says so. `Partial` where one or more named controls
+  are affected but the main flow is operable. `Fail` where the main flow is not
+  operable by keyboard. A command-line tool with no interactive full-screen
+  interface is `Pass`, because the terminal is keyboard-operated; record that as
+  the reason. Where a native application offers no source-level signal either
+  way, record `Partial` and state that the assessment is limited to source.
+- **`X02`.** An interactive element is a control a user activates or edits.
+  Read for an accessible name on each: a text label, `aria-label`, `<label>`,
+  `accessibilityLabel`, `accessibilityIdentifier`, or `AutomationProperties`
+  equivalent, with icon-only controls the usual gap. `Pass` where every
+  interactive element found has a name and a role, by explicit label or by
+  using a standard control that supplies both. `Partial` where some
+  interactive elements lack a name in source. `Fail` where none are labelled. A
+  text-only command-line tool has no interactive elements and is `Pass` with
+  that recorded. A native application with no source-level labels or
+  identifiers to read and no inspector result is `Partial`, stating that only
+  source was available.
+- **`X03`.** Three properties are assessed together. Contrast: body text is at
+  least 4.5:1 and large text at least 3:1 against its background, computed from
+  the design tokens or stylesheet, or supplied by platform semantic colours.
+  Sizing: text sizes use relative units or platform text styles, not fixed
+  pixel sizes for body text. Colour: no status or meaning depends on colour
+  alone. `Pass` where all three hold in the reviewed source or a documented
+  check. `Partial` where at least one holds and a named gap remains in another.
+  `Fail` where none holds. A command-line tool is `Pass` here where it sets no
+  colours or sizes of its own; its colour use is assessed under `X04`.
+- **`X04`.** `Pass` where a plain or no-colour mode is documented, including
+  documented support for `NO_COLOR`. `Partial` where a mode exists but is not
+  documented. `Not applicable` where the product has no terminal output.
+- **`X05`.** `Pass` where limitations are stated, or where the repository states
+  explicitly that none are known. `Partial` where a statement exists but omits a
+  limitation the assessor found under `X01` to `X03`. `Fail` where there is no
+  statement at all.
 
 `X05` is deliberate. Stating a known gap honestly is a `Pass`; leaving a reader
 to discover it is not.
@@ -745,6 +792,12 @@ product handles once it runs.
 Applies to the Deployable and Package profiles, and to any repository that
 processes user data or contacts a network service.
 
+A repository whose only network contact is build, install, or CI tooling does
+not contact a network service in the sense of this section. Where a repository
+neither processes user data nor contacts a network service from the product
+itself, record `Not applicable` with that rationale for `Y02` to `Y06`; `Y01` is
+still answered, with the explicit "none" statement.
+
 Most of these projects are local-first tools with no backend, so the honest
 answer is usually that nothing is collected and nothing is sent. The purpose of
 this section is to make that answer stated and checkable instead of assumed.
@@ -753,13 +806,44 @@ this section is to make that answer stated and checkable instead of assumed.
 |---|---|---|
 | <a id="y01"></a>Y01 | The data the product collects, stores, or transmits is stated, including the explicit "none" case | README or privacy note |
 | <a id="y02"></a>Y02 | Every outbound network destination and its purpose is documented | README, privacy note, or configuration |
-| <a id="y03"></a>Y03 | Telemetry, analytics, and crash reporting are off by default or opt-in, and are disclosed | Source review plus a documented setting |
+| <a id="y03"></a>Y03 | Telemetry, analytics, and crash reporting are off by default or opt-in, and are disclosed | Source review plus a documented setting, or source review showing none is present |
 | <a id="y04"></a>Y04 | Local storage locations for user data are documented, and the user can find, export, or delete them | README or runbook |
 | <a id="y05"></a>Y05 | Third-party services and AI providers that receive user content are named | README or privacy note |
 | <a id="y06"></a>Y06 | Retention and deletion behaviour is stated where data outlives a session | README, runbook, or an explicit not-applicable result |
 
 `Y01` is load-bearing. A single sentence such as "this application stores all
 data locally and contacts no network service" is a `Pass`.
+
+The assessing agent decides these by reading the README or privacy note and
+comparing it with source: network libraries and URLs (`fetch`, `requests`,
+`URLSession`, and the like), analytics and crash-reporting dependencies, and the
+paths the code writes to.
+
+- **`Y01`.** There is no `Not applicable` result. `Pass` where the statement is
+  present and source does not contradict it. `Partial` where the statement omits
+  something the source shows. `Fail` where there is no statement, or where it
+  says none and source collects or transmits.
+- **`Y02`.** A destination counts when the product's own code contacts it at run
+  time, including default update checks. Build and install tooling, and hosts the
+  user supplies themselves, do not count, though a user-configurable endpoint is
+  named as such. `Pass` where every destination found in source is documented
+  with its purpose, or where the product contacts none and says so. `Partial`
+  where the list omits a destination found or is a sample. `Fail` where none is
+  documented and the code contacts one.
+- **`Y03`.** Where no telemetry, analytics, or crash reporting is present in
+  source or dependencies, that is `Pass`, and no setting need be documented.
+  Where present, `Pass` when it is off by default or opt-in and disclosed
+  (disclosure in the `Y01` or `Y02` text counts), `Partial` when it is off or
+  opt-in but not disclosed, and `Fail` when it is on by default.
+- **`Y04`.** Documenting where user data is stored is enough for `Pass`, where
+  the location is an ordinary file or directory the user can reach. `Partial`
+  where only some locations are documented. `Fail` where the product writes user
+  data and no location is documented. `Not applicable` where the product writes
+  no user data.
+- **`Y05`.** `Pass` where every third party or AI provider found in source that
+  receives user content is named, or where `Y01` and `Y02` state that none does.
+  `Partial` where some are named and one found is missing. `Fail` where the code
+  sends content to one and none is named.
 
 These criteria describe disclosure, not legal process. They do not require a
 record of processing, a data protection agreement, or legal review. They also do
@@ -854,12 +938,14 @@ Badges are the first thing a reader sees. They are held to the same rule as
 built artifacts in `I06`: their values are produced from an authoritative source,
 not maintained by hand.
 
-Applies wherever `P08` applies.
+Applies to the repositories `P08` applies to, which are the public repositories.
 
 Required badge block, in this order:
 
 1. license;
-2. platform or runtime requirement;
+2. platform or runtime requirement, omitted where the repository states none, as
+   a documentation or template repository does not; the omission is `Pass` and
+   its reason is recorded;
 3. CI status of the default branch, except where
    [Automation Availability](#automation-availability) omits it;
 4. latest release, where the repository publishes releases;
@@ -867,6 +953,9 @@ Required badge block, in this order:
 
 Rules:
 
+- A committed or static image of the conformance badge is a `Pass` where a
+  check fails when it disagrees with the conformance record, and otherwise
+  follows the drift rule below.
 - Every badge links to what it reports: the license file, the manifest or
   documented requirement, the workflow, the release, the conformance record.
 - Every badge value is derived from an authoritative source, or is covered by a
@@ -905,6 +994,10 @@ repository was last touched, the current release, contributor count, language
 mix. A reader uses it to judge whether a project is alive before reading any
 code.
 
+Results in this section follow the general rules of this standard for a
+criterion with several parts; the boundaries below cover only what those rules
+leave open.
+
 `P09` applies the same rule the badge section applies to values: the card is
 generated from an authoritative source and committed to the repository. It is
 not fetched from a third-party rendering service at read time.
@@ -928,6 +1021,26 @@ Rules:
   effect through GitHub's image proxy.
 - The card embeds no external references: no remote fonts, no `<image href>` to
   another host. It is self-contained or it reintroduces the problem it solves.
+
+- Where the card is committed is not fixed. The workflow may commit it to a
+  branch other than the default, for example `stats`, and the README may
+  reference it there. That satisfies the rule and is the route where the default
+  branch is protected: the scheduled commit never reaches the default branch, so
+  neither the pull-request rule nor `S09` applies to it. The card may instead
+  reach the default branch through a pull request.
+- A card generated from public data needs only the workflow's built-in token. A
+  `STATS_TOKEN` secret is needed only to count private repositories and is never
+  a requirement of `P09`. The assessing agent does not create it; a card that
+  can be reproduced without it is what is assessed.
+
+Results. `Pass` where a workflow generates the card on a schedule, in light and
+dark variants, with no external references. `Partial` where the card is
+generated but lacks a variant, a schedule, or self-containment. `Fail` where the
+card is a third-party image, or a committed SVG no workflow reproduces. Where a
+runner is available and no card is published, the result is `Fail`, because the
+criterion asks that activity is shown from a generated source. Where no runner
+is available, [Automation Availability](#automation-availability) gives
+`Not applicable`.
 
 The shared implementation is the reusable workflow described in
 [Repository Stats](repo-stats.md). A repository may generate the card another
