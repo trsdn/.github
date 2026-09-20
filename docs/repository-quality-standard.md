@@ -243,19 +243,84 @@ what the criterion is for.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
-| <a id="p01"></a>P01 | An OSI-approved license is present | Root `LICENSE` or `LICENSE.md` recognized by GitHub |
-| <a id="p02"></a>P02 | Contribution and conduct expectations are documented | `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` |
-| <a id="p03"></a>P03 | Security reporting is private and documented | `SECURITY.md` and private vulnerability reporting |
-| <a id="p04"></a>P04 | Issue and pull-request intake is structured | Issue forms and pull-request template |
-| <a id="p05"></a>P05 | README covers install, configuration, examples, compatibility, security, and support status | `README.md` |
-| <a id="p06"></a>P06 | Community health files are recognized by GitHub | Community Standards page |
-| <a id="p07"></a>P07 | Metadata supports discovery | Description, topics, and a maintained homepage where useful |
+| <a id="p01"></a>P01 | An OSI-approved license is present | Root `LICENSE` or `LICENSE.md`, with the SPDX identifier GitHub detects |
+| <a id="p02"></a>P02 | Contribution and conduct expectations are documented | `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md`, in the repository or inherited from the account |
+| <a id="p03"></a>P03 | Security reporting is private and documented | `SECURITY.md`, in the repository or inherited, and a private reporting route |
+| <a id="p04"></a>P04 | Issue and pull-request intake is structured | Issue templates or forms and a pull-request template, in the repository or inherited |
+| <a id="p05"></a>P05 | README covers install, configuration, examples, compatibility, security, and support status | `README.md`, one sentence or a link per topic |
+| <a id="p06"></a>P06 | Community health files are recognized by GitHub | Community profile lists the README, license, contributing guide, and code of conduct |
+| <a id="p07"></a>P07 | Metadata supports discovery | Description, at least one topic, and a homepage that resolves where the repository has a site |
 | <a id="p08"></a>P08 | README status badges follow the badge convention | [Status Badges](#status-badges) |
 | <a id="p09"></a>P09 | Repository activity is shown from a self-hosted, generated source rather than a third-party image service | [Repository Statistics](#repository-statistics) |
-| <a id="p10"></a>P10 | Issue intake collects what triage needs, not only a free-text box | Issue forms whose fields cover the problem, the expected and actual result, how to reproduce it, and the version or environment it occurred in |
-| <a id="p11"></a>P11 | Pull-request intake collects what review needs | Pull-request template covering what the change does, how it was validated, what it risks, and what it relates to |
+| <a id="p10"></a>P10 | Issue intake collects what triage needs, not only a free-text box | Issue templates or forms, in the repository or inherited, whose fields cover the problem, the expected and actual result, how to reproduce it, and the version or environment it occurred in |
+| <a id="p11"></a>P11 | Pull-request intake collects what review needs | Pull-request template, in the repository or inherited, covering what the change does, how it was validated, what it risks, and what it relates to |
 
-`P04` asks whether intake is structured at all. `P10` and `P11` ask whether the
+`P01` passes when GitHub reports an SPDX identifier on the
+[OSI approved list](https://opensource.org/licenses). Where GitHub reports
+`NOASSERTION` or another non-listed identifier, the assessor reads the text and
+passes it when it is an unmodified OSI-approved license, and otherwise it is a
+`Fail`, as is a missing license.
+
+`P02` and `P03` count files inherited from the account's default community health
+files, because what is assessed is what a visitor is shown. Each is a two-part
+criterion under the default results: `P02` is `Pass` with both files, `Partial`
+with one. `P03` is `Pass` with a security policy and a private reporting route,
+where a private route is GitHub private vulnerability reporting or a private
+contact address the policy names. It is `Partial` with one of the two. Where the
+private-reporting setting cannot be read, the policy file alone decides the
+result, so a policy naming a private contact is a `Pass` and one that does not is
+a `Partial`, with the unreadable setting recorded.
+
+`P05` is met per topic by one sentence or by a link to where the repository
+states it, including a link to a policy or support file. The six topics are
+install, configuration, examples, compatibility, security, and support status.
+Install, configuration, examples, and compatibility are each `Not applicable`
+where the repository has nothing to install, configure, run, or depend on, as a
+documentation or templates repository does not. Security and support status
+always apply. Every applicable topic covered is `Pass`, some is `Partial`, and
+none is `Fail`.
+
+`P06` asks something the other criteria do not: whether GitHub recognizes the
+files by name and location, which is what puts them on the Community Standards
+page and in the sidebar. `P01` to `P04` ask whether the content is right. It
+counts four files, the README, the license, the contributing guide, and the code
+of conduct. The security policy and the templates are left to `P03` and `P04` so
+that a gap is not counted twice. All four recognized is `Pass`, some is
+`Partial`, none is `Fail`. Where the profile cannot be read, the assessor checks
+the four files against the locations GitHub recognizes: the root, `docs/`,
+`.github/`, and the account's default files.
+
+`P07` is decided on three parts: a non-empty description, at least one topic, and
+a homepage. The homepage is required only where the repository has a website or
+documentation site, and then it must resolve at assessment time. A repository
+without one is assessed on the other two. Whether the description states a
+purpose is `B01`, and the `trsdn-standard` topic is `B12`, so neither is repeated
+here.
+
+`P08` applies to every public repository. Its platform or runtime badge is `Not
+applicable` where the repository has no runtime or platform requirement to
+report, and the CI and release badges are conditional as
+[Status Badges](#status-badges) states.
+
+`P09` applies to every public repository that has a runner, and to none that
+does not, as [Automation Availability](#automation-availability) records. A
+repository with a runner that shows no generated card, or one fetched from a
+third-party image service, is a `Fail`: the criterion asks for the card, and
+having no card is not the same as having nothing to show. The card does not have
+to be a commit to the default branch. A workflow that generates it on a schedule
+and publishes it to a dedicated branch, such as `stats`, with the README
+referencing the file there, satisfies the criterion, because the card is still in
+the repository and produced by a workflow. So does committing it to the default
+branch by pull request. The default branch and its ruleset are then unaffected,
+so `S09` and the pull-request rule of a repository are met, and the write
+permission the job needs is one the work requires, so `S11` is met.
+
+`P04` asks whether intake is structured at all. It counts an issue template
+whether it is a form (`.yml`) or a Markdown file (`.md`), and a pull-request
+template, each in the repository or inherited. A `config.yml` alone is not a
+template. Both present is `Pass`, one is `Partial`, neither is `Fail`. Where
+issues are disabled, the issue part is `Not applicable` and the pull-request
+template decides the result. `P10` and `P11` ask whether the
 structure collects enough to act on, because a form with one box labelled
 "Description" is structured and still leaves every report to be triaged by
 conversation.
@@ -276,7 +341,8 @@ Fields may be optional where the repository knows they will often not apply, and
 a template that lets a reporter say a field does not apply is preferred to one
 that forces an answer. What `P10` and `P11` reject is a template that never asks.
 
-A repository whose issues are disabled is `Not applicable` for `P10`, and so is
+A repository whose issues are disabled is `Not applicable` for `P10` and for the
+issue part of `P04`, and so is
 one that takes intake through a route GitHub forms cannot serve, provided the
 route is documented and collects the same information. Neither result is
 available for `P11`: every repository that accepts pull requests can carry a
@@ -292,19 +358,91 @@ instead.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
-| <a id="s01"></a>S01 | Setup is reproducible from a clean checkout | Lockfile or pinned dependencies plus documented commands |
-| <a id="s02"></a>S02 | Automated tests cover important behavior and failure paths | Test suite and CI run |
-| <a id="s03"></a>S03 | Formatting, linting, type, and static checks run automatically where supported | Tool configuration and CI workflow |
-| <a id="s04"></a>S04 | CI covers every materially supported runtime or platform | Focused CI matrix |
+| <a id="s01"></a>S01 | Setup is reproducible from a clean checkout | Lockfile or declared dependency versions, plus documented commands |
+| <a id="s02"></a>S02 | Automated tests cover important behavior and failure paths | Test suite, and a successful run in CI or of the `B05` command |
+| <a id="s03"></a>S03 | Formatting, linting, type, and static checks run automatically where supported | Tool configuration, run by a CI workflow or the `B05` command |
+| <a id="s04"></a>S04 | CI covers every materially supported runtime or platform | CI jobs or matrix covering each version or platform the README or manifest claims |
 | <a id="s05"></a>S05 | Secret scanning runs on commits and pull requests | GitHub secret scanning, Gitleaks, or equivalent |
-| <a id="s06"></a>S06 | Configuration is environment-driven and defaults do not expose private data | Example configuration and source review |
-| <a id="s07"></a>S07 | Errors and logs are actionable without leaking credentials or personal data | Tests or documented logging behavior |
-| <a id="s08"></a>S08 | Dependency updates and vulnerability triage have an owner and process | Dependabot or documented equivalent |
-| <a id="s09"></a>S09 | Existing required checks protect the default branch | Branch ruleset or protection settings |
+| <a id="s06"></a>S06 | Configuration is environment-driven and defaults do not expose private data | Example configuration and a read of the source |
+| <a id="s07"></a>S07 | Errors and logs are actionable without leaking credentials or personal data | Tests, documented logging behavior, or a read of the source |
+| <a id="s08"></a>S08 | Dependency updates and vulnerability triage have an owner and process | Dependabot or Renovate configuration, or a documented owner and process |
+| <a id="s09"></a>S09 | Existing required checks protect the default branch | Branch ruleset or protection settings requiring an existing check |
 | <a id="s10"></a>S10 | Architecture and non-obvious constraints are documented | README, `docs/`, or ADRs |
 | <a id="s11"></a>S11 | Workflow token permissions are declared and no broader than the work requires | A `permissions` block on every workflow or on each of its jobs |
 | <a id="s12"></a>S12 | An executable reference in a workflow cannot change underneath the repository | Action and reusable-workflow references |
 | <a id="s13"></a>S13 | A workflow triggered by an untrusted contribution cannot read repository secrets | Workflow triggers and secret usage, or an explicit not-applicable result |
+
+`S01` is decided by reading the lockfile or manifest and the documented commands;
+running them is not required. A library that declares dependency ranges in its
+manifest instead of a lockfile meets the pinning part. A repository with no
+third-party dependencies and no setup step is `Not applicable`.
+
+`S02` passes when a suite exists, the latest run of it on the default branch
+succeeded, and at least one test asserts an error or failure path, such as
+rejected input, a raised error, or a non-zero exit. That is the minimum reading
+of "important behavior and failure paths" under
+[Judgement words](#deciding-without-the-maintainer): the main entry point is
+exercised and one failure path is. Tests with no failure path, or a failing
+latest run, are a `Partial`; no tests are a `Fail`. The run is read from the
+workflow history or, where none is available, from the `B05` command as
+[Automation Availability](#automation-availability) states.
+
+`S03` counts four kinds of check: format, lint, type, and static analysis. A kind
+counts only where the language's standard toolchain or a widely used tool for it
+provides one, and compiling counts as the type check for a compiled language. The
+minimum reading of "where supported" is a format or lint check that runs
+automatically, plus a type check where the toolchain provides one. Every
+supported kind running is `Pass`, some is `Partial`, and none is `Fail`. A
+repository whose language has no such tool is `Not applicable`.
+
+`S04` compares CI with the runtimes and platforms the README or manifest claims.
+One job per claimed version or platform is enough, and a repository claiming one
+runtime passes with one job. A claimed one missing from CI is a `Partial`, and
+CI that exercises none of them is a `Fail`. A repository that claims no runtime
+or platform is `Not applicable`.
+
+`S05` passes with GitHub secret scanning enabled, or with a scanner workflow that
+runs on both pushes and pull requests. A scanner on only one of the two, or only
+on a schedule, is a `Partial`. Where the setting cannot be read and no workflow
+scans, the result is `Partial` with the unreadable setting recorded.
+
+`S06` is `Not applicable` where nothing in the repository reads configuration.
+Otherwise a committed credential or personal data as a default, such as a token,
+a personal email address, or a home-directory path, is a `Fail`. Configuration
+read from the environment or from a file with a committed example and no such
+default is `Pass`, and configuration partly hard-coded to one machine or host is
+a `Partial`. The assessor finds these by searching the source for hosts, paths,
+and credential-shaped strings.
+
+`S07` is `Not applicable` where the code emits no logs or error messages. The
+minimum reading of "actionable" is a message that names the failed operation and
+its cause, not a bare "error" or a stack trace alone. The assessor reads the
+source or the documented behavior and searches it for logging of environment
+variables, tokens, passwords, or request headers and bodies. Actionable messages
+and no such logging is `Pass`, one without the other is a `Partial`, and neither
+is a `Fail`.
+
+`S08` is `Not applicable` where the repository has no third-party dependencies
+declared in a manifest or lockfile or vendored. Otherwise a Dependabot or Renovate
+configuration, or a sentence in the README, contributing guide, or security policy
+naming who updates dependencies and triages advisories and how, is a `Pass`; in a
+single-maintainer repository the maintainer is the owner. Vulnerability alerts on
+with no update process is a `Partial`, and neither is a `Fail`.
+
+`S09` is `Not applicable` where the repository has no check to require, because
+`S02` and `S03` fail first. Otherwise a ruleset or protection that requires an
+existing check before merge is `Pass`, protection with no required check is
+`Partial`, and none on the default branch is a `Fail`. Where the settings cannot
+be read, the result is `Partial` with the unreadable setting recorded.
+
+`S10` passes when the README, `docs/`, or an ADR names the main components and any
+constraint a new contributor could break without knowing it, such as a required
+ordering, an external service, a compatibility target, or a generated file.
+Components without constraints, in a repository that has constraints, is a
+`Partial`, and nothing documented is a `Fail`. Where the assessor reads the entry
+points and workflows and finds no such constraint, and the repository is a single
+component, one sentence describing it is a `Pass` and the constraints part is
+`Not applicable`.
 
 Automation is the part of a repository that runs with the most authority and is
 read the least often. These three cover it.
@@ -313,7 +451,8 @@ read the least often. These three cover it.
 that grants only what the job uses. A repository whose workflows declare none
 inherits the account default, which is frequently write-capable, so the omission
 is a `Fail` rather than an oversight. Declaring it on some workflows and not
-others is a `Partial`.
+others is a `Partial`. A block of `write-all`, or a write scope no step of the
+job uses, is not minimal and is a `Partial`.
 
 `S12` treats a reference by a moving name as unpinned, on the same reasoning
 [Citing This Standard](#citing-this-standard) applies to citations: a name that
@@ -341,6 +480,11 @@ every repository that calls it before any fix reaches them. An account that
 publishes shared workflows accepts that it can break its own consumers, which is
 a risk it can see and fix, unlike a third party it cannot.
 
+A reason for a tag is recorded as a comment on the line of the reference or the
+line above it. Where every reference in scope takes its required form the result
+is `Pass`, where some do not it is a `Partial`, and where none does it is a
+`Fail`.
+
 A repository with no workflows is `Not applicable` for `S11` and `S12`.
 
 `S13` is about triggers that run with the repository's own token or secrets on
@@ -350,8 +494,9 @@ content a contributor controls, of which `pull_request_target` and
 content passes, and it passes whether that is by design or by circumstance,
 because the criterion is about what an attacker can reach and not about intent.
 One that lets contributor-controlled content run in a job that can read a
-repository secret fails, and the result does not improve because the workflow is
-guarded by a label, an approval, or a maintainer's attention.
+repository secret fails, and a write-capable `GITHUB_TOKEN` counts as one, so the
+`permissions` block of the job decides it. The result does not improve because
+the workflow is guarded by a label, an approval, or a maintainer's attention.
 
 ## Deployable Repositories
 
