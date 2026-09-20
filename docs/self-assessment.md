@@ -1,6 +1,6 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.14.0
+- Standard version: 1.15.0
 - Assessed on: 2026-09-20
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
@@ -138,8 +138,8 @@ from a fork therefore never executes in a run that can read repository secrets,
 and there is no trigger to constrain.
 
 **`R01`, `R05`, `R08`.** Releases carry a document, not a package. There is no
-package manifest to complete, no installable artifact to smoke-test in a clean
-environment, and nothing a consumer downloads whose origin could be attested.
+package manifest to complete, no installable artifact for a smoke kit to check,
+and nothing a consumer downloads whose origin could be attested.
 What this repository publishes is a tag over a commit, which git already ties to
 its source.
 

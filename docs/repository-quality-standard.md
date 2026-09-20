@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.14.0
+- Version: 1.15.0
 - Last reviewed: 2026-09-20
 - Review cadence: every six months, even when nothing changes
 
@@ -359,7 +359,7 @@ guarded by a label, an approval, or a maintainer's attention.
 |---|---|---|
 | <a id="d01"></a>D01 | Target, prerequisites, configuration, and deployment command are documented | Deployment guide or runbook |
 | <a id="d02"></a>D02 | Secrets are referenced, never committed, and their safe location is documented | Secret names and secret-store reference |
-| <a id="d03"></a>D03 | Health verification and rollback or recovery are documented | Runbook and smoke or health command |
+| <a id="d03"></a>D03 | Health verification is a runnable command, and the way back to the previous working state is documented | Health command and runbook. A rollback that has been rehearsed is welcome and is not required |
 | <a id="d04"></a>D04 | Runtime and infrastructure dependencies are constrained | Container, IaC, deployment, or runtime files |
 | <a id="d05"></a>D05 | Operational changes update durable history and inventory where applicable | Changelog and inventory entry |
 | <a id="d06"></a>D06 | Backup, migration, and destructive-operation risks are addressed when stateful | Runbook or explicit not-applicable result |
@@ -372,7 +372,7 @@ guarded by a label, an approval, or a maintainer's attention.
 | <a id="r02"></a>R02 | Versioning and compatibility policy are documented | README or release guide |
 | <a id="r03"></a>R03 | A tag identifies exactly what was built, and the artifacts come from a documented procedure: a workflow the tag triggers, a shared release pipeline run for that tag, or a documented manual release built from the tagged commit | Release workflow, the shared pipeline's documented run, or the documented manual steps, and the uploaded release assets |
 | <a id="r04"></a>R04 | Tag, package version, and release title are consistent | Release workflow validation |
-| <a id="r05"></a>R05 | A built artifact has been smoke-tested as a consumer receives it: the published file installed and launched, and its core function exercised. The result is recorded | A workflow that does it, or a dated record naming the version tested and what was exercised |
+| <a id="r05"></a>R05 | A smoke kit checks the published artifact as a consumer receives it, without anyone operating the product, and its result for the current build is recorded | A documented kit, and a workflow run or a dated record naming the version checked and the result |
 | <a id="r06"></a>R06 | Release notes describe meaningful changes and upgrade concerns | GitHub release or changelog |
 | <a id="r07"></a>R07 | The release notes a consumer receives are the changelog entry for the version being released, or link to it, and that entry exists and is not empty | A published release whose notes match or link to its changelog entry; where a gate exists, in this repository or in a shared release pipeline this repository documents, the gate too |
 | <a id="r08"></a>R08 | A consumer can verify that a published artifact came from this repository or from the shared release pipeline that publishes its releases, or the repository states that they cannot, or that it does not offer that and what a consumer can check instead | Registry provenance, a build attestation, the shared pipeline's documented and verifiable record, or a recorded statement |
@@ -441,17 +441,41 @@ pipeline's part is to refuse without it.
 A reusable starting point is published as
 [`templates/release-notes/`](../templates/release-notes/).
 
-`R05` asks for the fact, not the mechanism. Someone has to have taken the file a
-consumer downloads, installed it, launched it and used its core function, and
-written down that it worked and for which version. Doing that once is enough. A
-clean environment is not required: the failure it guards against is a build that
-only works on the machine that made it, and testing the *published* artifact
-rather than the local build catches that. Automating the test is encouraged,
-because it repeats on every release, but it is not required. A record stands for later
-releases until one changes how the artifact is built, signed, or packaged; only
-that release is due for a new record. A release that changes only the code the
-artifact contains does not need one, because the build the record tested has not
-changed.
+`R05` asks whether the artifact a consumer downloads can be checked
+automatically, and whether it was. The repository supplies a smoke kit: a
+documented command or script that takes the published file, installs or unpacks
+it, starts it, and reports a result an agent can read, an exit code or a stated
+output, without anyone operating the product. An agent runs the kit against the
+published artifact and records the version, the date, and the result. A workflow
+that runs it on every release is the strongest form and needs no further record.
+The failure this guards against is a build that only works on the machine that
+made it, which testing the *published* file rather than the local build catches.
+
+What a kit covers depends on what the artifact is.
+
+| The artifact is | A kit is, for example |
+|---|---|
+| A command-line tool or library | `--version`, or a self-test, run on the installed file |
+| A signed application | The platform's signature and launch-policy check on the published file (on macOS `codesign --verify` and `spctl --assess`), plus a start that confirms the process runs |
+| A container image | Pull, start, and a health command |
+| An application that cannot be started or exercised without an operator | The checks the platform allows without one, such as its signature, and a stated limit |
+
+Using the product's core function is welcome and is never required, because it is
+the one part that cannot be automated for an interface that needs an operator.
+
+| Situation | Result |
+|---|---|
+| A kit exists, an agent ran it against the current published artifact, and the version, date and result are recorded | `Pass` |
+| A kit exists, but its recorded run is for an earlier build method or is missing | `Partial` |
+| A kit exists and its run fails | `Fail` |
+| No kit exists and the artifact could be checked automatically | `Fail` |
+| No kit exists because the artifact cannot be checked without an operator, and the record says so with the checks that remain and what they do not cover | `Pass` |
+| Nothing installable is published | `Not applicable` |
+
+A record stands for later releases until one changes how the artifact is built,
+signed, or packaged; only that release needs a new run. A release that changes
+only the code the artifact contains does not, because the build the run tested
+has not changed.
 
 `R08` covers the other half of what a consumer receives. `R03` establishes that
 a tag identifies what was built, by a documented procedure, and `R05` that the artifact
@@ -728,9 +752,9 @@ criterion here requires a paid tool or a specialist.
 
 | ID | Requirement | Expected evidence |
 |---|---|---|
-| <a id="x01"></a>X01 | The product is fully operable by keyboard, including focus order and a visible focus indicator | Documented manual check or an automated test |
+| <a id="x01"></a>X01 | The product is fully operable by keyboard, including focus order and a visible focus indicator | An automated test, a review of the source for focusable and keyboard-reachable controls, or a documented check |
 | <a id="x02"></a>X02 | Interactive elements expose an accessible name and role to assistive technology | Platform accessibility labels in source, or an inspector result |
-| <a id="x03"></a>X03 | Text contrast and text sizing respect platform settings, and meaning is never conveyed by colour alone | Design tokens, source review, or a documented check |
+| <a id="x03"></a>X03 | Text contrast and text sizing respect platform settings, and meaning is never conveyed by colour alone | Design tokens, a review of the source by the assessing agent, or a documented check |
 | <a id="x04"></a>X04 | Command-line and terminal output stays usable without colour and without Unicode decoration | A documented plain-output or no-colour mode |
 | <a id="x05"></a>X05 | Known accessibility limitations are stated rather than left implicit | README or a dedicated accessibility note |
 
@@ -1002,6 +1026,53 @@ Use one result for every applicable criterion.
 | Fail | Requirement applies and is not met |
 | N/A | Requirement does not apply and the rationale is recorded |
 | Unknown | Evidence has not been inspected |
+
+### Deciding Without The Maintainer
+
+The assessor reaches every result itself and does not leave a question for the
+maintainer. `Unknown` is a draft state, not a result. Where the right result is
+unclear, apply these in order and stop at the first that fits.
+
+1. The requirement is met as written: `Pass`.
+2. The property is met by other means than the evidence column names: `Pass`,
+   with the means named in the linked evidence.
+3. The repository cannot meet the requirement, or should not be asked to, for one
+   of the reasons in the table below, and the assessor has checked that the
+   reason holds: the result in the table, with the reason and the check recorded.
+4. Otherwise the gap is real: `Partial` where a material part is missing, `Fail`
+   where none of it is met.
+
+A deviation is *intended* when the repository has a reason for it. These are the
+reasons that make one intended. A reason that is not in the table is not one.
+
+| Reason | What the assessor checks | Result |
+|---|---|---|
+| The platform does not offer the capability: no runner, no ruleset on the plan, no provenance in the ecosystem, no way to operate an interface without an operator | The absence is real, read from settings, plan, or ecosystem, and not merely asserted | The result the criterion or [Automation Availability](#automation-availability) states; otherwise `Not applicable` |
+| The property is met by cheaper means than the criterion names, which suits a single-maintainer project | The other means exists and gives the consumer the same assurance | `Pass` |
+| The criterion assumes a wider scope than the repository claims: one supported platform, one language, one audience | The repository claims only that scope and the criterion is met within it | `Pass` |
+| The repository states the choice and its reason in its README, `AGENTS.md`, or the linked evidence, and the criterion's own text allows a stated choice | The statement is true and gives a reason from this table | `Pass` |
+
+A choice the repository has stated but that the criterion's text does not allow
+is a `Partial`, recorded as intended and with its reason. It stays visible so a
+later reader can see it was decided, and it does not count against the state
+below unless the gap is one of the critical or high-priority ones.
+
+**Intent does not excuse the critical and high-priority gaps** listed under the
+state table: committed secrets, an exposed write-capable service, missing
+recovery for irreplaceable state, an active deployment with no known source, no
+README, ambiguous public licensing, no software validation, unsupported
+dependencies, or unreproducible releases. A repository may have a reason for one
+of them, and the result is still the ordinary one.
+
+Where evidence cannot be read at all, such as a setting the token cannot see, the
+assessor records the result the readable evidence supports and states what it
+could not read. It does not leave the criterion open for the maintainer.
+
+A maintainer who disagrees with a result disputes it through an issue, as
+[Changing This Standard](#changing-this-standard) describes. Nothing has to be
+approved beforehand.
+
+### Overall State
 
 Assign the overall state by impact, not by percentage.
 

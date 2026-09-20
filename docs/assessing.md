@@ -88,7 +88,11 @@ evidence is not visible are left `unknown` rather than guessed at.
 
 ## Finishing the draft
 
-1. Work through the criteria the notes list as left to the assessor.
+1. Work through the criteria the notes list as left to the assessor. Decide each
+   one yourself with
+   [Deciding Without The Maintainer](repository-quality-standard.md#deciding-without-the-maintainer),
+   including which gaps are intended. Do not leave a question for the maintainer
+   and do not leave a criterion `unknown`.
 2. Replace `assessed_on` with the date you did that.
 3. Set `state` from the [Assessment](repository-quality-standard.md#assessment)
    rules, which assign it by impact rather than by percentage.

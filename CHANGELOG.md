@@ -6,6 +6,27 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.15.0 - 2026-09-20
+
+- Added [Deciding Without The Maintainer](docs/repository-quality-standard.md#deciding-without-the-maintainer)
+  to Assessment. The assessor decides every result itself, including which gaps
+  are intended, from a fixed list of reasons and a fixed order of questions. An
+  intended deviation the criterion does not allow is a `Partial` that does not
+  lower the state. Intent never excuses the critical and high-priority gaps.
+- Reworked `R05` around a smoke kit: a documented command that checks the
+  published artifact without anyone operating the product, run by an agent, with
+  the result recorded. Operating the core function is no longer required. A
+  repository whose artifact cannot be checked without an operator passes on the
+  checks that remain, with the limit stated.
+- Reworked `D03`: health verification must be a runnable command, and the way
+  back must be documented. A rehearsed rollback is welcome and not required.
+- Clarified the evidence for `X01` and `X03`: the assessing agent's review of the
+  source counts.
+- Released as minor: these changes widen criteria, so a recorded `Fail` may now
+  be a `Pass` and no recorded `Pass` can weaken, under
+  [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility).
+  See [decision 0015](docs/decisions/0015-the-assessor-decides-including-intended-gaps.md).
+
 ## 1.14.0 - 2026-09-20
 
 - Widened `R03`: a manual release qualifies when the repository documents the
