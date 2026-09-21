@@ -7,9 +7,11 @@
 #   scripts/security-gate.sh                     # print a result block
 #   scripts/security-gate.sh --record FILE       # and append it to FILE
 #
-# It scans the tree and the history for secrets with gitleaks, and audits the
+# It scans the history (committed files) for secrets with gitleaks, and audits the
 # lockfiles and manifests it finds with osv-scanner, falling back to npm audit and
-# pip-audit. It never reports a pass for a check it could not run: a missing tool
+# pip-audit. An untracked or ignored file is not scanned. A finding that is not a
+# secret is silenced with a fingerprint in .gitleaksignore, one per line, with a
+# comment saying why. It never reports a pass for a check it could not run: a missing tool
 # is "not run" and the exit code says so.
 #
 # Exit codes: 0 every check passed or does not apply, 1 a check found something,
@@ -69,11 +71,11 @@ if have gitleaks; then
   case "$code" in
     0)
       secret_result="pass"
-      secret_detail="gitleaks ${version}, tree and history"
+      secret_detail="gitleaks ${version}, history (committed files)"
       ;;
     1)
       secret_result="fail"
-      secret_detail="gitleaks ${version} reported findings; run it without redirection to see them"
+      secret_detail="gitleaks ${version} reported findings; to see them, run gitleaks on the repository, and list a false positive by fingerprint in .gitleaksignore"
       note_status 1
       ;;
     *)

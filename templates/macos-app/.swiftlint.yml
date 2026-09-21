@@ -13,18 +13,19 @@
 #   2. Remove every rule that reports a violation you are not going to fix in the
 #      same change. Never fix a large backlog to keep a rule; the point is that
 #      the file describes what is true today.
-#   3. Add a rule back only in the change that fixes its last violation. The set
+#   3. Rules that real apps most often fail on, and so are left out of this
+#      default set: `force_cast`, `force_try` and `empty_count`. Add them back
+#      after the violations are fixed. The same applies to any rule below that
+#      reports a violation in your code: drop it before turning `--strict` on.
+#   4. Add a rule back only in the change that fixes its last violation. The set
 #      grows as the code improves and never contains a rule that fails.
 #
 # TODO(included): list the directories that hold your Swift sources and tests.
 only_rules:
-  - force_cast
-  - force_try
   - unused_optional_binding
   - unused_closure_parameter
-  - empty_count
   - empty_string
-  - redundant_optional_initialization
+  - implicit_optional_initialization
   - redundant_string_enum_value
   - duplicate_imports
   - trailing_whitespace
