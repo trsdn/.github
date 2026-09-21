@@ -1,0 +1,65 @@
+# Advanced CodeQL workflow for C# with a manual build. It cannot be a shared
+# workflow because the restore and build steps are yours and, for
+# net*-windows projects, must run on Windows.
+#
+# Before this can succeed, switch CodeQL default setup off, because GitHub
+# rejects results from an advanced workflow while default setup is on:
+#   gh api -X PATCH repos/OWNER/REPO/code-scanning/default-setup -F state=not-configured
+# See docs/guides/codeql.md.
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  # Deliberately no paths filter for pull_request. Once this job is a required
+  # check, a filtered job never reports on a pull request that misses its
+  # paths, and that pull request stays blocked.
+  pull_request:
+  schedule:
+    - cron: "23 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    # EDIT: windows-latest only when a project needs Windows to build.
+    runs-on: windows-latest
+    timeout-minutes: 60
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        # EDIT: list every CodeQL-supported language the repository holds. A
+        # repository with C# and TypeScript lists csharp and
+        # javascript-typescript. The javascript-typescript entry builds nothing
+        # and the manual steps below are skipped for it.
+        language: [csharp]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v5
+        if: matrix.language == 'csharp'
+        with:
+          dotnet-version: 9.0.x # EDIT
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          # manual: the steps below are the build, and CodeQL traces them.
+          # Use none for C# projects that need no special build, which also
+          # lets you use a Linux runner. Use autobuild to let CodeQL guess.
+          build-mode: ${{ matrix.language == 'csharp' && 'manual' || 'none' }}
+          queries: +security-extended
+      - name: Restore
+        if: matrix.language == 'csharp'
+        run: dotnet restore MySolution.sln # EDIT
+      - name: Build
+        if: matrix.language == 'csharp'
+        run: dotnet build MySolution.sln --no-restore --configuration Release # EDIT
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}

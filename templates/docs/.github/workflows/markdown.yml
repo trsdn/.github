@@ -1,0 +1,19 @@
+name: Markdown
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Lint Markdown
+        # The version is pinned so a new rule cannot turn the build red on its own.
+        run: npx --yes markdownlint-cli2@0.18.1 "**/*.md" "#node_modules"
