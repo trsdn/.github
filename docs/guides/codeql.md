@@ -53,6 +53,15 @@ Do it before, or in the same change as, merging the workflow file. Confirm with
 `gh api repos/OWNER/REPO/code-scanning/default-setup --jq .state`, which should
 print `not-configured`.
 
+## A run appears while default setup is off
+
+A CodeQL run that started before default setup was switched off can still finish
+and report as a dynamic run, so a run today does not prove that scanning is
+configured. Before deciding [`P13`](../repository-quality-standard.md#p13), read
+`gh api repos/OWNER/REPO/code-scanning/default-setup`, list the repository's
+workflows with `gh workflow list`, and count scanning only where default setup is
+`configured` or a workflow that uses `github/codeql-action` is active.
+
 ## Advanced workflow, no build
 
 For languages that need no build, call the shared workflow. Its caller is in the
