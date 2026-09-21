@@ -33,16 +33,23 @@ the transcription, not the assessment.
 | `P02`, `P06` | The community profile GitHub reports, which counts inherited files |
 | `P03` | A security policy in the tree or inherited from the account, and whether private reporting is enabled |
 | `P12` | Dependabot alerts and security updates, from the API: both is `pass`, one `partial`, neither `fail` |
-| `P13` | A CodeQL default setup or a CodeQL workflow, `pass` only. Absence is left to the assessor, because whether CodeQL supports a language is a judgement |
+| `P13` | A CodeQL default setup, or a CodeQL workflow whose state the API reports as `active`, `pass` only. A workflow file that is disabled does not count, and absence is left to the assessor, because whether CodeQL supports a language is a judgement |
 | `P04`, `P10`, `P11` | Whether any intake template exists, in the repository or inherited from the account, absence only |
 | `S05` | The secret scanning status, where the token can see it |
-| `S09` | Required status checks on the default branch, from rulesets and from branch protection |
-| `S11` | A `permissions` block in every workflow |
+| `S09` | Required status checks on the default branch, from rulesets and from branch protection, each compared with the check names the last five commits report; a required name that never reports is `partial`, because it blocks every pull request |
+| `S11` | A `permissions` block in every workflow, at the top level or on every job |
 | `S12` | Every `uses:` reference, against the graduated table in the standard |
 | `S13` | Untrusted triggers and the secrets they can reach |
 | `G01` | Whether `AGENTS.md` is at the root |
 
 Everything else is left to the assessor, and the notes file lists it.
+
+The community profile API reports `issue_template` as `null` for issue forms a
+repository inherits, so it cannot confirm them. To confirm inherited templates,
+read the account's `.github` repository: the script lists its
+`.github/ISSUE_TEMPLATE/` directory (and the pull-request template paths) for a
+public repository, and an assessor checking by hand does the same rather than
+trusting the profile.
 
 Two of these deserve their limits stated. `P10` and `P11` ask whether intake
 collects enough to act on, which the standard assesses on the information
