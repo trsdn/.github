@@ -1,7 +1,7 @@
 ---
 name: apple-hig-reviewer
 description: Reviews macOS Swift UI diffs and rendered screenshots for high-confidence Apple HIG, accessibility, interaction, and privacy defects without editing files
-tools: ["read", "search", "execute"]
+tools: ["read", "search", "execute", "Read", "Grep", "Glob", "Bash"]
 ---
 
 <!-- markdownlint-disable MD041 -->

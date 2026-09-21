@@ -6,6 +6,17 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.19.1 - 2026-09-21
+
+- Verified the Apple HIG review package by installing it with `apm` 0.31.0 into an
+  empty repository: it writes the agent, rules and prompt for both Claude Code and
+  Copilot, records them in the lock file, and `apm audit` reports no drift. The
+  package README now says `apm.yml` needs `targets`, lists the files written, and
+  states what is still unverified: how each agent runtime behaves.
+- The reviewer agent lists its tools by the names of both runtimes, because APM
+  copies the list unchanged into each target.
+- Patch: wording and a package detail, and no recorded result can change.
+
 ## 1.19.0 - 2026-09-21
 
 - Added [`packages/apple-hig-review/`](packages/apple-hig-review/README.md): the
