@@ -20,7 +20,7 @@
 # The badge is generated from this file. Change the evidence first, then this
 # record, then regenerate. Never the other way round.
 
-standard_version: "1.17.0"
+standard_version: "1.18.0"
 assessed_on: "YYYY-MM-DD"
 state: "Needs work"
 evidence: "docs/self-assessment.md"
@@ -82,6 +82,7 @@ criteria:
   R06: unknown
   R07: unknown
   R08: unknown
+  R09: unknown
   I01: unknown
   I02: unknown
   I03: unknown

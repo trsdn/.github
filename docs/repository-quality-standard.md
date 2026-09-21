@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.17.0
+- Version: 1.18.0
 - Last reviewed: 2026-09-21
 - Review cadence: every six months, even when nothing changes
 
@@ -133,6 +133,52 @@ Apply the baseline to every active repository, then add every matching profile.
 | Documentation | Its primary product is documentation, research, content, or templates |
 | Published Site | It publishes a website, or it ships something whose audience uses it without ever needing the repository |
 | Archived | Development has intentionally ended and GitHub marks it archived |
+
+## Private Repositories
+
+Visibility changes what GitHub offers a repository, not what the repository has to
+be. A private repository is assessed against the Baseline and every matching
+profile except Public. What differs is what the platform provides, and that
+depends on the account's plan, so the assessor reads the platform's capabilities
+before deciding anything, and an account states them once, in a document each
+private repository's record links to. This account's statement is
+[Account capabilities](account-capabilities.md).
+
+| Capability | Where it is missing, the effect |
+|---|---|
+| Hosted Actions minutes | The repository is *without automation*, as [Automation Availability](#automation-availability) defines it |
+| GitHub secret scanning and push protection | `S05` is met by a scan the repository runs itself |
+| CodeQL and other code scanning | Nothing asks for it: `P13` applies to public repositories only, and static checks belong to `S03` |
+| Rulesets and branch protection | `B16` is `Not applicable` with the sentence that criterion requires, and so is `S09` |
+| Dependabot alerts and security updates | Where they consume the minutes the account does not have, they stay off, and `S08` is met by a documented process |
+
+A capability that is absent is recorded once per repository, in one sentence naming
+the absence and pointing at the account's statement. Without the sentence the
+assessor records the ordinary result.
+
+What applies to a private repository:
+
+| Criteria | Private repository |
+|---|---|
+| `B01`-`B15` | Apply as written. `B06` counts the alert sources that exist and a source that is not offered contributes none |
+| `B16` | `Not applicable` where no ruleset or protection is offered |
+| `P01`-`P13` | `Not applicable`: the Public profile does not apply |
+| `S01`, `S06`, `S07`, `S10` | Apply |
+| `S02`, `S03` | Apply. Without automation the check runs as a documented command, and a dated record of a successful run stands in for the workflow run |
+| `S04`, `S09` | `Not applicable` without automation, and `S09` also where no ruleset is offered |
+| `S05` | Applies. Where GitHub does not offer secret scanning, a documented scan command with a recorded run is `Pass` |
+| `S08` | Applies. A documented owner and process is `Pass`, and the process may be the audit that `R09` runs at each release |
+| `S11`, `S12`, `S13` | Apply to the workflows the repository has, and are `Not applicable` with none |
+| `D01`-`D06`, `R01`-`R08`, `I01`-`I06`, `T01`-`T05`, `W01`-`W09`, `G01`-`G08`, `L01`-`L07`, `X01`-`X05`, `Y01`-`Y06`, `A01`-`A04` | Decided by the profile and the criterion's own text, exactly as for a public repository |
+| `R09` | Applies to a repository that publishes releases, by a local step where there is no automation |
+
+Some things a private repository can still do for itself without minutes: run the
+[local gate](../templates/local-gate/README.md) before a release, which scans for
+secrets and audits dependencies with tools that need no GitHub feature, and run
+the repository's own tests and lint by the same documented command. Which tools
+fit which language, what code scanning is possible without GitHub's, and what a
+self-hosted runner would change are in
+[the private repositories guide](guides/private-repositories.md).
 
 ## Baseline
 
@@ -522,7 +568,12 @@ or platform is `Not applicable`.
 `S05` passes with GitHub secret scanning enabled, or with a scanner workflow that
 runs on both pushes and pull requests. A scanner on only one of the two, or only
 on a schedule, is a `Partial`. Where the setting cannot be read and no workflow
-scans, the result is `Partial` with the unreadable setting recorded.
+scans, the result is `Partial` with the unreadable setting recorded. Where GitHub
+does not offer secret scanning and the repository is without automation, a
+documented scan command with a dated record of a successful run within the review
+cadence is a `Pass`, as [Automation Availability](#automation-availability)
+states. `S05` then needs a runner to run and none to check, so it moves to the
+row of checks the repository owns.
 
 `S06` is `Not applicable` where nothing in the repository reads configuration.
 Otherwise a committed credential or personal data as a default, such as a token,
@@ -688,6 +739,7 @@ apply. These are the boundaries they need here.
 | <a id="r06"></a>R06 | Release notes describe meaningful changes and upgrade concerns | The latest GitHub release or its changelog entry |
 | <a id="r07"></a>R07 | The release notes a consumer receives are the changelog entry for the version being released, or link to it, and that entry exists and is not empty | A published release whose notes match or link to its changelog entry; where a gate exists, in this repository or in a shared release pipeline this repository documents, the gate too |
 | <a id="r08"></a>R08 | A consumer can verify that a published artifact came from this repository or from the shared release pipeline that publishes its releases, or the repository states that they cannot, or that it does not offer that and what a consumer can check instead | Registry provenance, a build attestation, the shared pipeline's documented and verifiable record, or a recorded statement |
+| <a id="r09"></a>R09 | Before a release is published, a secret scan and a dependency vulnerability check have passed for the release commit | A release workflow or checklist, and a dated result recorded with the release |
 
 A repository that has published no release has nothing for `R03`-`R08` to assess:
 they are `Not applicable`, and the record says no release exists. Per the default
@@ -913,6 +965,29 @@ not reproduce, is recorded and does not by itself change it. Neither case is exc
 criterion. A repository publishing a document, a site, or nothing installable is
 `Not applicable`; `R01` and `R05` are already `Not applicable` in that case for
 the same reason.
+
+`R09` asks that a release does not go out with a leaked secret or a known serious
+dependency vulnerability that nobody looked at. It does not care who or what runs
+the checks: a workflow that gates the release, or a step of the release procedure
+that the maintainer or an agent runs locally, with the result written where the
+release's own record lives.
+
+- The secret scan passes with GitHub secret scanning showing no open alert at the
+  release, a scanner workflow whose run on the release commit succeeded, or a
+  documented local scan command, such as a `gitleaks` run, whose result for the
+  release commit is recorded.
+- The dependency check passes when no critical or high advisory is open without a
+  recorded reason. Read it from Dependabot alerts, or from a documented audit
+  command such as `osv-scanner`, `npm audit` or `pip-audit`. A repository with no
+  third-party dependency records that part as `Not applicable`.
+- Both parts pass is `Pass`, one is `Partial`, and neither is `Fail`. A repository
+  that has published no release is `Not applicable`.
+
+The result is recorded in the release notes, in a release checklist file with the
+date and the commit, or in the workflow run. A repository without automation
+cannot run a workflow, and this criterion is why the local command exists: see
+[Private Repositories](#private-repositories) and
+[the local gate](../templates/local-gate/README.md).
 
 ## Product Identity
 
@@ -1550,7 +1625,7 @@ ones:
 
 | Which criteria | Result when no runner is available |
 |---|---|
-| Those satisfied by a check the repository owns, which a runner only makes convenient. At this version `S02`, `S03`, and `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not. A criterion's own boundaries still decide any further `Partial`, as `S02` and `S03` state |
+| Those satisfied by a check the repository owns, which a runner only makes convenient. At this version `S02`, `S03`, `S05`, and `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command, or for `S05` the documented scan command, runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not. A criterion's own boundaries still decide any further `Partial`, as `S02` and `S03` state |
 | Those whose evidence can only be produced by a workflow run. At this version `S04`, `S09`, `P09`, and `P13` | `Not applicable` |
 
 **Membership is decided by the property, not by the list.** Each list names the
@@ -1604,7 +1679,7 @@ mechanism is available to the repository, which a repository with no runner can
 write without one, `W01` asks for a repeatable documented process rather than a
 workflow, and `S11`, `S12`, and `S13` are properties of a workflow file that
 hold whether or not it ever runs. This section narrows the criteria its two rows
-describe — seven at this version — and one badge position, and nothing else.
+describe — eight at this version — and one badge position, and nothing else.
 
 ## Status Badges
 

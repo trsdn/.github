@@ -3,6 +3,14 @@
 Serves [`S05`](../repository-quality-standard.md#s05): secret scanning runs on
 commits and pull requests.
 
+## A private repository
+
+GitHub's secret scanning and push protection are not offered to a private
+repository on a plan without them, and a scanner workflow needs minutes. Run
+`gitleaks` locally through the
+[local gate](../../templates/local-gate/README.md), which scans the history too.
+See [Private repositories](private-repositories.md).
+
 ## Two mechanisms
 
 **GitHub secret scanning and push protection** are repository settings. Secret

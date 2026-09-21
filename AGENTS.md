@@ -37,7 +37,8 @@ statistics cards.
 | `docs/decisions/` | Architectural decision records. |
 | `docs/guides/` | How to meet the criteria, with worked examples; `README.md` indexes them by criterion. |
 | `templates/AGENTS.md` | Starting point published for other repositories. |
-| `templates/python/`, `node/`, `dotnet/`, `docs/`, `macos-app/` | Starter kits for other repositories, including the macOS agent and instruction files. Write them for any repository, never about this one. |
+| `docs/account-capabilities.md` | What GitHub provides to this account's private repositories. Hand-written from what the API reports; the private repositories rules cite it. |
+| `templates/python/`, `node/`, `dotnet/`, `docs/`, `macos-app/`, `local-gate/` | Starter kits for other repositories, including the macOS agent and instruction files. Write them for any repository, never about this one. |
 | `.github/workflows/secret-scan.yml`, `codeql.yml`, `codeql-swift.yml` | Reusable workflows other repositories call as `trsdn/.github/.github/workflows/NAME.yml@main`. A change reaches every caller: keep inputs compatible. |
 | `templates/conformance.yml` | Generated starting point for a conformance record. Never hand-edit. |
 | `scripts/standard.py`, `scripts/conformance.py`, `scripts/links.py` | Validation and generation tooling for the standard, Python standard library only. |
