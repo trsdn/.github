@@ -1,0 +1,413 @@
+name: Release macOS
+
+# Release skeleton for a macOS app distributed outside the Mac App Store as a
+# signed, notarized DMG and ZIP. Copy to .github/workflows/release.yml and replace
+# every TODO(...) marker. Read it top to bottom before the first release: it
+# imports a signing certificate and publishes to users.
+#
+# Order of the run:
+#
+#   1. Gate: the tag is a version, the app's Info.plist agrees with it, and the
+#      changelog has a non-empty entry for it. This runs before the certificate
+#      is imported, so nothing is built or signed for a tag that cannot describe
+#      itself.
+#   2. Import the Developer ID certificate into a temporary keychain.
+#   3. Build and sign the app, notarize and staple it, package the ZIP.
+#   4. Build the DMG from the stapled app, sign it, notarize and staple it.
+#   5. Verify every artifact, and attach them to a DRAFT release whose notes are
+#      the changelog entry.
+#   6. Smoke-test the draft with smoke-test.yml, installing it as a consumer would.
+#   7. Publish the draft, then confirm the file anyone can download is the file
+#      that was tested.
+#
+# A failure at any step leaves the release a draft, so nobody is offered an
+# untested build.
+#
+# Secrets are referenced by name only. What each one is and how it is revoked is
+# listed in the README beside this kit. Nothing here holds a value.
+#
+# Steps 3 and 4 call scripts that belong to the app, because bundle layout,
+# entitlements, and disk image layout differ for every app. They are the parts
+# this skeleton cannot supply. Each is described by the contract below; write them
+# to it.
+#
+#   scripts/build-app.sh      Builds the release binary, assembles the .app at
+#                             APP_PATH, signs it with the identity in
+#                             CODE_SIGN_IDENTITY using the hardened runtime and
+#                             the app's entitlements, and exits non-zero if there
+#                             is no identity. It must refuse an ad-hoc signature.
+#                             It reads the version from RELEASE_VERSION.
+#   scripts/notarize_app.sh   Zips the app to ZIP_PATH, submits it to Apple with
+#                             `xcrun notarytool submit --wait` using APPLE_ID,
+#                             APPLE_TEAM_ID and APPLE_APP_PASSWORD, fails unless
+#                             the result is Accepted, staples the ticket to the
+#                             app, and re-zips the stapled app to ZIP_PATH.
+#   scripts/make_dmg.sh       Builds the DMG at DMG_PATH from the stapled app,
+#                             and signs it. With REQUIRE_NOTARIZED_APP=true it
+#                             fails if the app is not stapled.
+#   scripts/notarize_dmg.sh   Submits the DMG to Apple the same way and staples it.
+#
+# Adjust the asset names in one place: APP_NAME and ARCH below. The DMG must be
+# named the way smoke-test.yml expects.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to build, for example v1.2.3
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  APP_NAME: TODO(app-name)
+  # The architecture suffix in the asset names. Change it for a universal build.
+  ARCH: arm64
+  # TODO(info-plist-path): the property list that holds the bundle version.
+  INFO_PLIST: Info.plist
+  # TODO(app-path): where build-app.sh leaves the built .app.
+  APP_PATH: .build/release/TODO(app-name).app
+
+# One release run per tag at a time: two overlapping runs could test one set of
+# assets while the other replaces them before the publish job runs.
+concurrency:
+  group: release-${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  macos-release:
+    name: Build signed and notarized macOS artifacts
+    runs-on: macos-latest
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      - name: Resolve release metadata
+        id: release
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            tag="$INPUT_TAG"
+          else
+            tag="${GITHUB_REF_NAME}"
+          fi
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Release tag must be a version such as v1.2.3: $tag"
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.release.outputs.tag }}
+          fetch-depth: 0
+
+      # Gate: nothing is built, signed, or published for a tag that cannot
+      # describe itself. Fails before the signing certificate is imported.
+      - name: Verify bundle version and changelog entry
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          plist_short="$(plutil -extract CFBundleShortVersionString raw "$INFO_PLIST")"
+          plist_build="$(plutil -extract CFBundleVersion raw "$INFO_PLIST")"
+          # TODO(build-number): this requires the build number to equal the
+          # version. If the app uses a separate, increasing build number, compare
+          # only plist_short here.
+          if [[ "$plist_short" != "$RELEASE_VERSION" || "$plist_build" != "$RELEASE_VERSION" ]]; then
+            echo "$INFO_PLIST is $plist_short (build $plist_build) but the tag is $RELEASE_VERSION." >&2
+            echo "Bump CFBundleShortVersionString and CFBundleVersion before tagging." >&2
+            exit 1
+          fi
+
+          # Entries still held under an unreleased heading would ship in no release notes.
+          held="$(awk '
+            tolower($0) ~ /^##[ \t]+\[?unreleased\]?/ { capture = 1; next }
+            capture && /^## / { exit }
+            capture { print }
+          ' CHANGELOG.md | tr -d '[:space:]')"
+          if [[ -n "$held" ]]; then
+            echo "CHANGELOG.md still holds entries under Unreleased; promote them into $RELEASE_VERSION." >&2
+            exit 1
+          fi
+
+          # The published notes are the maintained changelog entry, never text written here.
+          awk -v version="$RELEASE_VERSION" '
+            BEGIN { gsub(/\./, "\\.", version) }
+            $0 ~ "^## \\[?" version "\\]?([ \t]|$)" { capture = 1; next }
+            capture && /^## / { exit }
+            capture { print }
+          ' CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
+          if [[ -z "$(tr -d '[:space:]' < "$RUNNER_TEMP/release-notes.md")" ]]; then
+            echo "CHANGELOG.md has no entry for $RELEASE_VERSION." >&2
+            exit 1
+          fi
+          echo "RELEASE_NOTES_FILE=$RUNNER_TEMP/release-notes.md" >> "$GITHUB_ENV"
+
+      - name: Import Developer ID certificate
+        shell: bash
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$MACOS_CERTIFICATE" || -z "$MACOS_CERTIFICATE_PWD" ]]; then
+            echo "MACOS_CERTIFICATE and MACOS_CERTIFICATE_PWD secrets are required."
+            exit 1
+          fi
+
+          signing_dir="$GITHUB_WORKSPACE/.build/ci-signing-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          cert_file="$signing_dir/developer-id.p12"
+          ca_file="$signing_dir/DeveloperIDG2CA.cer"
+          keychain_file="$signing_dir/build.keychain-db"
+          keychain_password="$(openssl rand -base64 32)"
+          import_succeeded=false
+
+          cleanup_import() {
+            rm -f -- "$cert_file" "$ca_file"
+            if [[ "$import_succeeded" != true ]]; then
+              security delete-keychain "$keychain_file" 2>/dev/null || true
+              rm -f -- "$keychain_file"
+              rmdir -- "$signing_dir" 2>/dev/null || true
+            fi
+          }
+          trap cleanup_import EXIT
+          trap 'exit 129' HUP
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+
+          mkdir -p "$signing_dir"
+          set +x
+          printf '%s' "$MACOS_CERTIFICATE" | base64 --decode > "$cert_file"
+          curl --fail --silent --show-error --location \
+            "https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer" \
+            --output "$ca_file"
+
+          security create-keychain -p "$keychain_password" "$keychain_file"
+          security set-keychain-settings -lut 21600 "$keychain_file"
+          security unlock-keychain -p "$keychain_password" "$keychain_file"
+          security import "$ca_file" -k "$keychain_file" -T /usr/bin/codesign
+          security import "$cert_file" -P "$MACOS_CERTIFICATE_PWD" -A -t cert -f pkcs12 -k "$keychain_file"
+          security set-key-partition-list -S apple-tool:,apple: -k "$keychain_password" "$keychain_file"
+          security list-keychains -d user -s "$keychain_file" $(security list-keychains -d user | tr -d '"')
+
+          identity="$(
+            security find-identity -v -p codesigning "$keychain_file" |
+              awk -F'"' '/Developer ID Application/ && !identity { identity = $2 } END { print identity }'
+          )"
+          if [[ -z "$identity" ]]; then
+            echo "Developer ID Application identity not found."
+            exit 1
+          fi
+
+          # TODO(identity-variable): export the variable name your build script
+          # reads for the signing identity, in addition to or instead of this one.
+          echo "CODE_SIGN_IDENTITY=$identity" >> "$GITHUB_ENV"
+          echo "KEYCHAIN_FILE=$keychain_file" >> "$GITHUB_ENV"
+          echo "SIGNING_DIR=$signing_dir" >> "$GITHUB_ENV"
+          import_succeeded=true
+
+      - name: Build Developer ID signed app
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          chmod +x scripts/*.sh
+          scripts/build-app.sh
+
+      - name: Notarize app and package ZIP
+        shell: bash
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          ZIP_PATH: dist/${{ env.APP_NAME }}-v${{ steps.release.outputs.version }}-macOS-${{ env.ARCH }}.zip
+        run: |
+          set -euo pipefail
+          scripts/notarize_app.sh
+
+      - name: Build signed DMG from stapled app
+        shell: bash
+        env:
+          DMG_PATH: dist/${{ env.APP_NAME }}-v${{ steps.release.outputs.version }}-macOS-${{ env.ARCH }}.dmg
+          REQUIRE_NOTARIZED_APP: "true"
+        run: |
+          set -euo pipefail
+          scripts/make_dmg.sh
+
+      - name: Notarize DMG
+        shell: bash
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          DMG_PATH: dist/${{ env.APP_NAME }}-v${{ steps.release.outputs.version }}-macOS-${{ env.ARCH }}.dmg
+        run: |
+          set -euo pipefail
+          scripts/notarize_dmg.sh
+
+      # TODO(in-app-updater): an app that updates itself from GitHub Releases may
+      # need an extra asset with a name its updater library expects. Add a step
+      # that copies the already signed and notarized DMG to that name, and list
+      # the copy in the verification and attach steps below. Delete this note if
+      # the app has no in-app updater.
+
+      - name: Cleanup keychain
+        if: always()
+        shell: bash
+        run: |
+          if [[ -n "${KEYCHAIN_FILE:-}" ]]; then
+            security delete-keychain "$KEYCHAIN_FILE" 2>/dev/null || true
+            rm -f -- "$KEYCHAIN_FILE"
+          fi
+          if [[ -n "${SIGNING_DIR:-}" ]]; then
+            rmdir -- "$SIGNING_DIR" 2>/dev/null || true
+          fi
+
+      - name: Verify release artifacts
+        shell: bash
+        env:
+          ASSET_BASE: dist/${{ env.APP_NAME }}-v${{ steps.release.outputs.version }}-macOS-${{ env.ARCH }}
+        run: |
+          set -euo pipefail
+          artifacts=(
+            "$ASSET_BASE.zip"
+            "$ASSET_BASE.zip.sha256"
+            "$ASSET_BASE.dmg"
+            "$ASSET_BASE.dmg.sha256"
+          )
+          for artifact in "${artifacts[@]}"; do
+            if [[ ! -f "$artifact" ]]; then
+              echo "Expected release artifact is missing: $artifact"
+              exit 1
+            fi
+          done
+
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          xcrun stapler validate "$APP_PATH"
+          spctl --assess --type execute --verbose=2 "$APP_PATH"
+          codesign --verify --strict --verbose=2 "$ASSET_BASE.dmg"
+          xcrun stapler validate "$ASSET_BASE.dmg"
+          spctl --assess --type open --context context:primary-signature --verbose=2 "$ASSET_BASE.dmg"
+          hdiutil verify "$ASSET_BASE.dmg"
+          (
+            cd "$(dirname "$ASSET_BASE")"
+            asset_name="$(basename "$ASSET_BASE")"
+            shasum -a 256 -c "$asset_name.zip.sha256"
+            shasum -a 256 -c "$asset_name.dmg.sha256"
+          )
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.APP_NAME }}-v${{ steps.release.outputs.version }}-macOS-${{ env.ARCH }}
+          if-no-files-found: error
+          path: |
+            dist/${{ env.APP_NAME }}-v${{ steps.release.outputs.version }}-macOS-${{ env.ARCH }}.zip
+            dist/${{ env.APP_NAME }}-v${{ steps.release.outputs.version }}-macOS-${{ env.ARCH }}.zip.sha256
+            dist/${{ env.APP_NAME }}-v${{ steps.release.outputs.version }}-macOS-${{ env.ARCH }}.dmg
+            dist/${{ env.APP_NAME }}-v${{ steps.release.outputs.version }}-macOS-${{ env.ARCH }}.dmg.sha256
+
+      - name: Attach assets to GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          asset_base="dist/${APP_NAME}-v${RELEASE_VERSION}-macOS-${ARCH}"
+          assets=(
+            "$asset_base.zip"
+            "$asset_base.zip.sha256"
+            "$asset_base.dmg"
+            "$asset_base.dmg.sha256"
+          )
+          for asset in "${assets[@]}"; do
+            if [[ ! -f "$asset" ]]; then
+              echo "Expected release asset is missing: $asset"
+              exit 1
+            fi
+          done
+
+          # Notes come from the changelog entry checked by the gate above. A new
+          # release is created as a DRAFT: nobody can receive it until the smoke
+          # test has passed and the publish job below makes it public. An
+          # existing draft is updated in place.
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --draft --title "${APP_NAME} ${RELEASE_VERSION}" --notes-file "$RELEASE_NOTES_FILE"
+          elif [[ "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" == "true" ]]; then
+            gh release edit "$RELEASE_TAG" --title "${APP_NAME} ${RELEASE_VERSION}" --notes-file "$RELEASE_NOTES_FILE"
+          else
+            # Replacing the assets of a public release would expose untested
+            # files, and a failing smoke test could not take them back.
+            echo "Release $RELEASE_TAG is already public; refusing to replace its assets. Publish a new version instead." >&2
+            exit 1
+          fi
+          gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
+
+  # Install the uploaded DMG and check it, as a consumer would, BEFORE the release
+  # becomes public. A failure leaves the draft unpublished.
+  smoke-test:
+    name: Smoke-test the release before publishing
+    needs: macos-release
+    permissions:
+      # Draft releases are only visible to a token with write access. The
+      # called job downloads and checks the assets; it changes nothing.
+      contents: write
+    uses: ./.github/workflows/smoke-test.yml
+    with:
+      tag: ${{ needs.macos-release.outputs.tag }}
+
+  publish:
+    name: Publish the release
+    needs: [macos-release, smoke-test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Make the tested draft public
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.macos-release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+          if [[ "$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" != "false" ]]; then
+            echo "Release $RELEASE_TAG is still a draft." >&2
+            exit 1
+          fi
+
+      - name: Verify the public download is the file that was tested
+        env:
+          RELEASE_TAG: ${{ needs.macos-release.outputs.tag }}
+          TESTED_SHA256: ${{ needs.smoke-test.outputs.dmg_sha256 }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$TESTED_SHA256" ]]; then
+            echo "The smoke test did not report the digest it tested." >&2
+            exit 1
+          fi
+          base="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}"
+          name="${APP_NAME}-${RELEASE_TAG}-macOS-${ARCH}.dmg"
+          mkdir public && cd public
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 5 -O "$base/$name" -O "$base/$name.sha256"
+          shasum -a 256 -c "$name.sha256"
+          public_sha="$(shasum -a 256 "$name" | cut -d' ' -f1)"
+          if [[ "$public_sha" != "$TESTED_SHA256" ]]; then
+            echo "The public DMG ($public_sha) is not the file the smoke test ran ($TESTED_SHA256)." >&2
+            exit 1
+          fi

@@ -1,0 +1,23 @@
+# Copy to .github/dependabot.yml.
+#
+#   TODO(swift-directory)  The directory that holds Package.swift. Use "/" when
+#                          it is in the repository root. Delete the `swift` entry
+#                          if the app has no Swift Package Manager dependencies,
+#                          for example an Xcode project that resolves packages
+#                          only through its project file.
+#
+# The `github-actions` entry keeps the actions and shared workflows in
+# .github/workflows current. Dependabot proposes each update as a pull request,
+# so a maintainer reviews it before it lands.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: swift
+    directory: "/" # TODO(swift-directory)
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5

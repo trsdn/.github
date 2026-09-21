@@ -1,0 +1,31 @@
+name: Conformance
+
+# Caller of the shared conformance check. Copy to .github/workflows/conformance.yml
+# in a repository that holds a .github/conformance.yml record. It validates the
+# record and the committed badge, so the two cannot drift apart, and it turns red
+# when the assessment is overdue.
+#
+# Nothing to replace unless the default branch is not `main` (TODO(default-branch)).
+# The record itself is created from the starting point published in this
+# repository's templates directory; the guide beside this kit says how.
+
+on:
+  pull_request:
+    paths:
+      - .github/conformance.yml
+      - .github/badges/**
+      - .github/workflows/conformance.yml
+  push:
+    branches:
+      - main
+  schedule:
+    # TODO(cron): any weekly time will do.
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    uses: trsdn/.github/.github/workflows/conformance.yml@main
