@@ -47,13 +47,12 @@ on:
         value: ${{ jobs.smoke.outputs.dmg_sha256 }}
 
 permissions:
-  # This workflow only downloads, so read is enough for a published release. A
-  # DRAFT release is invisible to a read-only token: if release.yml calls this
-  # against a draft, as its default order does, change this to `contents: write`
-  # and keep the same value on the calling job. Write access on a workflow that
-  # runs for published tags makes the standard's S11 partial, so leave it at read
-  # if you only test published tags.
-  contents: read
+  # release.yml calls this against a DRAFT release, which only a token with write
+  # access can see. The job downloads and checks the assets and changes nothing.
+  # For a repository whose releases are published by someone else, or that tests
+  # only after publishing, use smoke-test-published.yml instead: it needs only
+  # read, which keeps the standard's S11 a pass.
+  contents: write
 
 env:
   APP_NAME: TODO(app-name)

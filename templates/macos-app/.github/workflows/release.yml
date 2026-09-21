@@ -385,10 +385,9 @@ jobs:
     needs: macos-release
     permissions:
       # Draft releases are only visible to a token with write access. The
-      # called job downloads and checks the assets; it changes nothing. Because
-      # this order tests a draft, smoke-test.yml must declare `contents: write`
-      # too (it ships as `read`): a called workflow cannot exceed what it
-      # declares, and a read-only token does not see the draft.
+      # called job downloads and checks the assets; it changes nothing.
+      # smoke-test.yml declares the same, because a called workflow cannot exceed
+      # what it declares.
       contents: write
     uses: ./.github/workflows/smoke-test.yml
     with:

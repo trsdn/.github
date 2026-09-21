@@ -19,7 +19,7 @@ file is not evidence until the repository has it and it works there.
 | [`S02`](../repository-quality-standard.md#s02), [`S03`](../repository-quality-standard.md#s03) | [Tests and lint](tests-and-lint.md) |
 | [`B11`](../repository-quality-standard.md#b11) | [The first conformance record](../../templates/conformance-first-record.md) |
 | Any workflow that several repositories share | [Reusable workflows](reusable-workflows.md) |
-| A macOS application: `R03`, `R05`, `R07`, `R08`, `I01`-`I06`, `X01`-`X03`, `S03` | [Bringing a macOS app to the standard](macos-app.md) |
+| A macOS application: `R03`, `R05`, `R07`, `R08`, `R09`, `I01`-`I06`, `B15`, `G08`, `S03`, including a private app with no minutes | [Bringing a macOS app to the standard](macos-app.md) |
 
 ## Starter kits
 

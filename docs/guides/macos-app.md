@@ -148,12 +148,12 @@ worth the work.
 Two things depend on how the app is released:
 
 - The smoke test needs `contents: write` only to see a **draft** release, which
-  is the order `release.yml` uses. `smoke-test.yml` ships with `contents: read`,
-  because write access on a workflow that runs for published tags weakens
-  [S11](../repository-quality-standard.md#s11). Raise it, and the calling job in
-  `release.yml`, together, and only for the draft order. The DMG is chosen by the
-  name pattern, so a release that also carries an updater DMG is still tested
-  against the right one.
+  is the order `release.yml` uses, so `smoke-test.yml` and the calling job in
+  `release.yml` both declare it. A workflow that tests only after publishing needs
+  only read, and write there would weaken
+  [S11](../repository-quality-standard.md#s11): use `smoke-test-published.yml`. The
+  DMG is chosen by the name pattern, so a release that also carries an updater DMG
+  is still tested against the right one.
 - If a shared notarization broker builds and publishes the app's releases, the
   repository has no `release.yml`. Use
   [`smoke-test-published.yml`](../../templates/macos-app/.github/workflows/smoke-test-published.yml)
