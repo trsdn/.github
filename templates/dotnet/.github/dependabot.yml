@@ -37,7 +37,6 @@ updates:
       interval: weekly
     labels:
       - dependencies
-      - ci
     groups:
       github-actions:
         patterns:

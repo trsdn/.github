@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.16.0
+- Version: 1.17.0
 - Last reviewed: 2026-09-21
 - Review cadence: every six months, even when nothing changes
 
@@ -401,7 +401,12 @@ scanning is configured, the result is `Fail`. It is `Not applicable` where none 
 the repository's languages is supported, as for a repository of prose, data, or
 configuration, and where no runner is available, recorded with the languages
 looked for. `B06` decides what an open alert means, and `P13` only that scanning
-exists.
+exists. GitHub's default setup and a CodeQL workflow of the repository's own are
+mutually exclusive: while the default setup is enabled, the workflow's results are
+rejected. A repository with its own CodeQL workflow is therefore assessed on that
+workflow, and the default setup must stay off for it. A compiled language whose
+default autobuild fails, such as a Swift package, needs the workflow with a manual
+build. See [the CodeQL guide](guides/codeql.md).
 
 `P08` applies to every public repository. Its platform or runtime badge is `Not
 applicable` where the repository has no runtime or platform requirement to
@@ -2024,3 +2029,22 @@ tests/
 ```
 
 Equivalent evidence is valid when it is durable, discoverable, and testable.
+
+## Implementation Guides
+
+The criteria say what must be true. This repository also publishes how to make it
+true, so that neither a maintainer nor an agent has to work it out again in every
+repository:
+
+- [Guides](guides/README.md) map each criterion to a worked example.
+- [Reusable workflows](../.github/workflows/) are referenced from another
+  repository in the account as `trsdn/.github/.github/workflows/NAME.yml@main`,
+  which `S12` permits, so a repository has no copy to drift.
+- [Templates](../templates/) are starting points to copy where a file has
+  per-repository content: a starter kit per language family and one for macOS
+  applications, with the agent and instruction files.
+
+Where a guide or a template disagrees with a criterion, the criterion decides. A
+guide or template is never evidence that a criterion is met, only the repository's
+own files are, so an assessor reads what the repository contains and not what it
+was copied from.

@@ -20,7 +20,9 @@ name: CodeQL
 #                        The Swift analysis builds the whole app and can take
 #                        about half an hour, so pull requests run it only when
 #                        these change. Pushes to the default branch and the weekly
-#                        schedule always run it.
+#                        schedule always run it. Delete the `paths` filter if a
+#                        ruleset requires this check: a required check that a
+#                        filter skips never reports, and the pull request waits.
 #
 # Pin the shared workflow by full commit SHA instead of `@main` if the repository
 # should not pick up changes to it automatically.

@@ -35,7 +35,10 @@ statistics cards.
 | `docs/conformance-record.md` | Format of the per-repository assessment record. |
 | `docs/self-assessment.md` | This repository's own assessment, with per-criterion notes. |
 | `docs/decisions/` | Architectural decision records. |
+| `docs/guides/` | How to meet the criteria, with worked examples; `README.md` indexes them by criterion. |
 | `templates/AGENTS.md` | Starting point published for other repositories. |
+| `templates/python/`, `node/`, `dotnet/`, `docs/`, `macos-app/` | Starter kits for other repositories, including the macOS agent and instruction files. Write them for any repository, never about this one. |
+| `.github/workflows/secret-scan.yml`, `codeql.yml`, `codeql-swift.yml` | Reusable workflows other repositories call as `trsdn/.github/.github/workflows/NAME.yml@main`. A change reaches every caller: keep inputs compatible. |
 | `templates/conformance.yml` | Generated starting point for a conformance record. Never hand-edit. |
 | `scripts/standard.py`, `scripts/conformance.py`, `scripts/links.py` | Validation and generation tooling for the standard, Python standard library only. |
 | `scripts/assess.py` | Drafts a conformance record for another repository from what the GitHub API exposes. Standard library only; see [assessing](docs/assessing.md). |

@@ -89,7 +89,9 @@ jobs:
         if: matrix.language == 'swift'
         env:
           BUILD_COMMAND: ${{ inputs.build-command }}
-        run: eval "$BUILD_COMMAND"
+        # The command is the caller's own, run with this job's token. Never build it
+        # from event data such as a pull request title or branch name.
+        run: bash -c "$BUILD_COMMAND"
       - name: Analyze
         uses: github/codeql-action/analyze@v4
         with:

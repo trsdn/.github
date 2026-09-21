@@ -125,7 +125,8 @@ jobs:
 
 What to change: set `build-command` to the command CI uses, and turn off the
 languages the repository does not contain. Limit the `pull_request` paths as
-shown, because the Swift build is slow.
+shown, because the Swift build is slow. Remove the filter if a ruleset requires
+the check, because a required check that a filter skips never reports.
 
 ## Branch reference or template
 

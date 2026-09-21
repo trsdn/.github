@@ -23,9 +23,11 @@ code security settings. It is enough for most repositories.
 | Extra queries such as `security-extended`, or a config file that excludes paths | An advanced workflow |
 | A runner that is not the default, such as `windows-latest` for `net*-windows` projects | An advanced workflow |
 
-Default setup is not a lesser option. Twelve of the account's repositories use
-it successfully, Swift ones included. Reach for a workflow when you need
-something default setup cannot express, not to be thorough.
+Default setup is not a lesser option, and it handles many Swift packages too.
+Reach for a workflow when you need something default setup cannot express, not to
+be thorough. The Python and Node kits ship a caller of the shared workflow for a
+repository that wants its own schedule or query set; a repository that does not
+can leave it out and use default setup.
 
 ## Which languages count
 

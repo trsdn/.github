@@ -201,7 +201,11 @@ jobs:
           security import "$ca_file" -k "$keychain_file" -T /usr/bin/codesign
           security import "$cert_file" -P "$MACOS_CERTIFICATE_PWD" -A -t cert -f pkcs12 -k "$keychain_file"
           security set-key-partition-list -S apple-tool:,apple: -k "$keychain_password" "$keychain_file"
-          security list-keychains -d user -s "$keychain_file" $(security list-keychains -d user | tr -d '"')
+          existing=()
+          while IFS= read -r keychain; do
+            [[ -n "$keychain" ]] && existing+=("$keychain")
+          done < <(security list-keychains -d user | sed -e 's/^[[:space:]]*"//' -e 's/"$//')
+          security list-keychains -d user -s "$keychain_file" "${existing[@]}"
 
           identity="$(
             security find-identity -v -p codesigning "$keychain_file" |
@@ -214,9 +218,11 @@ jobs:
 
           # TODO(identity-variable): export the variable name your build script
           # reads for the signing identity, in addition to or instead of this one.
-          echo "CODE_SIGN_IDENTITY=$identity" >> "$GITHUB_ENV"
-          echo "KEYCHAIN_FILE=$keychain_file" >> "$GITHUB_ENV"
-          echo "SIGNING_DIR=$signing_dir" >> "$GITHUB_ENV"
+          {
+            echo "CODE_SIGN_IDENTITY=$identity"
+            echo "KEYCHAIN_FILE=$keychain_file"
+            echo "SIGNING_DIR=$signing_dir"
+          } >> "$GITHUB_ENV"
           import_succeeded=true
 
       - name: Build Developer ID signed app
@@ -258,6 +264,19 @@ jobs:
         run: |
           set -euo pipefail
           scripts/notarize_dmg.sh
+
+      - name: Write checksums
+        shell: bash
+        env:
+          ASSET_BASE: dist/${{ env.APP_NAME }}-v${{ steps.release.outputs.version }}-macOS-${{ env.ARCH }}
+        run: |
+          set -euo pipefail
+          # Checksums sit beside the assets, named by file, so that "shasum -c"
+          # works from the download directory.
+          for extension in zip dmg; do
+            (cd dist && shasum -a 256 "$(basename "$ASSET_BASE").$extension" \
+              > "$(basename "$ASSET_BASE").$extension.sha256")
+          done
 
       # TODO(in-app-updater): an app that updates itself from GitHub Releases may
       # need an extra asset with a name its updater library expects. Add a step
@@ -393,6 +412,7 @@ jobs:
 
       - name: Verify the public download is the file that was tested
         env:
+          GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.macos-release.outputs.tag }}
           TESTED_SHA256: ${{ needs.smoke-test.outputs.dmg_sha256 }}
         run: |
@@ -401,10 +421,11 @@ jobs:
             echo "The smoke test did not report the digest it tested." >&2
             exit 1
           fi
-          base="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}"
           name="${APP_NAME}-${RELEASE_TAG}-macOS-${ARCH}.dmg"
           mkdir public && cd public
-          curl --fail --silent --show-error --location --retry 5 --retry-delay 5 -O "$base/$name" -O "$base/$name.sha256"
+          # gh works for a private repository too, where an anonymous download is a 404.
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern "$name" --pattern "$name.sha256"
           shasum -a 256 -c "$name.sha256"
           public_sha="$(shasum -a 256 "$name" | cut -d' ' -f1)"
           if [[ "$public_sha" != "$TESTED_SHA256" ]]; then

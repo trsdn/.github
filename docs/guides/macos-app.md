@@ -72,11 +72,10 @@ Criterion [P13](../repository-quality-standard.md#p13) asks that code scanning
 cover the repository's languages, and CodeQL supports Swift. There are two ways to
 get it, and they cannot both be enabled at once.
 
-**Try default setup first.** Under Settings, Advanced Security, Code scanning,
+**Try default setup first.** Under Settings, Code security, Code scanning,
 enable CodeQL default setup. GitHub builds and analyses Swift on a macOS runner
-with no file in the repository. Of thirteen Swift repositories in the maintainer's
-account, twelve manage on default setup, including package-only apps, so it is
-the ordinary case.
+with no file in the repository. It handles most Swift packages, package-only apps
+included, so it is the ordinary case.
 
 **Switch to an advanced workflow only when default setup fails.** OpenWritr is the
 one that needed it: GitHub's Swift autobuild failed on that package, so the
@@ -97,7 +96,8 @@ failed, or the analysis comes back with no Swift files, do this:
 
 The Swift analysis builds the whole app and can take half an hour, so the
 template runs it on pull requests only when source paths change, and always on
-pushes to the default branch and weekly. Expect the first advanced runs to
+pushes to the default branch and weekly. Remove the `paths` filter if a ruleset
+requires the check, because a required check that a filter skips never reports. Expect the first advanced runs to
 fail while the build command is tuned, and look at the analyses the API reports
 before treating scanning as working.
 

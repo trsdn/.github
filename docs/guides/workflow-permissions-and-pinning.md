@@ -50,11 +50,10 @@ A tag can be moved to different code after you reviewed it, and what a workflow
 runs is whatever it points at that day. The standard asks for a commit SHA only
 where a moved tag could reach something.
 
-| Reference | Job holds a secret or can write | Job is read-only, no secret |
-|---|---|---|
-| Published by GitHub (`actions/*`, `github/*`) | Major-version tag | Major-version tag |
-| Outside the account | SHA, or a recorded reason for a tag | Major-version tag is enough |
-| Your own account, including shared workflows | Branch is allowed | Branch is allowed |
+[`S12`](../repository-quality-standard.md#s12) has the table of which reference needs
+what. In short, ask what a moved tag could reach: a job that holds a secret or can
+write to the repository needs a SHA for an action from outside the account, and a
+read-only job with no secret does not.
 
 Publishing and release jobs are the usual case for a SHA, for example
 `pypa/gh-action-pypi-publish`, `NuGet/login`, `peaceiris/actions-gh-pages`, and

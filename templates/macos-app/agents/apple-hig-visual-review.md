@@ -146,8 +146,12 @@ steps:
         .github/instructions/apple-hig-review.instructions.md \
         .github/agents/apple-hig-reviewer.agent.md \
         > "$evidence/pr-ui-diff.patch"
-      cp .github/instructions/apple-hig-review.instructions.md "$evidence/"
-      cp .github/agents/apple-hig-reviewer.agent.md "$evidence/"
+      # Read the reviewer's own rules from the base commit, so that a pull request
+      # cannot rewrite the instructions it is reviewed under.
+      git show "$BASE_SHA:.github/instructions/apple-hig-review.instructions.md" \
+        > "$evidence/apple-hig-review.instructions.md"
+      git show "$BASE_SHA:.github/agents/apple-hig-reviewer.agent.md" \
+        > "$evidence/apple-hig-reviewer.agent.md"
 ---
 
 # Review the rendered macOS UI
