@@ -1,6 +1,6 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.17.0
+- Standard version: 1.18.0
 - Assessed on: 2026-09-21
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
@@ -185,6 +185,10 @@ releases carry a document, not a package.
   SHA with the version in a trailing comment. No action from outside the account
   is used at all, so the two rows of the table for an outside account are never
   reached.
+- `R09` — passes without a dedicated gate. Every release is cut from a commit on
+  which the secret scan workflow ran and succeeded, and Dependabot alerts are
+  enabled with none open, both read for the release commit. A release that
+  needed to be stopped by them would need a gate added to the release workflow.
 - `P12`, `P13` — pass, and neither was true a day earlier. Dependabot alerts and
   security updates are enabled, read from the API, and CodeQL runs through the
   default setup with a completed analysis and no error. Both were enabled by the

@@ -14,6 +14,18 @@ a public repository. Changing a repository's settings needs an admin token, and 
 repository's own instructions may reserve that to the maintainer, so check before
 running these from an agent.
 
+## Public repositories only
+
+Everything below applies to a public repository. A private repository on a plan
+without minutes and without GitHub's scanners turns Dependabot **off** and does
+not use the scanners at all; see
+[Private repositories](private-repositories.md). To switch Dependabot off:
+
+```sh
+gh api -X DELETE repos/OWNER/REPO/automated-security-fixes
+gh api -X DELETE repos/OWNER/REPO/vulnerability-alerts
+```
+
 ## The settings, one repository
 
 Replace `OWNER/REPO`. The `PUT` and `PATCH` commands are safe to repeat and reversible with

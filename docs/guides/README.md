@@ -12,6 +12,7 @@ file is not evidence until the repository has it and it works there.
 |---|---|
 | [`P03`](../repository-quality-standard.md#p03), [`P12`](../repository-quality-standard.md#p12), [`S05`](../repository-quality-standard.md#s05), [`B16`](../repository-quality-standard.md#b16), [`S09`](../repository-quality-standard.md#s09) | [Repository security settings](repository-security-settings.md) |
 | [`P13`](../repository-quality-standard.md#p13) | [CodeQL](codeql.md) |
+| Any private repository, and [`R09`](../repository-quality-standard.md#r09) | [Private repositories](private-repositories.md), the [account's capabilities](../account-capabilities.md), and the [local gate](../../templates/local-gate/README.md) |
 | [`S08`](../repository-quality-standard.md#s08), [`P12`](../repository-quality-standard.md#p12) | [Dependabot version updates](dependabot.md) |
 | [`S05`](../repository-quality-standard.md#s05) | [Secret scanning](secret-scanning.md) |
 | [`S11`](../repository-quality-standard.md#s11), [`S12`](../repository-quality-standard.md#s12), [`S13`](../repository-quality-standard.md#s13) | [Workflow permissions and pinning](workflow-permissions-and-pinning.md) |
@@ -32,6 +33,7 @@ and read its README first. Each kit says which criteria its files serve.
 | [`templates/node/`](../../templates/node/README.md) | A Node or TypeScript project |
 | [`templates/dotnet/`](../../templates/dotnet/README.md) | A .NET project, including CodeQL for C# |
 | [`templates/docs/`](../../templates/docs/README.md) | A repository of documentation or content |
+| [`templates/local-gate/`](../../templates/local-gate/README.md) | The release gate for a repository without automation |
 
 Older single-purpose templates remain:
 [`templates/AGENTS.md`](../../templates/AGENTS.md),

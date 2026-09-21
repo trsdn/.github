@@ -22,3 +22,4 @@ future reader can see why it is the way it is before changing it.
 | [0015](0015-the-assessor-decides-including-intended-gaps.md) | The assessor decides every result, including which gaps are intended, from a closed list of reasons | Accepted |
 | [0016](0016-public-repositories-run-the-free-security-scanners.md) | Public repositories run the free security scanners | Accepted |
 | [0017](0017-how-to-is-published-next-to-what.md) | How to meet a criterion is published next to it, as guides, starter kits and reusable workflows, and never replaces it | Accepted |
+| [0018](0018-private-repositories-run-their-own-checks.md) | Private repositories run their own release checks, and the standard says per criterion what applies to them | Accepted |

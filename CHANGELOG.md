@@ -6,6 +6,32 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.18.0 - 2026-09-21
+
+- Added [Private Repositories](docs/repository-quality-standard.md#private-repositories):
+  what GitHub provides to a private repository depends on the account's plan, an
+  account states that once ([Account capabilities](docs/account-capabilities.md)),
+  and a table says which criteria apply to a private repository, which are not
+  applicable, and how the rest are met without the capability.
+- Added `R09`: before a release is published, a secret scan and a dependency
+  vulnerability check have passed for the release commit, by a workflow or by a
+  documented local step whose dated result is recorded. It is the criterion the
+  release flow needed, and it works without automation.
+- `S05` joins `S02`, `S03` and `L04` in the row of Automation Availability for
+  checks the repository owns: without automation and without GitHub's secret
+  scanning, a documented scan command with a recorded run is a `Pass`.
+- Added the [local gate](templates/local-gate/README.md), a script that runs the
+  two `R09` checks with `gitleaks` and `osv-scanner`, rates advisories by severity,
+  and never reports a pass for a check it could not run, and the
+  [private repositories guide](docs/guides/private-repositories.md), which also
+  says what code scanning is possible without GitHub's.
+- Dependabot alerts and security updates were switched off on the private
+  repositories that had them, because Dependabot runs on the minutes the account
+  does not have. `P12` and `P13` stay public-only.
+- Released as minor: a criterion and a section were added, and no recorded result
+  can change. See
+  [decision 0018](docs/decisions/0018-private-repositories-run-their-own-checks.md).
+
 ## 1.17.0 - 2026-09-21
 
 - Added [Implementation Guides](docs/repository-quality-standard.md#implementation-guides)

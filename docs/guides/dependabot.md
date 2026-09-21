@@ -3,6 +3,14 @@
 Serves [`S08`](../repository-quality-standard.md#s08): dependency updates and
 vulnerability triage have an owner and a process.
 
+## Not for a private repository without minutes
+
+Dependabot runs on Actions minutes in a private repository. Where the account has
+none to spare, leave Dependabot off there, alerts and security updates and any
+`dependabot.yml` alike, and audit dependencies at release with the
+[local gate](../../templates/local-gate/README.md) instead. See
+[Private repositories](private-repositories.md).
+
 ## Two different things
 
 - **Dependabot alerts and security updates** are repository settings. They warn
