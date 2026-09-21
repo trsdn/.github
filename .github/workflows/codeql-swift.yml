@@ -1,0 +1,98 @@
+name: CodeQL Swift
+
+# Reusable workflow: CodeQL advanced setup for a Swift package, plus optional
+# no-build analysis of GitHub Actions workflows and Python.
+#
+# Advanced setup instead of GitHub's default setup: the default setup's Swift
+# autobuild failed on this package, and building with the same command as CI
+# (swift build -c release -Xswiftc -warnings-as-errors) is deterministic and
+# analyzes exactly what CI and the release build.
+#
+# Do not use this together with GitHub's default setup for the same repository;
+# turn default setup off first. The caller decides when it runs, including any
+# schedule. See docs/guides/reusable-workflows.md.
+
+on:
+  workflow_call:
+    inputs:
+      build-command:
+        description: Command that builds the Swift code for analysis.
+        type: string
+        default: swift build -c release -Xswiftc -warnings-as-errors
+      runner:
+        description: Runner label; Swift needs a macOS runner.
+        type: string
+        default: macos-latest
+      analyze-actions:
+        description: Also analyze GitHub Actions workflows.
+        type: boolean
+        default: true
+      analyze-python:
+        description: Also analyze Python.
+        type: boolean
+        default: true
+      timeout-minutes:
+        description: Time limit for each analysis job.
+        type: number
+        default: 60
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    name: Select languages
+    runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      include: ${{ steps.select.outputs.include }}
+    steps:
+      - name: Build the language matrix
+        id: select
+        env:
+          ANALYZE_ACTIONS: ${{ inputs.analyze-actions }}
+          ANALYZE_PYTHON: ${{ inputs.analyze-python }}
+        run: |
+          include='[{"language":"swift","build-mode":"manual"}'
+          if [ "$ANALYZE_ACTIONS" = "true" ]; then
+            include="$include"',{"language":"actions","build-mode":"none"}'
+          fi
+          if [ "$ANALYZE_PYTHON" = "true" ]; then
+            include="$include"',{"language":"python","build-mode":"none"}'
+          fi
+          echo "include=$include]" >> "$GITHUB_OUTPUT"
+
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    needs: matrix
+    # Swift needs the caller's runner; the no-build languages run on it too so
+    # that one runner label is the only thing a caller has to think about.
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.matrix.outputs.include) }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+      - name: Build (Swift)
+        if: matrix.language == 'swift'
+        env:
+          BUILD_COMMAND: ${{ inputs.build-command }}
+        # The command is the caller's own, run with this job's token. Never build it
+        # from event data such as a pull request title or branch name.
+        run: bash -c "$BUILD_COMMAND"
+      - name: Analyze
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"

@@ -1,0 +1,57 @@
+name: CodeQL
+
+# Reusable workflow: CodeQL advanced setup for languages that need no build
+# (build-mode none), such as python, javascript-typescript and actions.
+#
+# Do not use this together with GitHub's default setup for the same repository.
+# Both upload results for the same languages and default setup rejects the
+# upload from an advanced workflow. Turn default setup off first. Use
+# codeql-swift.yml for languages that need a build.
+#
+# The caller decides when it runs, including any schedule. See
+# docs/guides/reusable-workflows.md.
+
+on:
+  workflow_call:
+    inputs:
+      languages:
+        description: JSON array of CodeQL languages that need no build.
+        type: string
+        default: '["actions","python"]'
+      runner:
+        description: Runner label for the analysis jobs.
+        type: string
+        default: ubuntu-latest
+      timeout-minutes:
+        description: Time limit for each analysis job.
+        type: number
+        default: 30
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ${{ fromJSON(inputs.languages) }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+      - name: Analyze
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"

@@ -1,0 +1,25 @@
+name: Links
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    name: Relative links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # lychee is from an outside account. This job has a read-only token and no
+      # secret, so a tag would do; the SHA is shown as the worked example.
+      # --offline checks links between files in the repository only. External
+      # links are left out on purpose: a check that fails for reasons outside
+      # the repository is a check people learn to ignore.
+      - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
+        with:
+          args: --offline --no-progress "**/*.md"
+          fail: true

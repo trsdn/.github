@@ -6,6 +6,23 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.17.0 - 2026-09-21
+
+- Added [Implementation Guides](docs/repository-quality-standard.md#implementation-guides)
+  and the material it points to, so that a repository does not have to work out
+  how to meet a criterion. There is a [guide](docs/guides/README.md) per group of
+  criteria with worked examples, reusable workflows for the secret scan and for
+  CodeQL, and a starter kit for Python, Node, .NET, documentation repositories and
+  macOS applications. The macOS kit carries the Apple Human Interface Guidelines
+  review agent, its instructions and the agentic workflow source, taken from the
+  repository that developed them.
+- `P13`: default setup and a CodeQL workflow of the repository's own are mutually
+  exclusive, so a repository with a workflow is assessed on it and the default
+  setup stays off. A Swift package whose default autobuild fails needs the
+  workflow with a manual build. This clarifies the criterion and changes no result.
+- Released as minor: a section was added, and no recorded result can change. See
+  [decision 0017](docs/decisions/0017-how-to-is-published-next-to-what.md).
+
 ## 1.16.0 - 2026-09-21
 
 - Added `P12`: Dependabot alerts and Dependabot security updates are enabled on a

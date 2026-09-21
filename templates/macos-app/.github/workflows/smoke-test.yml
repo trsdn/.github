@@ -1,0 +1,157 @@
+name: Release smoke test
+
+# The release smoke kit. Copy to .github/workflows/smoke-test.yml together with
+# docs/release-smoke-tests.md, and replace every TODO(...) marker.
+#
+# It installs the release's disk image the way a consumer would, into a temporary
+# location, checks the signature, Gatekeeper assessment and notarization ticket
+# that macOS applies to a downloaded app, and, when the app has a non-interactive
+# entry point, runs it. Nobody operates the app. The job summary is the dated
+# record of the run: the version checked, the date, and the result.
+#
+# release.yml calls it against the DRAFT release before the release is made
+# public, so a build that cannot be installed is never offered to anyone. It also
+# runs on demand for any tag, draft or published.
+#
+#   TODO(app-name)     The bundle name, without `.app`.
+#   TODO(asset-name)   The DMG file name pattern the release publishes, as passed
+#                      to `gh release download --pattern`. It must match the name
+#                      release.yml gives the DMG.
+#   TODO(self-test)    SELF_TEST_ARGS is the command-line arguments that make the
+#                      installed app exercise its core function and exit non-zero
+#                      on failure without a person present, for example
+#                      `--self-test`. Leave it empty if the app has no such entry
+#                      point; the run is then the signature and launch-policy
+#                      check alone, and the record says so. A menu bar or window
+#                      app that cannot start unattended is in that case.
+#
+# The kit runs no elevated privileges and uses no credentials beyond the
+# workflow's own token, which it needs only to read a draft release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to test, draft or published, for example v1.2.3
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag to test, draft or published
+        required: true
+        type: string
+    outputs:
+      dmg_sha256:
+        description: SHA-256 of the DMG that was installed and tested
+        value: ${{ jobs.smoke.outputs.dmg_sha256 }}
+
+permissions:
+  # Drafts are only visible with write access; this workflow only downloads.
+  contents: write
+
+env:
+  APP_NAME: TODO(app-name)
+  ASSET_PATTERN: TODO(asset-name)
+  SELF_TEST_ARGS: TODO(self-test)
+
+jobs:
+  smoke:
+    name: Install and check
+    runs-on: macos-latest
+    timeout-minutes: 30
+    outputs:
+      dmg_sha256: ${{ steps.download.outputs.dmg_sha256 }}
+    steps:
+      - name: Download the release DMG and checksum
+        id: download
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Tag must look like v1.2.3: $TAG" >&2
+            exit 1
+          fi
+          mkdir -p dl
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir dl \
+            --pattern "$ASSET_PATTERN" \
+            --pattern "$ASSET_PATTERN.sha256"
+          (cd dl && shasum -a 256 -c ./*.dmg.sha256)
+          echo "dmg_sha256=$(shasum -a 256 dl/*.dmg | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      # A temporary directory, not /Applications, so nothing outlives the run and
+      # the runner's own applications are untouched.
+      - name: Install to a temporary location
+        shell: bash
+        run: |
+          set -euo pipefail
+          dmg="$(ls dl/*.dmg)"
+          mountpoint="$RUNNER_TEMP/smoke-dmg"
+          install_dir="$RUNNER_TEMP/smoke-install"
+          mkdir -p "$mountpoint" "$install_dir"
+          hdiutil attach "$dmg" -nobrowse -readonly -mountpoint "$mountpoint"
+          ditto "$mountpoint/$APP_NAME.app" "$install_dir/$APP_NAME.app"
+          hdiutil detach "$mountpoint"
+          echo "APP=$install_dir/$APP_NAME.app" >> "$GITHUB_ENV"
+
+      - name: Verify signature and notarization as Gatekeeper sees them
+        shell: bash
+        run: |
+          set -euo pipefail
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          spctl --assess --type execute --verbose=2 "$APP"
+          xcrun stapler validate "$APP"
+
+      - name: Run the installed app and write the record
+        shell: bash
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          binary="$APP/Contents/MacOS/$APP_NAME"
+          version="$(plutil -extract CFBundleShortVersionString raw "$APP/Contents/Info.plist")"
+          if [[ "v$version" != "$TAG" ]]; then
+            echo "Installed app is $version but the tag is $TAG." >&2
+            exit 1
+          fi
+
+          # TODO(self-test): a self-test often needs an input the kit must make
+          # first, such as a generated file. Prepare it here and pass it in
+          # SELF_TEST_ARGS, or add it to the command below.
+          exercised="Installed to a temporary location and checked signature, Gatekeeper assessment and notarization ticket. The app was not started: no unattended entry point is set."
+          : > "$RUNNER_TEMP/self-test.log"
+          if [[ -n "${SELF_TEST_ARGS// /}" && "$SELF_TEST_ARGS" != TODO* ]]; then
+            # Word splitting of the arguments is intended.
+            # shellcheck disable=SC2086
+            "$binary" $SELF_TEST_ARGS | tee "$RUNNER_TEMP/self-test.log"
+            exercised="Installed to a temporary location, checked signature, Gatekeeper assessment and notarization ticket, and ran the app with: $SELF_TEST_ARGS"
+          fi
+
+          {
+            echo "## Release smoke test: $APP_NAME $version"
+            echo
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Date | $(date -u +%F) |"
+            echo "| Version | $version ($TAG) |"
+            echo "| Asset | $(basename "$(ls dl/*.dmg)") from the GitHub release (draft or public), checksum verified |"
+            echo "| macOS | $(sw_vers -productVersion) on $(uname -m) |"
+            echo "| Exercised | $exercised |"
+            echo "| Result | passed |"
+            if [[ -s "$RUNNER_TEMP/self-test.log" ]]; then
+              echo
+              echo '```'
+              cat "$RUNNER_TEMP/self-test.log"
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove what was installed
+        if: always()
+        shell: bash
+        run: |
+          rm -rf "$RUNNER_TEMP/smoke-install" || true
+          hdiutil detach "$RUNNER_TEMP/smoke-dmg" 2>/dev/null || true

@@ -1,0 +1,66 @@
+name: CodeQL
+
+# Use this file only when GitHub's default setup for CodeQL cannot analyse the
+# app, most often because its Swift autobuild fails on the package or on a
+# generated Xcode project. Default setup and an advanced workflow such as this one
+# cannot both be enabled: before this file is committed, turn default setup off
+# under Settings, Advanced Security, Code scanning. If default setup works for the
+# app, delete this file and leave default setup on. The guide beside this kit
+# explains the choice.
+#
+# This is a caller of the shared workflow, which builds the app on a macOS runner
+# with an explicit build command so CodeQL traces the same build as CI.
+#
+#   TODO(build-command)  The command that builds what ships. It should match the
+#                        build in ci.yml. The input name and default below follow
+#                        the shared workflow; check the shared workflow's
+#                        `workflow_call` inputs and correct this caller if they
+#                        differ.
+#   TODO(paths)          The source paths that make a pull request worth a scan.
+#                        The Swift analysis builds the whole app and can take
+#                        about half an hour, so pull requests run it only when
+#                        these change. Pushes to the default branch and the weekly
+#                        schedule always run it. Delete the `paths` filter if a
+#                        ruleset requires this check: a required check that a
+#                        filter skips never reports, and the pull request waits.
+#
+# Pin the shared workflow by full commit SHA instead of `@main` if the repository
+# should not pick up changes to it automatically.
+
+on:
+  push:
+    branches:
+      # TODO(default-branch): change if the default branch is not `main`.
+      - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      # TODO(paths)
+      - Sources/**
+      - Tests/**
+      - Package.swift
+      - Package.resolved
+      - .github/workflows/**
+  schedule:
+    # TODO(cron): pick an off-peak minute so scheduled runs do not all start at
+    # the top of the hour.
+    - cron: "41 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    uses: trsdn/.github/.github/workflows/codeql-swift.yml@main
+    # with:
+    #   build-command: swift build -c release -Xswiftc -warnings-as-errors  # TODO(build-command)

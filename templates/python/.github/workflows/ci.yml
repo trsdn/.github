@@ -1,0 +1,48 @@
+# Copy to .github/workflows/ci.yml and edit the lines marked EDIT.
+#
+# GitHub-published actions use a major-version tag. astral-sh/setup-uv is from
+# an outside account, and this job has a read-only token and no secret, so a
+# major-version tag is enough. See docs/guides/workflow-permissions-and-pinning.md.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # EDIT: the versions your package supports.
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --locked --all-groups
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+      # EDIT: enable once the package is typed, or replace with the type
+      # checker you use. A repository with no type checker leaves S03 partial.
+      # - name: Type check
+      #   run: uv run mypy .
+      - name: Test
+        # EDIT: your package name, and a coverage floor you can hold.
+        run: uv run pytest --cov=PACKAGE_NAME --cov-fail-under=80
+      - name: Build distributions
+        run: uv build

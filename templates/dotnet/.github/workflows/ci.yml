@@ -1,0 +1,47 @@
+# Copy to .github/workflows/ci.yml and edit the lines marked EDIT.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build-and-test:
+    name: Build and test
+    # EDIT: windows-latest is only needed for net*-windows projects. Use
+    # ubuntu-latest when everything builds there.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x # EDIT
+      - name: Restore
+        run: dotnet restore MySolution.sln # EDIT
+      # Fails on any formatting or analyzer-style drift, so it is the S03 check.
+      # Compiling alone is only a type check.
+      - name: Format check
+        run: dotnet format MySolution.sln --verify-no-changes --no-restore # EDIT
+      - name: Build
+        run: dotnet build MySolution.sln --no-restore --configuration Release # EDIT
+      - name: Test
+        run: dotnet test MySolution.sln --no-build --configuration Release --logger "trx;LogFileName=test-results.trx" --results-directory artifacts/test-results # EDIT
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: artifacts/test-results
+          if-no-files-found: ignore

@@ -20,3 +20,5 @@ future reader can see why it is the way it is before changing it.
 | [0012](0012-history-on-the-default-branch-is-protected.md) | History on the default branch is protected by its own criterion rather than by narrowing `B06` | Accepted |
 | [0014](0014-release-and-pinning-criteria-scale-with-what-they-protect.md) | Release and pinning criteria ask for the property, and recommend the mechanism | Accepted |
 | [0015](0015-the-assessor-decides-including-intended-gaps.md) | The assessor decides every result, including which gaps are intended, from a closed list of reasons | Accepted |
+| [0016](0016-public-repositories-run-the-free-security-scanners.md) | Public repositories run the free security scanners | Accepted |
+| [0017](0017-how-to-is-published-next-to-what.md) | How to meet a criterion is published next to it, as guides, starter kits and reusable workflows, and never replaces it | Accepted |
