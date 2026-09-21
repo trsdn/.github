@@ -23,3 +23,4 @@ future reader can see why it is the way it is before changing it.
 | [0016](0016-public-repositories-run-the-free-security-scanners.md) | Public repositories run the free security scanners | Accepted |
 | [0017](0017-how-to-is-published-next-to-what.md) | How to meet a criterion is published next to it, as guides, starter kits and reusable workflows, and never replaces it | Accepted |
 | [0018](0018-private-repositories-run-their-own-checks.md) | Private repositories run their own release checks, and the standard says per criterion what applies to them | Accepted |
+| [0019](0019-agent-reviewers-run-locally-as-versioned-packages.md) | Agent reviewers run locally as versioned packages, not as workflows | Accepted |

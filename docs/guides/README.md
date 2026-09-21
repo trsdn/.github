@@ -35,6 +35,9 @@ and read its README first. Each kit says which criteria its files serve.
 | [`templates/docs/`](../../templates/docs/README.md) | A repository of documentation or content |
 | [`templates/local-gate/`](../../templates/local-gate/README.md) | The release gate for a repository without automation |
 
+Versioned agent packages are under [`packages/`](../../packages/apple-hig-review/README.md):
+the Apple HIG review agent, for a macOS app, run locally and pinned to a tag.
+
 Older single-purpose templates remain:
 [`templates/AGENTS.md`](../../templates/AGENTS.md),
 [`templates/release-notes/`](../../templates/release-notes/), and

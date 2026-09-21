@@ -160,3 +160,17 @@ If one is exposed, revoke it at its source first, then update the secret.
 | `APPLE_TEAM_ID` | Actions secret | An identifier, not a credential. Nothing to revoke. |
 | Local notary profile (`xcrun notarytool store-credentials`) | The maintainer's login keychain | Revoke the app-specific password as above and store the profile again. |
 | TODO(user-credentials: for example provider API keys the user enters) | The user's macOS Keychain | The user revokes it with the provider. The repository holds none. Delete the row if there are none. |
+
+## UI review
+
+<!-- Keep this if the app uses the Apple HIG review package; see
+../../packages/apple-hig-review/README.md. Replace every TODO(...) marker. -->
+
+The reviewer agent reads this section before it reviews a UI change.
+
+- App type: TODO(app-kind: menu-bar app with `LSUIElement`, windowed app, or
+  document-based app), so the agent applies the matching conventions.
+- User data the app handles: TODO(for example microphone audio, transcripts, the
+  clipboard, files, API keys, and where each is sent, or "none leaves the Mac").
+- Rendering the screens: TODO(the command that draws the app's windows offscreen
+  and writes one PNG per screen, or "none: review from source only").

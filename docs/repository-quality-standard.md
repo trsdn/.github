@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.18.1
+- Version: 1.19.0
 - Last reviewed: 2026-09-21
 - Review cadence: every six months, even when nothing changes
 
@@ -2117,7 +2117,10 @@ repository:
   which `S12` permits, so a repository has no copy to drift.
 - [Templates](../templates/) are starting points to copy where a file has
   per-repository content: a starter kit per language family and one for macOS
-  applications, with the agent and instruction files.
+  applications.
+- [Packages](../packages/) are versioned agent packages, such as a reviewer with
+  its rules, that a repository installs with the Agent Package Manager and pins to
+  a tag, so the agent runs locally and updating it is a version change.
 
 Where a guide or a template disagrees with a criterion, the criterion decides. A
 guide or template is never evidence that a criterion is met, only the repository's
