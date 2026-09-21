@@ -104,16 +104,16 @@ before treating scanning as working.
 ## 5. The Apple HIG review
 
 This step is optional and no criterion asks for it. It adds a read-only review of
-the app's screens against Apple's Human Interface Guidelines on pull requests that
-change UI code, from rendered screenshots and the diff.
+the app's UI changes, and of its rendered screens where the app can draw them,
+against Apple's Human Interface Guidelines. It runs locally, on request, before a
+merge or a release: a workflow for it would need a macOS runner, an agent token and
+a compile step, which costs more than the review is worth.
 
-It needs work in the app before any file is copied: a headless renderer that
-writes a PNG for each surface, with a test pinning the list. It also costs a
-premium request per run, and it reads content a contributor controls. The
-[kit README](../../templates/macos-app/README.md#the-apple-hig-review) lists what
-to copy, the token it needs by name, the compile step that produces the generated
-lock file, and the risks. Read the note there that the workflow source has to be
-verified with `gh aw compile` before it is relied on.
+The agent, its rules and the request are published as a versioned package, so the
+app declares a version in its `apm.yml` and updates by changing it. Install and run
+it as [the package README](../../packages/apple-hig-review/README.md) describes.
+The app itself only needs to say in its `AGENTS.md` what kind of app it is, what
+user data it handles, and, if it has one, the command that renders its screens.
 
 ## 6. The release pipeline
 

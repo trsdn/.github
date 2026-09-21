@@ -6,6 +6,24 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.19.0 - 2026-09-21
+
+- Added [`packages/apple-hig-review/`](packages/apple-hig-review/README.md): the
+  Apple Human Interface Guidelines reviewer as a versioned package for the Agent
+  Package Manager. An app repository declares it in `apm.yml` pinned to a tag of
+  this repository, runs it locally before a merge or a release, and updates it by
+  changing the version.
+- Removed the agentic workflow and its two copies of the agent and instruction
+  files from the macOS kit. A workflow needed a macOS runner, an agent token and a
+  compile step for a review that is cheaper to run locally. The `COPILOT_GITHUB_TOKEN`
+  secret is no longer part of the kit.
+- The package holds no per-app content: what is specific to an app, its type, its
+  user data and its render command, is read from the app's own `AGENTS.md`, for
+  which the macOS kit gained a section.
+- Released as minor: a package was added and a template removed, and no recorded
+  result can change. See
+  [decision 0019](docs/decisions/0019-agent-reviewers-run-locally-as-versioned-packages.md).
+
 ## 1.18.1 - 2026-09-21
 
 - Added [Bringing every repository to the standard](docs/fleet-rollout.md), the

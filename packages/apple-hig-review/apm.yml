@@ -1,0 +1,3 @@
+name: apple-hig-review
+version: 1.0.0
+description: A read-only reviewer that checks macOS Swift UI changes and rendered screenshots against Apple's Human Interface Guidelines, run locally.
