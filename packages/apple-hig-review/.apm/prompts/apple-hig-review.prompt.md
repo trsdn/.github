@@ -2,6 +2,8 @@
 description: Review the current branch's UI changes against Apple's Human Interface Guidelines
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 Review the macOS UI changes on the current branch with the `apple-hig-reviewer`
 agent.
 
