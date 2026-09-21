@@ -1,0 +1,44 @@
+# Copy to .github/dependabot.yml. Version updates are separate from the
+# Dependabot alerts and security updates repository settings.
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    groups:
+      # Packages that are versioned together belong in one pull request, or the
+      # split ones cannot restore. EDIT the patterns to yours.
+      microsoft-extensions:
+        patterns:
+          - "Microsoft.Extensions.*"
+      testing:
+        patterns:
+          - "xunit*"
+          - "Microsoft.NET.Test.Sdk"
+          - "coverlet.*"
+    # ignore:
+    #   - dependency-name: "Some.Package.Versioned.Against.Something.Else"
+
+  # Delete this entry if the repository has no package.json.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - ci
+    groups:
+      github-actions:
+        patterns:
+          - "*"

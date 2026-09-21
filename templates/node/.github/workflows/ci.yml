@@ -1,0 +1,62 @@
+# Copy to .github/workflows/ci.yml and edit the lines marked EDIT. It expects
+# package.json scripts named lint, build, and test.
+#
+# GitHub-published actions use a major-version tag. To pin one by commit SHA
+# instead, see docs/guides/workflow-permissions-and-pinning.md.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc # EDIT: or use node-version: "22"
+          cache: npm
+      - run: npm ci
+      # EDIT: for TypeScript, make lint or a separate script run tsc --noEmit.
+      - run: npm run lint
+
+  test:
+    name: Test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["20", "22"] # EDIT: the versions you support
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
+
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Fails when the published contents are wrong. Delete for an application.
+      - run: npm pack --dry-run

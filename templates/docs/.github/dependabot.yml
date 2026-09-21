@@ -1,0 +1,16 @@
+# Copy to .github/dependabot.yml. A documentation repository has no package
+# manifest, so only the workflows need updating. Add an ecosystem entry if the
+# repository gains one, for example a site generator.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - ci
+    groups:
+      github-actions:
+        patterns:
+          - "*"
