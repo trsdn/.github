@@ -6,6 +6,39 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.20.0 - 2026-09-21
+
+Found by bringing three real repositories to the standard, as a pilot of the
+[fleet rollout](docs/fleet-rollout.md): a public Python project, a public Swift app
+and a private Swift app.
+
+- **Published Site** now applies only to a repository that publishes a website. An
+  application, tool or game without a site records `W01`-`W09` as `Not applicable`
+  with "no site is published", and the standard does not require it to have one.
+  The earlier wording made every public application owe a site and left an
+  assessor to guess, and two pilots guessed differently.
+- `I04`: a server that a client drives, such as one that speaks a protocol over
+  standard input and output, shows its version when its handshake reports it. A
+  `--version` flag is welcome and not required.
+- `S03`: running the minimum reading is a `Pass`, and kinds beyond it lower
+  nothing. Running only part of the minimum is a `Partial`.
+- `scripts/assess.py`: `P13` no longer passes on a disabled CodeQL workflow, `S09`
+  reports a required check that no run ever produces, `S11` counts a workflow as
+  declaring permissions only with a top-level block or a block on every job, and
+  inherited issue templates are confirmed in the account's `.github` repository.
+- Kits: SwiftLint starter uses the current rule name and a shorter set that passes
+  on real code, the macOS smoke test picks the disk image by name, a variant for
+  apps whose releases a shared broker publishes, a release smoke script for a
+  private app that never starts it, a notices recipe for `B15`, a `github-app.yml`
+  template for `G08`, and corrections to the stats, CodeQL and first-record
+  instructions.
+- Procedure: a worker prompt, a claim rule that ignores changes to files the work
+  does not touch, the repository's own merge convention, never merging past a
+  failing verification, skipping stages that launch the app, and checking a record
+  against the catalog of the version it names.
+- Released as minor: Published Site's applicability narrows, and no recorded
+  `Pass` can weaken.
+
 ## 1.19.1 - 2026-09-21
 
 - Verified the Apple HIG review package by installing it with `apm` 0.31.0 into an

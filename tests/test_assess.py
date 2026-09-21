@@ -184,6 +184,32 @@ class AssessTests(unittest.TestCase):
         self.assertEqual(drafted["S11"], "partial")
         self.assertIn("b.yml", notes)
 
+    def test_jobs_without_permissions_are_not_covered_by_another_workflows_block(self) -> None:
+        """Three jobs with no block and no top-level block is not a declaration."""
+        contents = workflow("permissions:\n  contents: read\njobs:\n  a:\n", "a.yml")
+        contents.update(workflow("jobs:\n  x:\n    runs-on: u\n  y:\n    runs-on: u\n", "b.yml"))
+        drafted, notes = self.assess(facts(contents=contents))
+        self.assertEqual(drafted["S11"], "partial")
+        self.assertIn("1 of 2", notes)
+        self.assertIn("jobs without: x, y", notes)
+
+    def test_a_block_on_only_some_jobs_is_not_a_declaration(self) -> None:
+        body = (
+            "jobs:\n  a:\n    permissions:\n      contents: read\n    runs-on: u\n"
+            "  b:\n    runs-on: u\n"
+        )
+        drafted, notes = self.assess(facts(contents=workflow(body)))
+        self.assertEqual(drafted["S11"], "fail")
+        self.assertIn("jobs without: b", notes)
+
+    def test_a_block_on_every_job_declares_permissions(self) -> None:
+        body = (
+            "jobs:\n  a:\n    permissions:\n      contents: read\n    runs-on: u\n"
+            "  b:\n    runs-on: u\n    permissions: read-all\n"
+        )
+        drafted, _ = self.assess(facts(contents=workflow(body)))
+        self.assertEqual(drafted["S11"], "pass")
+
     def test_no_workflows_makes_the_workflow_criteria_not_applicable(self) -> None:
         drafted, _ = self.assess(facts(contents={}))
         self.assertEqual(drafted["S11"], "na")
@@ -252,9 +278,39 @@ class AssessTests(unittest.TestCase):
         drafted, _ = self.assess(facts(code_scanning="configured"))
         self.assertEqual(drafted["P13"], "pass")
 
-    def test_a_codeql_workflow_passes_p13(self) -> None:
-        body = "jobs:\n  a:\n    steps:\n      - uses: github/codeql-action/analyze@v3\n"
-        drafted, _ = self.assess(facts(contents=workflow(body, "codeql.yml")))
+    CODEQL = "jobs:\n  a:\n    steps:\n      - uses: github/codeql-action/analyze@v3\n"
+
+    def test_an_active_codeql_workflow_passes_p13(self) -> None:
+        drafted, _ = self.assess(
+            facts(
+                contents=workflow(self.CODEQL, "codeql.yml"),
+                workflow_states={".github/workflows/codeql.yml": "active"},
+            )
+        )
+        self.assertEqual(drafted["P13"], "pass")
+
+    def test_a_disabled_codeql_workflow_does_not_pass_p13(self) -> None:
+        """A disabled workflow runs nothing, so the file is not a scanner."""
+        drafted, _ = self.assess(
+            facts(
+                contents=workflow(self.CODEQL, "codeql.yml"),
+                workflow_states={".github/workflows/codeql.yml": "disabled_manually"},
+            )
+        )
+        self.assertEqual(drafted["P13"], "unknown")
+
+    def test_an_unreadable_workflow_state_leaves_p13_undecided(self) -> None:
+        drafted, _ = self.assess(facts(contents=workflow(self.CODEQL, "codeql.yml")))
+        self.assertEqual(drafted["P13"], "unknown")
+
+    def test_default_setup_passes_p13_beside_a_disabled_workflow(self) -> None:
+        drafted, _ = self.assess(
+            facts(
+                code_scanning="configured",
+                contents=workflow(self.CODEQL, "codeql.yml"),
+                workflow_states={".github/workflows/codeql.yml": "disabled_inactivity"},
+            )
+        )
         self.assertEqual(drafted["P13"], "pass")
 
     def test_no_scanner_leaves_p13_to_the_assessor(self) -> None:
@@ -314,9 +370,30 @@ class AssessTests(unittest.TestCase):
     def test_required_checks_in_a_ruleset_are_read(self) -> None:
         """Rulesets have replaced branch protection, and reading only the latter reports
         a protected branch as unprotected."""
-        drafted, notes = self.assess(facts(ruleset=ruleset(checks=["build", "test"])))
+        drafted, notes = self.assess(
+            facts(
+                ruleset=ruleset(checks=["build", "test"]),
+                recent_check_names=["build", "test", "lint"],
+            )
+        )
         self.assertEqual(drafted["S09"], "pass")
         self.assertIn("build, test", notes)
+
+    def test_a_required_check_that_never_reports_is_partial(self) -> None:
+        """A required name nothing reports blocks every pull request."""
+        drafted, notes = self.assess(
+            facts(
+                ruleset=ruleset(checks=["build", "ghost"]),
+                recent_check_names=["build"],
+            )
+        )
+        self.assertEqual(drafted["S09"], "partial")
+        self.assertIn("required but never reports", notes)
+        self.assertIn("ghost", notes)
+
+    def test_unreadable_check_history_leaves_required_checks_undecided(self) -> None:
+        drafted, _ = self.assess(facts(ruleset=ruleset(checks=["build"])))
+        self.assertEqual(drafted["S09"], "unknown")
 
     def test_a_branch_with_no_required_check_anywhere_fails(self) -> None:
         drafted, _ = self.assess(

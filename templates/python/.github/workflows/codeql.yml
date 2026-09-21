@@ -23,4 +23,4 @@ jobs:
       security-events: write
     uses: trsdn/.github/.github/workflows/codeql.yml@main
     with:
-      languages: '["python"]'
+      languages: '["actions","python"]'

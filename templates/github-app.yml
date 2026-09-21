@@ -1,0 +1,34 @@
+# Copy to .github/github-app.yml, replace every TODO(...) marker, and delete this
+# comment. The file is the repository-scoped configuration the GitHub Copilot app
+# reads: instructions, named scripts, and automation settings.
+#
+# It points at AGENTS.md instead of restating it, so the two cannot drift apart.
+# Keep the instructions to a pointer and the few rules that are most often
+# broken; anything longer belongs in AGENTS.md, and a rule that contradicts
+# AGENTS.md makes this file worse than absent. If the platform does not offer the
+# app for this repository, do not add the file: record the criterion as not
+# applicable with what was checked.
+
+instructions: |
+  Read AGENTS.md in the repository root and follow it. It is the authoritative
+  guidance for this repository.
+
+  The rules that are most often broken:
+
+  1. TODO(rule-1): the prohibition an agent is most likely to break, for example
+     never publish a release or move a tag.
+  2. TODO(rule-2): the second one, for example never hand-edit a generated path.
+
+  Validate with TODO(validation-command) before proposing any change.
+
+scripts:
+  - name: Validate
+    # TODO(validation-command): the same command AGENTS.md lists as the
+    # validation, chained with && when there are several.
+    command: TODO(validation-command)
+
+# Delete this block unless the repository wants the app to open a session for a
+# new issue on its own, or to allow remote control of a session.
+automation:
+  auto_issue_session: false
+  remote_control: false

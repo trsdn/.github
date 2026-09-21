@@ -81,7 +81,8 @@ PR_TEMPLATE = re.compile(
     r"^(\.github/|docs/)?(pull_request_template\.md|PULL_REQUEST_TEMPLATE\.md)$"
 )
 USES = re.compile(r"^\s*(?:-\s*)?uses:\s*['\"]?([^'\"\s#]+)", re.M)
-PERMISSIONS = re.compile(r"^\s*permissions:", re.M)
+TOP_LEVEL_PERMISSIONS = re.compile(r"^permissions:", re.M)
+JOB_KEY = re.compile(r"^(\s+)[A-Za-z0-9_'\"-]+:")
 SHA = re.compile(r"^[0-9a-f]{40}$")
 UNTRUSTED_TRIGGER = re.compile(r"^\s*(pull_request_target|workflow_run)\s*:", re.M)
 SECRET_USE = re.compile(r"secrets\.([A-Za-z_][A-Za-z0-9_]*)")
@@ -198,6 +199,54 @@ def rules_from_rulesets(client: GitHub, repository: str) -> dict:
     }
 
 
+def workflow_states(client: GitHub, repository: str) -> dict[str, str] | None:
+    """Map each workflow file to its state, or None when the list cannot be read.
+
+    A workflow file can exist and be disabled, in which case nothing runs.
+    """
+    states: dict[str, str] = {}
+    for page in range(1, 11):
+        status, body = client.json(
+            f"/repos/{repository}/actions/workflows?per_page=100&page={page}"
+        )
+        if status != 200 or not isinstance(body, dict):
+            return None
+        found = body.get("workflows") or []
+        for entry in found:
+            if isinstance(entry, dict) and entry.get("path"):
+                states[str(entry["path"])] = str(entry.get("state") or "")
+        if len(found) < 100:
+            break
+    return states
+
+
+def recent_check_names(client: GitHub, repository: str, branch: str) -> list[str] | None:
+    """Names the last few commits on the default branch report as checks or statuses.
+
+    None means the answer could not be read, which is different from an empty
+    list: a required check that appears in none of these never reports.
+    """
+    status, commits = client.json(f"/repos/{repository}/commits?sha={branch}&per_page=5")
+    if status != 200 or not isinstance(commits, list) or not commits:
+        return None
+    names: set[str] = set()
+    readable = False
+    for commit in commits:
+        sha = commit.get("sha") if isinstance(commit, dict) else None
+        if not sha:
+            continue
+        status, runs = client.json(f"/repos/{repository}/commits/{sha}/check-runs?per_page=100")
+        if status == 200 and isinstance(runs, dict):
+            readable = True
+            names.update(run["name"] for run in runs.get("check_runs") or [] if run.get("name"))
+        status, combined = client.json(f"/repos/{repository}/commits/{sha}/status")
+        if status == 200 and isinstance(combined, dict):
+            names.update(
+                item["context"] for item in combined.get("statuses") or [] if item.get("context")
+            )
+    return sorted(names) if readable else None
+
+
 def collect(client: GitHub, repository: str) -> dict:
     """Read every fact the decisions below depend on, and nothing else."""
     status, meta = client.json(f"/repos/{repository}")
@@ -286,6 +335,8 @@ def collect(client: GitHub, repository: str) -> dict:
         "dependency_alerts": dependency_alerts,
         "security_updates": security_updates,
         "code_scanning": code_scanning,
+        "workflow_states": workflow_states(client, repository),
+        "recent_check_names": recent_check_names(client, repository, branch),
         "inherited_issue_template": inherited_issue_template,
         "inherited_pr_template": inherited_pr_template,
         "private_reporting": (
@@ -337,19 +388,67 @@ def reference_is_pinned(reference: str, owner: str) -> bool:
     return bool(SHA.match(version))
 
 
+def jobs_without_permissions(body: str) -> list[str] | None:
+    """Names of the jobs that carry no `permissions` block of their own.
+
+    None means a top-level block covers every job, and an empty list means every
+    job has its own. A workflow whose jobs cannot be found is reported as
+    declaring nothing.
+    """
+    if TOP_LEVEL_PERMISSIONS.search(body):
+        return None
+    lines = body.splitlines()
+    start = next((i for i, line in enumerate(lines) if re.match(r"^jobs:\s*(#.*)?$", line)), None)
+    if start is None:
+        return ["(no jobs)"]
+    jobs: dict[str, list[str]] = {}
+    job_indent: str | None = None
+    current: str | None = None
+    for line in lines[start + 1 :]:
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        if not line[0].isspace():
+            break
+        match = JOB_KEY.match(line)
+        if job_indent is None and match:
+            job_indent = match.group(1)
+        if match and match.group(1) == job_indent:
+            current = line.strip().split(":")[0].strip("'\"")
+            jobs[current] = []
+        elif current is not None:
+            jobs[current].append(line)
+    if not jobs:
+        return ["(no jobs)"]
+    missing = []
+    for name, block in jobs.items():
+        child = re.match(r"^\s*", block[0]).group(0) if block else None
+        if child is None or not any(line.startswith(child + "permissions:") for line in block):
+            missing.append(name)
+    return missing
+
+
 def decide_s11(facts: dict) -> tuple[str, str]:
     found = workflows(facts)
     if not found:
         return "na", "no workflows exist, so there is no token to scope"
-    declared = [path for path, body in found.items() if PERMISSIONS.search(body)]
-    if len(declared) == len(found):
-        return "pass", f"all {len(found)} workflows declare `permissions`"
-    if not declared:
-        return "fail", f"none of the {len(found)} workflows declare `permissions`"
-    missing = sorted(set(found) - set(declared))
+    lacking = {
+        path: jobs for path, body in found.items() if (jobs := jobs_without_permissions(body))
+    }
+    rule = "a top-level `permissions` block, or one on every job"
+    if not lacking:
+        return "pass", f"all {len(found)} workflows declare `permissions` ({rule})"
+    detail = "; ".join(
+        f"{path} (jobs without: {', '.join(jobs)})" for path, jobs in sorted(lacking.items())
+    )
+    declared = len(found) - len(lacking)
+    if declared == 0:
+        return (
+            "fail",
+            f"none of the {len(found)} workflows declare `permissions` ({rule}): {detail}",
+        )
     return (
         "partial",
-        f"{len(declared)} of {len(found)} declare `permissions`; missing: " + ", ".join(missing),
+        f"{declared} of {len(found)} declare `permissions` ({rule}); missing: {detail}",
     )
 
 
@@ -479,8 +578,24 @@ def decide(facts: dict, catalog_ids: list[str]) -> dict[str, tuple[str, str]]:
         "blocks_deletion": False,
     }
     checks = sorted(set(facts["protection"]["required_checks"]) | set(ruleset["checks"]))
-    if checks:
-        decided["S09"] = ("pass", "required checks on the default branch: " + ", ".join(checks))
+    reporting = facts.get("recent_check_names")
+    if checks and isinstance(reporting, list):
+        never = [name for name in checks if name not in reporting]
+        if never:
+            decided["S09"] = (
+                "partial",
+                "required but never reports in the last commits on the default branch, "
+                "so it blocks every pull request: " + ", ".join(never),
+            )
+        else:
+            decided["S09"] = (
+                "pass",
+                "required checks on the default branch, each reported recently: "
+                + ", ".join(checks),
+            )
+    elif checks:
+        # Whether the required names ever report could not be read, so it stays open.
+        pass
     elif facts["protection"]["visible"] and ruleset["readable"]:
         decided["S09"] = (
             "fail",
@@ -564,9 +679,17 @@ def decide(facts: dict, catalog_ids: list[str]) -> dict[str, tuple[str, str]]:
         else:
             decided["P12"] = ("fail", "neither Dependabot alerts nor security updates are enabled")
 
-    scanner_workflow = any("github/codeql-action" in body for body in facts["contents"].values())
-    if facts.get("code_scanning") == "configured" or scanner_workflow:
-        decided["P13"] = ("pass", "CodeQL default setup or a CodeQL workflow is configured")
+    # A workflow file that GitHub reports as disabled runs nothing, so the file
+    # alone is not a scanner. An unreadable state leaves the workflow unproven.
+    states = facts.get("workflow_states")
+    active_scanner = any(
+        "github/codeql-action" in body and isinstance(states, dict) and states.get(path) == "active"
+        for path, body in workflows(facts).items()
+    )
+    if facts.get("code_scanning") == "configured":
+        decided["P13"] = ("pass", "CodeQL default setup is configured")
+    elif active_scanner:
+        decided["P13"] = ("pass", "a CodeQL workflow is configured and its state is active")
 
     if facts["archived"]:
         decided["B09"] = ("na", "an archived repository is assessed under the Archived profile")

@@ -3,7 +3,8 @@
 <!--
 Starting point for satisfying criteria G01 to G08 of the Repository Quality
 Standard. Replace every bracketed placeholder, delete what does not apply, and
-delete this comment.
+delete this comment. Criterion G08 asks for a `.github/github-app.yml` that
+points at this file: start from [`github-app.yml`](github-app.yml).
 
 A section you cannot fill in honestly is a finding, not a formatting problem.
 "There is no validation command" means an agent cannot check its own work, which

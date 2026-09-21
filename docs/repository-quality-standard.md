@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.19.1
+- Version: 1.20.0
 - Last reviewed: 2026-09-21
 - Review cadence: every six months, even when nothing changes
 
@@ -131,7 +131,7 @@ Apply the baseline to every active repository, then add every matching profile.
 | Deployable | The maintainer operates a standing deployment of it: a service on a server, container, or cloud environment, or an installation on a workstation that runs or is scheduled without the maintainer starting it. Software that users download or build and install, and a script or tool run by hand, is not Deployable. [Deployable Repositories](#deployable-repositories) decides the cases |
 | Package | It publishes a package, binary, image, or release artifact |
 | Documentation | Its primary product is documentation, research, content, or templates |
-| Published Site | It publishes a website, or it ships something whose audience uses it without ever needing the repository |
+| Published Site | It publishes a website |
 | Archived | Development has intentionally ended and GitHub marks it archived |
 
 ## Private Repositories
@@ -553,8 +553,12 @@ the repository is recorded as without automation, from the `B05` command as
 counts only where the language's standard toolchain or a widely used tool for it
 provides one, and compiling counts as the type check for a compiled language. The
 minimum reading of "where supported" is a format or lint check that runs
-automatically, plus a type check where the toolchain provides one. Every
-supported kind running is `Pass`, some is `Partial`, and none is `Fail`. A
+automatically, plus a type check where the toolchain provides one. Running the
+minimum is `Pass`: kinds beyond it are welcome, and their absence lowers nothing.
+Running only part of the minimum, a lint check where a type check is also
+supported or the reverse, is `Partial`, and none is `Fail`. In a repository
+without automation the same checks run as a documented command, as
+[Automation Availability](#automation-availability) states. A
 repository whose language has no such tool is `Not applicable`.
 
 `S04` compares CI with the runtimes and platforms the README or manifest claims.
@@ -1044,8 +1048,12 @@ The boundaries the default rule needs:
 - `I04`: for a command-line tool the assessor runs `--version` and `--help`, which
   is what a user does. For an interface it cannot operate, such as a graphical
   application, source that renders the version and both links is accepted, and
-  the record says it read the source and did not operate the product. A site is
-  read from its fetched footer.
+  the record says it read the source and did not operate the product. A server
+  that a client drives and a person does not, such as one that speaks a protocol
+  over standard input and output, shows its version when its handshake response
+  reports it, which the assessor reads from the source or from the tests. A
+  `--version` flag on such a server is welcome and not required. A site is read
+  from its fetched footer.
 - `I05`: only the surfaces the repository has are assessed, so a repository with
   no store listing or site is not failed for lacking one. The icon in the artifact
   is required, and each surface the repository has must show the same icon, meaning
@@ -1113,10 +1121,13 @@ A repository is read by contributors. A site is read by everyone else. The two
 audiences want different things, and serving the second one from a README is why
 READMEs grow until nobody reads them.
 
-This profile applies when a repository publishes a website, or when it ships
-something people use without ever needing the repository: an application, a
-tool, a game, a piece of writing meant to be read as a page. The test is whether
-a reasonable audience exists that wants the product and not the source.
+This profile applies when a repository publishes a website. A repository that
+ships something people use without ever needing the repository, such as an
+application, a tool or a game, and publishes no site, has no site to assess. It
+records `W01`-`W09` as `Not applicable` with the sentence "no site is published",
+and its README serves that audience under `B02` and `P05`. Whether such a product
+should have a site is the maintainer's choice, and the standard does not require
+one. A repository that does publish a site is held to every criterion below.
 
 It does not apply when every reader is working inside a repository. A library, an
 internal tool, a template, and a specification are all consumed *in* repositories

@@ -26,6 +26,9 @@ destructive-command prohibitions are missing, and
 [G06](../repository-quality-standard.md#g06), because the generated build output
 is not marked.
 
+Add [`.github/github-app.yml`](../../templates/github-app.yml), which points the
+GitHub Copilot app at `AGENTS.md` ([G08](../repository-quality-standard.md#g08)).
+
 Fill in the validation commands from what actually passes today. A command listed
 here that fails on a clean checkout is worse than none.
 
@@ -40,7 +43,8 @@ release mode with warnings as errors, runs the linter, and runs the tests. See
 The lint file is a ratchet. Its rule set is deliberately small, and every rule in
 it passes on the whole codebase today, so a violation means something got worse.
 Run the linter against the file, delete any rule that reports a violation you are
-not fixing in the same change, and add rules back only as the code earns them. Do
+not fixing in the same change (real apps most often fail `force_cast`,
+`force_try` and `empty_count`, which the default set already leaves out), and add rules back only as the code earns them. Do
 not start with a large rule set and a backlog of exceptions.
 
 Open a pull request with just these files and get it green before going on. The
@@ -141,6 +145,21 @@ should say that is the whole kit and what it does not cover. Adding a
 `--self-test` style entry point to the app makes the kit much stronger and is
 worth the work.
 
+Two things depend on how the app is released:
+
+- The smoke test needs `contents: write` only to see a **draft** release, which
+  is the order `release.yml` uses, so `smoke-test.yml` and the calling job in
+  `release.yml` both declare it. A workflow that tests only after publishing needs
+  only read, and write there would weaken
+  [S11](../repository-quality-standard.md#s11): use `smoke-test-published.yml`. The
+  DMG is chosen by the name pattern, so a release that also carries an updater DMG
+  is still tested against the right one.
+- If a shared notarization broker builds and publishes the app's releases, the
+  repository has no `release.yml`. Use
+  [`smoke-test-published.yml`](../../templates/macos-app/.github/workflows/smoke-test-published.yml)
+  as `smoke-test.yml` and nothing else from the release pieces. It tests after
+  the release is public, so it reports a bad release and cannot hold one back.
+
 What you write yourself: the build, notarize, and DMG scripts that the workflow
 calls. Their contract is at the top of `release.yml`. Then create the secrets the
 [kit README](../../templates/macos-app/README.md#secrets) lists, each with how it
@@ -151,6 +170,52 @@ Run the pipeline once for a low-risk version before the first real release, and
 read the whole run. Only a completed run shows that the draft, smoke test, and
 publish order works, and the record of that run is what
 [R05](../repository-quality-standard.md#r05) asks for.
+
+## A private app with no minutes
+
+A private repository on a plan without hosted Actions minutes cannot run
+`smoke-test.yml` or `release.yml`, and gets no Dependabot. Leave all three out and
+see [Private repositories](private-repositories.md) for what applies instead. The
+release check for [R05](../repository-quality-standard.md#r05) then runs on your
+own Mac:
+[`release_smoke_check.sh`](../../templates/macos-app/scripts/release_smoke_check.sh).
+
+Copy it to `scripts/release_smoke_check.sh`, fill in its two markers, the
+repository and the asset names, and run it with the version after the release is
+published, from a machine signed in to `gh`. For each DMG or ZIP it verifies the
+checksum, opens the bundle in a temporary directory, and checks the version, the
+signature, the Gatekeeper assessment and the notarization ticket. It never
+starts the app, and it exits non-zero when any check fails, so it can be the gate
+of the release checklist. Paste its final line into the release record. Pair it
+with the [local gate](../../templates/local-gate/README.md) for the two checks that
+[R09](../repository-quality-standard.md#r09) asks for. A person still has to start
+the app on a desktop for what needs permission prompts; say so in the record.
+
+## Third-party licence notices
+
+[B15](../repository-quality-standard.md#b15) asks how the obligations of the
+licences of redistributed code are met. For a Swift app the redistributed code is
+whatever Swift Package Manager links into the binary, and `Package.resolved` lists
+it.
+
+1. Read `Package.resolved`. Each entry has a `location` and a pinned version.
+2. For every package that is linked into the app, not a build-time or test-only
+   tool, take its `LICENSE` file at the pinned version from the package's
+   repository.
+3. Write them to one `THIRD_PARTY_NOTICES` file: the package name, version,
+   source URL, and the licence text. Generate it with a short script in the
+   repository so that it is rebuilt from `Package.resolved` on every release
+   rather than typed, and commit the output.
+4. Copy the file into the app bundle's resources so it ships with the binary, and
+   link it from the app's About window or the README.
+
+Vendored code, bundled fonts and icons, and frameworks added by hand are not in
+`Package.resolved`; add them to the file by hand and say where they came from.
+
+If nothing is redistributed, because the app has no dependencies or links only
+the platform's own frameworks, write that as a sentence in the README or
+`AGENTS.md` with the date it was checked. The statement is the evidence, and it
+has to be revisited when the first dependency is added.
 
 ## 7. Reassess
 

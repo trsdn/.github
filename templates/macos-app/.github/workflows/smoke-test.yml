@@ -47,7 +47,11 @@ on:
         value: ${{ jobs.smoke.outputs.dmg_sha256 }}
 
 permissions:
-  # Drafts are only visible with write access; this workflow only downloads.
+  # release.yml calls this against a DRAFT release, which only a token with write
+  # access can see. The job downloads and checks the assets and changes nothing.
+  # For a repository whose releases are published by someone else, or that tests
+  # only after publishing, use smoke-test-published.yml instead: it needs only
+  # read, which keeps the standard's S11 a pass.
   contents: write
 
 env:
@@ -79,8 +83,20 @@ jobs:
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir dl \
             --pattern "$ASSET_PATTERN" \
             --pattern "$ASSET_PATTERN.sha256"
-          (cd dl && shasum -a 256 -c ./*.dmg.sha256)
-          echo "dmg_sha256=$(shasum -a 256 dl/*.dmg | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          # Select by the name pattern, never by extension alone: a release may
+          # carry a second DMG, such as one an in-app updater uses.
+          shopt -s nullglob
+          # The pattern is a glob on purpose.
+          # shellcheck disable=SC2206
+          dmgs=(dl/$ASSET_PATTERN)
+          if [[ ${#dmgs[@]} -ne 1 ]]; then
+            echo "Expected exactly one asset matching $ASSET_PATTERN, found ${#dmgs[@]}." >&2
+            exit 1
+          fi
+          dmg_name="$(basename "${dmgs[0]}")"
+          (cd dl && shasum -a 256 -c "$dmg_name.sha256")
+          echo "dmg_sha256=$(shasum -a 256 "${dmgs[0]}" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          echo "DMG=${dmgs[0]}" >> "$GITHUB_ENV"
 
       # A temporary directory, not /Applications, so nothing outlives the run and
       # the runner's own applications are untouched.
@@ -88,7 +104,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          dmg="$(ls dl/*.dmg)"
+          dmg="$DMG"
           mountpoint="$RUNNER_TEMP/smoke-dmg"
           install_dir="$RUNNER_TEMP/smoke-install"
           mkdir -p "$mountpoint" "$install_dir"
@@ -137,7 +153,7 @@ jobs:
             echo "|---|---|"
             echo "| Date | $(date -u +%F) |"
             echo "| Version | $version ($TAG) |"
-            echo "| Asset | $(basename "$(ls dl/*.dmg)") from the GitHub release (draft or public), checksum verified |"
+            echo "| Asset | $(basename "$DMG") from the GitHub release (draft or public), checksum verified |"
             echo "| macOS | $(sw_vers -productVersion) on $(uname -m) |"
             echo "| Exercised | $exercised |"
             echo "| Result | passed |"

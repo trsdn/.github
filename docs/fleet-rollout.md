@@ -26,11 +26,14 @@ One repository, worked from a fresh shallow clone in a scratch directory, never 
 a working checkout, because another session may have it on a branch of its own.
 
 1. **Claim.** Skip the repository, and report it, when a pull request from another
-   session is open on the files this work would touch, or when its default branch
-   changed in the last day. A branch named `standard/<version>` marks a repository
-   as being worked on; create it first, and stop if it exists.
+   session is open on the files this work would touch, or when the default branch
+   changed in the last day in a file this work would touch. A change the
+   coordinator made or named to the worker does not count. A branch named
+   `standard/<version>` marks a repository as being worked on; create it first, and
+   stop if it exists.
 2. **Read.** The repository's own `AGENTS.md` first: its rules win over a template,
-   and a conflict is reported, not overridden. Then run
+   and a conflict is reported, not overridden. Where the file exists as a usage
+   guide, insert the sections the standard asks for and keep the rest. Then run
    [`scripts/assess.py`](assessing.md) for the facts it can read, and the
    [account's capabilities](account-capabilities.md) for a private repository.
 3. **Plan.** Decide the profiles, then every criterion with the
@@ -42,15 +45,24 @@ a working checkout, because another session may have it on a branch of its own.
    reusable workflows to copies. In a private repository add no workflow that needs
    minutes: the [local gate](../templates/local-gate/README.md) and the documented
    validation command take their place.
-5. **Verify.** Run the repository's documented validation command. For a public
+5. **Verify.** Run the repository's documented validation command, skipping any
+   stage that launches the application, and say which stages were skipped. For a public
    repository the pull request's checks must be green, and a change to a workflow
    is not verified until it has run. For a private one the local result goes into
    the pull request description.
-6. **Merge.** Squash, when the checks are green or, in a private repository, when
-   the local verification passed. Never force a merge past a red check, and never
-   rewrite history.
+6. **Merge.** Follow the repository's merge convention where it has one, and squash
+   where it has none, when the checks are green or, in a private repository, when
+   the local verification passed. Never merge past a failing verification. If it
+   fails for a reason outside the change, first show that it fails the same way on
+   the default branch, and say so in the pull request. A squash keeps the pull
+   request title and drops commit trailers, so put the attribution in the
+   description as well. A required check that no workflow produces blocks every
+   pull request: fix that in the pull request, and say so.
 7. **Assess and record.** Write `.github/conformance.yml`, the badge and the
-   per-criterion evidence, with every result decided. Merge that as its own pull
+   per-criterion evidence, with every result decided. Write scratch output to
+   `draft/<owner>-<repo>`, never to a shared directory, and check the record with
+   the catalog of the version it names: `git show vX.Y.Z:standard.yml`, passed to
+   `conformance.py --catalog`, because the checkout moves on with every release. Merge that as its own pull
    request, so the fixes and the claim about them stay separable.
 
 A repository needs at most three pull requests: the safety net (secrets, security
@@ -118,8 +130,13 @@ from its results, no criterion is `unknown`, the pull requests are merged, and t
 worker's report is filed. A repository that cannot be finished is reported with why,
 not left half changed: an unmerged pull request states what is missing.
 
+## The worker prompt
+
+[The worker prompt](fleet-worker-prompt.md) is what a coordinator gives each worker.
+It repeats the rules above in the form a worker can follow without reading anything
+else first.
+
 ## What is still to build
 
 A `scripts/fleet.py` that prints the survey table above and the next repositories in
-order, a worker prompt kept in the repository beside the kits, and the pilot's three
-repositories. None of it is needed for the procedure above to be followed by hand.
+order. It is not needed for the procedure above to be followed by hand.

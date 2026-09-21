@@ -386,6 +386,8 @@ jobs:
     permissions:
       # Draft releases are only visible to a token with write access. The
       # called job downloads and checks the assets; it changes nothing.
+      # smoke-test.yml declares the same, because a called workflow cannot exceed
+      # what it declares.
       contents: write
     uses: ./.github/workflows/smoke-test.yml
     with:

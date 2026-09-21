@@ -8,7 +8,7 @@ locally.
 
 | File | For |
 |---|---|
-| [`security-gate.sh`](security-gate.sh) | Scans the tree and the history for secrets, audits the dependencies for high and critical advisories, and prints a result block |
+| [`security-gate.sh`](security-gate.sh) | Scans the history (committed files) for secrets, audits the dependencies for high and critical advisories, and prints a result block |
 
 ## Adopt it
 
@@ -27,12 +27,24 @@ locally.
 
 | Check | Passes when | Fails when |
 |---|---|---|
-| Secret scan | `gitleaks` finds nothing in the tree or the history | It finds a secret, including one a later commit removed |
+| Secret scan | `gitleaks` finds nothing in the history (committed files) | It finds a secret, including one a later commit removed |
 | Dependencies | `osv-scanner` finds no advisory at high severity (CVSS 7.0) or above, and none unrated | It does. Lower-severity advisories are counted and do not fail the gate |
 
 A repository that tracks no lockfile records the dependency check as not
 applicable. Exit codes: `0` every check passed or does not apply, `1` a check
 found something, `2` a check could not run.
+
+The scan reads commits only. A file that is untracked, or ignored by `.gitignore`,
+is not scanned, so a secret in such a file is not reported until it is committed.
+
+A finding that is not a secret, such as a test fixture or an example key, is
+recorded in a `.gitleaksignore` file at the repository root: one fingerprint per
+line, taken from the `Fingerprint:` line of the finding (the form
+`commit:path:rule:line`). Put a comment line above each fingerprint saying why
+it is not a secret. To read the findings, run
+`gitleaks git --no-banner .` and, on an older gitleaks,
+`gitleaks detect --source .`. Commit the ignore file: a finding is only ignored
+once the fingerprint is in the commit that the gate scans.
 
 A found secret in history means the secret is compromised: revoke it, as the
 repository's credential policy in [`B14`](../../docs/repository-quality-standard.md#b14)
