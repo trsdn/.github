@@ -6,6 +6,24 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.16.0 - 2026-09-21
+
+- Added `P12`: Dependabot alerts and Dependabot security updates are enabled on a
+  public repository. Both are free, so there is no `Not applicable`. It covers
+  the platform half of dependency safety, and `S08` keeps the process half.
+- Added `P13`: code scanning runs where CodeQL supports a language of the
+  repository, by the default setup, a CodeQL workflow, or an equivalent scanner.
+  It is `Not applicable` for a repository with no supported language, and joins
+  `S04`, `S09` and `P09` in the runner-only row of
+  [Automation Availability](docs/repository-quality-standard.md#automation-availability).
+- `scripts/assess.py` reads both from the API, so an agent no longer reads them
+  by hand.
+- Released as minor: adding criteria cannot weaken a recorded result, and a
+  repository assessed against an earlier version is due for reassessment. See
+  [decision 0016](docs/decisions/0016-public-repositories-run-the-free-security-scanners.md).
+- The settings `P03`, `S05`, `P12` and `P13` describe were enabled on every
+  active, non-fork public repository in the account on the day of release.
+
 ## 1.15.0 - 2026-09-20
 
 - Added [Deciding Without The Maintainer](docs/repository-quality-standard.md#deciding-without-the-maintainer)

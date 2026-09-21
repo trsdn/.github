@@ -1,7 +1,7 @@
 # Repository Quality Standard
 
-- Version: 1.15.0
-- Last reviewed: 2026-09-20
+- Version: 1.16.0
+- Last reviewed: 2026-09-21
 - Review cadence: every six months, even when nothing changes
 
 This document is the public source of truth for repository quality across
@@ -340,6 +340,8 @@ what the criterion is for.
 | <a id="p09"></a>P09 | Repository activity is shown from a self-hosted, generated source rather than a third-party image service | [Repository Statistics](#repository-statistics) |
 | <a id="p10"></a>P10 | Issue intake collects what triage needs, not only a free-text box | Issue templates or forms, in the repository or inherited, whose fields cover the problem, the expected and actual result, how to reproduce it, and the version or environment it occurred in |
 | <a id="p11"></a>P11 | Pull-request intake collects what review needs | Pull-request template, in the repository or inherited, covering what the change does, how it was validated, what it risks, and what it relates to |
+| <a id="p12"></a>P12 | Dependency vulnerability alerts and Dependabot security updates are enabled | The two repository settings, read with `gh api repos/OWNER/REPO/vulnerability-alerts` and `gh api repos/OWNER/REPO/automated-security-fixes` |
+| <a id="p13"></a>P13 | Code scanning covers the repository's languages where CodeQL supports one | CodeQL default setup or a CodeQL or equivalent scanner workflow, read with `gh api repos/OWNER/REPO/code-scanning/default-setup` |
 
 `P01` passes when GitHub reports an SPDX identifier on the
 [OSI approved list](https://opensource.org/licenses). Where GitHub reports
@@ -382,6 +384,24 @@ documentation site, and then it must resolve at assessment time. A repository
 without one is assessed on the other two. Whether the description states a
 purpose is `B01`, and the `trsdn-standard` topic is `B12`, so neither is repeated
 here.
+
+`P12` is the platform half of dependency safety and `S08` the process half:
+`S08` asks who triages the alerts, `P12` asks that GitHub raises them and offers
+fixes at all. Both settings are free for a public repository and independent of
+whether the repository has dependencies, so `P12` has no `Not applicable`. Both
+enabled is `Pass`, one is `Partial`, neither is `Fail`. Dependabot version updates
+through a `dependabot.yml` are not part of `P12`. A setting the token cannot read
+is decided by the default rule for unreadable evidence.
+
+`P13` asks that a scanner looks at the code without the maintainer starting it.
+The default setup, a CodeQL workflow, or an equivalent scanner workflow on the
+default branch is `Pass`. A configured scanner whose latest run failed is a
+`Partial`. Where CodeQL supports a language the repository contains and no
+scanning is configured, the result is `Fail`. It is `Not applicable` where none of
+the repository's languages is supported, as for a repository of prose, data, or
+configuration, and where no runner is available, recorded with the languages
+looked for. `B06` decides what an open alert means, and `P13` only that scanning
+exists.
 
 `P08` applies to every public repository. Its platform or runtime badge is `Not
 applicable` where the repository has no runtime or platform requirement to
@@ -1526,7 +1546,7 @@ ones:
 | Which criteria | Result when no runner is available |
 |---|---|
 | Those satisfied by a check the repository owns, which a runner only makes convenient. At this version `S02`, `S03`, and `L04` | `Fail` where the check does not exist; otherwise `Pass` where the documented `B05` command runs the check and the evidence the conformance record links to records a successful run of that command, and `Partial` where it does not. A criterion's own boundaries still decide any further `Partial`, as `S02` and `S03` state |
-| Those whose evidence can only be produced by a workflow run. At this version `S04`, `S09`, and `P09` | `Not applicable` |
+| Those whose evidence can only be produced by a workflow run. At this version `S04`, `S09`, `P09`, and `P13` | `Not applicable` |
 
 **Membership is decided by the property, not by the list.** Each list names the
 criteria that match at the version on the cover, and is there so an assessor can
@@ -1579,7 +1599,7 @@ mechanism is available to the repository, which a repository with no runner can
 write without one, `W01` asks for a repeatable documented process rather than a
 workflow, and `S11`, `S12`, and `S13` are properties of a workflow file that
 hold whether or not it ever runs. This section narrows the criteria its two rows
-describe — six at this version — and one badge position, and nothing else.
+describe — seven at this version — and one badge position, and nothing else.
 
 ## Status Badges
 

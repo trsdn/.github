@@ -1,7 +1,7 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.15.0
-- Assessed on: 2026-09-20
+- Standard version: 1.16.0
+- Assessed on: 2026-09-21
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
 
@@ -185,6 +185,11 @@ releases carry a document, not a package.
   SHA with the version in a trailing comment. No action from outside the account
   is used at all, so the two rows of the table for an outside account are never
   reached.
+- `P12`, `P13` — pass, and neither was true a day earlier. Dependabot alerts and
+  security updates are enabled, read from the API, and CodeQL runs through the
+  default setup with a completed analysis and no error. Both were enabled by the
+  same change that introduced the criteria, across every active public
+  repository in the account, so the criteria describe what is true.
 - `B14` — passes on new content rather than on what was already here. The
   repository configures `STATS_TOKEN`, so the criterion applies and could not be
   answered by the pre-existing "stop and rotate" instruction to agents, which

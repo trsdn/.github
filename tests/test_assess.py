@@ -232,6 +232,41 @@ class AssessTests(unittest.TestCase):
         self.assertEqual(drafted["P04"], "fail")
         self.assertEqual(drafted["P11"], "fail")
 
+    def test_both_dependabot_settings_enabled_pass_p12(self) -> None:
+        drafted, _ = self.assess(facts(dependency_alerts="enabled", security_updates="enabled"))
+        self.assertEqual(drafted["P12"], "pass")
+
+    def test_one_dependabot_setting_enabled_is_partial_p12(self) -> None:
+        drafted, _ = self.assess(facts(dependency_alerts="enabled", security_updates="disabled"))
+        self.assertEqual(drafted["P12"], "partial")
+
+    def test_no_dependabot_setting_enabled_fails_p12(self) -> None:
+        drafted, _ = self.assess(facts(dependency_alerts="disabled", security_updates="disabled"))
+        self.assertEqual(drafted["P12"], "fail")
+
+    def test_unreadable_dependabot_settings_leave_p12_undecided(self) -> None:
+        drafted, _ = self.assess(facts())
+        self.assertEqual(drafted["P12"], "unknown")
+
+    def test_a_configured_code_scanner_passes_p13(self) -> None:
+        drafted, _ = self.assess(facts(code_scanning="configured"))
+        self.assertEqual(drafted["P13"], "pass")
+
+    def test_a_codeql_workflow_passes_p13(self) -> None:
+        body = "jobs:\n  a:\n    steps:\n      - uses: github/codeql-action/analyze@v3\n"
+        drafted, _ = self.assess(facts(contents=workflow(body, "codeql.yml")))
+        self.assertEqual(drafted["P13"], "pass")
+
+    def test_no_scanner_leaves_p13_to_the_assessor(self) -> None:
+        """Whether CodeQL supports a language is a judgement, so absence is not a fail here."""
+        drafted, _ = self.assess(facts(code_scanning="not-configured"))
+        self.assertEqual(drafted["P13"], "unknown")
+
+    def test_a_private_repository_makes_the_new_public_criteria_not_applicable(self) -> None:
+        drafted, _ = self.assess(facts(private=True))
+        self.assertEqual(drafted["P12"], "na")
+        self.assertEqual(drafted["P13"], "na")
+
     def test_a_missing_record_fails_b11(self) -> None:
         drafted, _ = self.assess(facts(paths=["README.md"]))
         self.assertEqual(drafted["B11"], "fail")
