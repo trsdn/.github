@@ -105,4 +105,3 @@ updates by changing it. See
 it. What an app provides is small: its own `AGENTS.md` says what kind of app it is
 and what user data it handles, and, if it has one, the command that renders its
 screens.
-
