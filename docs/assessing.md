@@ -32,6 +32,8 @@ the transcription, not the assessment.
 | `B16` | Whether a ruleset or classic branch protection blocks force pushes and deletion |
 | `P02`, `P06` | The community profile GitHub reports, which counts inherited files |
 | `P03` | A security policy in the tree or inherited from the account, and whether private reporting is enabled |
+| `P12` | Dependabot alerts and security updates, from the API: both is `pass`, one `partial`, neither `fail` |
+| `P13` | A CodeQL default setup or a CodeQL workflow, `pass` only. Absence is left to the assessor, because whether CodeQL supports a language is a judgement |
 | `P04`, `P10`, `P11` | Whether any intake template exists, in the repository or inherited from the account, absence only |
 | `S05` | The secret scanning status, where the token can see it |
 | `S09` | Required status checks on the default branch, from rulesets and from branch protection |

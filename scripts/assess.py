@@ -251,6 +251,17 @@ def collect(client: GitHub, repository: str) -> dict:
                 inherited_pr_template = True
                 break
 
+    status, _ = client.json(f"/repos/{repository}/vulnerability-alerts")
+    dependency_alerts = "enabled" if status == 204 else "disabled" if status == 404 else ""
+    status, fixes = client.json(f"/repos/{repository}/automated-security-fixes")
+    security_updates = ""
+    if status == 200 and isinstance(fixes, dict):
+        security_updates = "enabled" if fixes.get("enabled") else "disabled"
+    status, scanning = client.json(f"/repos/{repository}/code-scanning/default-setup")
+    code_scanning = ""
+    if status == 200 and isinstance(scanning, dict):
+        code_scanning = str(scanning.get("state") or "")
+
     licence = meta.get("license") or {}
     analysis = meta.get("security_and_analysis") or {}
     files = (profile or {}).get("files") or {} if isinstance(profile, dict) else {}
@@ -272,6 +283,9 @@ def collect(client: GitHub, repository: str) -> dict:
         "community_files": {key: bool(value) for key, value in files.items()},
         "secret_scanning": (analysis.get("secret_scanning") or {}).get("status", ""),
         "inherited_security_policy": inherited_policy,
+        "dependency_alerts": dependency_alerts,
+        "security_updates": security_updates,
+        "code_scanning": code_scanning,
         "inherited_issue_template": inherited_issue_template,
         "inherited_pr_template": inherited_pr_template,
         "private_reporting": (
@@ -534,6 +548,25 @@ def decide(facts: dict, catalog_ids: list[str]) -> dict[str, tuple[str, str]]:
             "pass",
             f"private reporting is enabled and a policy is published ({where})",
         )
+
+    alerts = facts.get("dependency_alerts", "")
+    updates = facts.get("security_updates", "")
+    if alerts and updates:
+        enabled = [
+            name
+            for name, value in (("alerts", alerts), ("security updates", updates))
+            if value == "enabled"
+        ]
+        if len(enabled) == 2:
+            decided["P12"] = ("pass", "Dependabot alerts and security updates are enabled")
+        elif enabled:
+            decided["P12"] = ("partial", f"only Dependabot {enabled[0]} are enabled")
+        else:
+            decided["P12"] = ("fail", "neither Dependabot alerts nor security updates are enabled")
+
+    scanner_workflow = any("github/codeql-action" in body for body in facts["contents"].values())
+    if facts.get("code_scanning") == "configured" or scanner_workflow:
+        decided["P13"] = ("pass", "CodeQL default setup or a CodeQL workflow is configured")
 
     if facts["archived"]:
         decided["B09"] = ("na", "an archived repository is assessed under the Archived profile")
