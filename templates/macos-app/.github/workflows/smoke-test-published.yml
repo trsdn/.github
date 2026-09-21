@@ -1,0 +1,130 @@
+name: Release smoke test
+
+# Variant of smoke-test.yml for an app whose releases are built, notarized and
+# published by a shared broker, not by a release.yml in this repository. Copy to
+# .github/workflows/smoke-test.yml, replace every TODO(...) marker, and copy
+# docs/release-smoke-tests.md beside it. Use it INSTEAD of release.yml and
+# smoke-test.yml, not in addition to them.
+#
+# There is no release job here. The workflow runs after a release is published,
+# and on demand for any published tag, installs the DMG the way a consumer would
+# into a temporary location, and checks the signature, the Gatekeeper assessment
+# and the notarization ticket. It never starts the app. Because the release is
+# already public, a failure cannot stop it: it turns this workflow red and the
+# job summary is the dated record. Say in docs/release-smoke-tests.md that the
+# test follows the release and does not gate it.
+#
+# A release created by another repository's workflow, or by a token that is not
+# this repository's GITHUB_TOKEN, triggers the `release` event here. A release
+# created with this repository's own GITHUB_TOKEN does not, so run the workflow
+# by hand in that case.
+#
+#   TODO(app-name)     The bundle name, without `.app`.
+#   TODO(asset-name)   The DMG file name pattern the release publishes, as passed
+#                      to `gh release download --pattern`. If a release carries
+#                      more than one DMG, make the pattern match only the one a
+#                      consumer installs.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published release tag to test, for example v1.2.3
+        required: true
+        type: string
+
+permissions:
+  # Published releases are readable with a read-only token.
+  contents: read
+
+env:
+  APP_NAME: TODO(app-name)
+  ASSET_PATTERN: TODO(asset-name)
+
+jobs:
+  smoke:
+    name: Install and check
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Download the release DMG and checksum
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Tag must look like v1.2.3: $TAG" >&2
+            exit 1
+          fi
+          mkdir -p dl
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir dl \
+            --pattern "$ASSET_PATTERN" \
+            --pattern "$ASSET_PATTERN.sha256"
+          shopt -s nullglob
+          # The pattern is a glob on purpose.
+          # shellcheck disable=SC2206
+          dmgs=(dl/$ASSET_PATTERN)
+          if [[ ${#dmgs[@]} -ne 1 ]]; then
+            echo "Expected exactly one asset matching $ASSET_PATTERN, found ${#dmgs[@]}." >&2
+            exit 1
+          fi
+          dmg_name="$(basename "${dmgs[0]}")"
+          (cd dl && shasum -a 256 -c "$dmg_name.sha256")
+          {
+            echo "TAG=$TAG"
+            echo "DMG=${dmgs[0]}"
+          } >> "$GITHUB_ENV"
+
+      # A temporary directory, not /Applications, so nothing outlives the run.
+      - name: Install to a temporary location
+        shell: bash
+        run: |
+          set -euo pipefail
+          mountpoint="$RUNNER_TEMP/smoke-dmg"
+          install_dir="$RUNNER_TEMP/smoke-install"
+          mkdir -p "$mountpoint" "$install_dir"
+          hdiutil attach "$DMG" -nobrowse -readonly -mountpoint "$mountpoint"
+          ditto "$mountpoint/$APP_NAME.app" "$install_dir/$APP_NAME.app"
+          hdiutil detach "$mountpoint"
+          echo "APP=$install_dir/$APP_NAME.app" >> "$GITHUB_ENV"
+
+      - name: Verify signature and notarization as Gatekeeper sees them
+        shell: bash
+        run: |
+          set -euo pipefail
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          spctl --assess --type execute --verbose=2 "$APP"
+          xcrun stapler validate "$APP"
+
+      - name: Check the version and write the record
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(plutil -extract CFBundleShortVersionString raw "$APP/Contents/Info.plist")"
+          if [[ "v$version" != "$TAG" ]]; then
+            echo "Installed app is $version but the tag is $TAG." >&2
+            exit 1
+          fi
+          {
+            echo "## Release smoke test: $APP_NAME $version"
+            echo
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Date | $(date -u +%F) |"
+            echo "| Version | $version ($TAG) |"
+            echo "| Asset | $(basename "$DMG") from the published release, checksum verified |"
+            echo "| macOS | $(sw_vers -productVersion) on $(uname -m) |"
+            echo "| Exercised | Installed to a temporary location and checked signature, Gatekeeper assessment and notarization ticket. The app was not started. |"
+            echo "| Result | passed |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove what was installed
+        if: always()
+        shell: bash
+        run: |
+          rm -rf "$RUNNER_TEMP/smoke-install" || true
+          hdiutil detach "$RUNNER_TEMP/smoke-dmg" 2>/dev/null || true

@@ -3,8 +3,10 @@
 Files to copy into a macOS app repository that is new to the Repository Quality
 Standard, or that lags behind it. Every file is a copy-and-edit starting point:
 the values that differ per repository are marked `TODO(name)`, and a comment at
-the top of the file says what to change. Search for `TODO(` after copying, and
-do not commit while any remain.
+the top of the file says what to change. Search for `TODO(` after copying and
+replace every marker with the repository's value. Then delete the instruction
+comment at the top of each file, which also contains `TODO(...)` examples: no
+`TODO(` may remain once you commit.
 
 The kit assumes a Swift Package Manager app that is signed, notarized, and
 distributed outside the Mac App Store as a DMG and ZIP from GitHub Releases. Where
@@ -23,12 +25,14 @@ only points at them.
 |---|---|---|
 | [`AGENTS.macos.md`](AGENTS.macos.md) | Merged into `AGENTS.md`, beside [the general starting point](../AGENTS.md) | [G02](../../docs/repository-quality-standard.md#g02), [G03](../../docs/repository-quality-standard.md#g03), [G06](../../docs/repository-quality-standard.md#g06) |
 | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | `.github/workflows/ci.yml` | [B05](../../docs/repository-quality-standard.md#b05), [S02](../../docs/repository-quality-standard.md#s02), [S03](../../docs/repository-quality-standard.md#s03), [S04](../../docs/repository-quality-standard.md#s04), [S11](../../docs/repository-quality-standard.md#s11) |
-| [`.swiftlint.yml`](.swiftlint.yml) | `.swiftlint.yml` | [S03](../../docs/repository-quality-standard.md#s03) |
+| [`.swiftlint.yml`](.swiftlint.yml) | `.swiftlint.yml`. Before turning `--strict` on, run the linter and drop every rule that already has violations | [S03](../../docs/repository-quality-standard.md#s03) |
 | [`.github/dependabot.yml`](.github/dependabot.yml) | `.github/dependabot.yml` | [S08](../../docs/repository-quality-standard.md#s08), [S12](../../docs/repository-quality-standard.md#s12) |
 | [`.github/workflows/secret-scan.yml`](.github/workflows/secret-scan.yml) | `.github/workflows/secret-scan.yml` | [S05](../../docs/repository-quality-standard.md#s05), [S11](../../docs/repository-quality-standard.md#s11) |
 | [`.github/workflows/conformance.yml`](.github/workflows/conformance.yml) | `.github/workflows/conformance.yml` | [B11](../../docs/repository-quality-standard.md#b11), [P08](../../docs/repository-quality-standard.md#p08) |
 | [`.github/workflows/codeql.yml`](.github/workflows/codeql.yml) | `.github/workflows/codeql.yml`, only if default setup fails | [P13](../../docs/repository-quality-standard.md#p13) |
 | [`.github/workflows/smoke-test.yml`](.github/workflows/smoke-test.yml), [`docs/release-smoke-tests.md`](docs/release-smoke-tests.md) | Same paths | [R05](../../docs/repository-quality-standard.md#r05) |
+| [`.github/workflows/smoke-test-published.yml`](.github/workflows/smoke-test-published.yml) | `.github/workflows/smoke-test.yml`, instead of `smoke-test.yml` and `release.yml`, when releases are published by a shared broker and not by this repository | [R05](../../docs/repository-quality-standard.md#r05) |
+| [`scripts/release_smoke_check.sh`](scripts/release_smoke_check.sh) | `scripts/release_smoke_check.sh`, for a private app with no Actions minutes, see [the guide](../../docs/guides/macos-app.md#a-private-app-with-no-minutes) | [R05](../../docs/repository-quality-standard.md#r05) |
 | [`.github/workflows/release.yml`](.github/workflows/release.yml) | `.github/workflows/release.yml` | [R03](../../docs/repository-quality-standard.md#r03), [R04](../../docs/repository-quality-standard.md#r04), [R07](../../docs/repository-quality-standard.md#r07), with the smoke test [R05](../../docs/repository-quality-standard.md#r05) |
 | The [Apple HIG review package](../../packages/apple-hig-review/README.md) | Declared in `apm.yml`, see [the Apple HIG review](#the-apple-hig-review) | Optional. No criterion asks for it |
 

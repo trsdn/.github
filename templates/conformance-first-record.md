@@ -29,7 +29,12 @@ is the order to do it in, and does not repeat either.
    (`date -u +%F`), and set `state` from the
    [Assessment](../docs/repository-quality-standard.md#assessment) rules.
 6. Copy the record to `.github/conformance.yml`.
-7. Add the caller so the record is checked and the badge is generated from it:
+7. Add the caller so the record is checked and the badge is generated from it.
+   Pin it to the release tag of the standard version the record declares in
+   `standard_version`, here `v1.19.1`, and not to `@main`: the shared workflow
+   and its catalog at `@main` move with every release, so a record for an older
+   version cannot pass a check that has moved on. Change the tag when the record
+   is reassessed against a newer version, in the same change:
 
    ```yaml
    name: Conformance
@@ -46,12 +51,14 @@ is the order to do it in, and does not repeat either.
 
    jobs:
      conformance:
-       uses: trsdn/.github/.github/workflows/conformance.yml@main
+       uses: trsdn/.github/.github/workflows/conformance.yml@v1.19.1
    ```
 
 8. Add the `trsdn-standard` repository topic so the repository can be found as
    part of the assessed set ([`B12`](../docs/repository-quality-standard.md#b12)).
-   That is a repository setting, so it is a maintainer action.
+   The [fleet rollout](../docs/fleet-rollout.md#what-an-agent-may-not-do) lets an
+   agent set this one topic, along with the public security settings. Any other
+   repository setting is a maintainer action.
 
 ## Checking the badge against the record
 

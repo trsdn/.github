@@ -52,6 +52,19 @@ generated branch instead, and reference that branch from the README:
       branch: stats
 ```
 
+The branch must already exist: the workflow checks it out and does not create it.
+Create it once from the default branch, before the first run:
+
+```sh
+git push origin origin/main:refs/heads/stats
+```
+
+The README then has to use absolute
+`https://raw.githubusercontent.com/OWNER/REPO/stats/.github/stats/repo-card.svg`
+URLs, because a relative image path resolves against the default branch. Both
+forms are in [the README snippet](../templates/repo-stats/README-snippet.md). The
+README image is a 404 until the first run has written the files.
+
 For public repositories, the caller repository `GITHUB_TOKEN` is usually enough.
 For private repositories or higher API limits, create a fine-grained PAT and
 store it as `STATS_TOKEN`.
