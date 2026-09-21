@@ -5,7 +5,8 @@ vulnerability triage have an owner and a process.
 
 ## Not for a private repository without minutes
 
-Dependabot runs on Actions minutes in a private repository. Where the account has
+Dependabot jobs count against Actions minutes in a private repository, as GitHub's
+billing documentation describes. Where the account has
 none to spare, leave Dependabot off there, alerts and security updates and any
 `dependabot.yml` alike, and audit dependencies at release with the
 [local gate](../../templates/local-gate/README.md) instead. See

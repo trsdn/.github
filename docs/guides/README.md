@@ -40,6 +40,11 @@ Older single-purpose templates remain:
 [`templates/release-notes/`](../../templates/release-notes/), and
 [`templates/repo-stats/`](../../templates/repo-stats/).
 
+## Bringing many repositories up
+
+[Bringing every repository to the standard](../fleet-rollout.md) is the procedure
+for agents that raise a whole account, one repository at a time.
+
 ## Shared workflows
 
 These are referenced from another repository in the account instead of copied, as

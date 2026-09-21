@@ -16,7 +16,7 @@ commands are below.
 | GitHub secret scanning and push protection | Not offered | `security_and_analysis` is empty: `gh api repos/OWNER/REPO --jq .security_and_analysis` |
 | Code scanning, including CodeQL | Not offered | `gh api repos/OWNER/REPO/code-scanning/default-setup` answers `403` |
 | Rulesets and branch protection | Not offered | `gh api repos/OWNER/REPO/rulesets` answers `403` |
-| Dependabot alerts and security updates | Switched off on purpose, because they run on the minutes the account does not have | `gh api -i repos/OWNER/REPO/vulnerability-alerts` answers `404` |
+| Dependabot alerts and security updates | Switched off on purpose by the maintainer, because Dependabot jobs count against Actions minutes in a private repository (check GitHub's current billing documentation) | `gh api -i repos/OWNER/REPO/vulnerability-alerts` answers `404` |
 | Private vulnerability reporting | Not applicable to a private repository | `gh api repos/OWNER/REPO/private-vulnerability-reporting` answers `404` |
 
 The same facts held for all 81 active private, non-fork repositories in the
