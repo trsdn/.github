@@ -6,6 +6,15 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.18.1 - 2026-09-21
+
+- Added [Bringing every repository to the standard](docs/fleet-rollout.md), the
+  procedure for agents that raise an account's repositories, with the order to do
+  them in, the guardrails, and the four things that reach the maintainer.
+- Corrected the wording about why Dependabot is off in private repositories: it
+  counts against Actions minutes, as GitHub's billing documentation describes.
+- Patch: guidance and wording only, and no recorded result can change.
+
 ## 1.18.0 - 2026-09-21
 
 - Added [Private Repositories](docs/repository-quality-standard.md#private-repositories):
