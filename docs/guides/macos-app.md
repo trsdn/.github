@@ -111,7 +111,8 @@ a compile step, which costs more than the review is worth.
 
 The agent, its rules and the request are published as a versioned package, so the
 app declares a version in its `apm.yml` and updates by changing it. Install and run
-it as [the package README](../../packages/apple-hig-review/README.md) describes.
+it as [the package README](../../packages/apple-hig-review/README.md) describes,
+including the `targets` that `apm.yml` needs.
 The app itself only needs to say in its `AGENTS.md` what kind of app it is, what
 user data it handles, and, if it has one, the command that renders its screens.
 
