@@ -6,6 +6,17 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.22.0 - 2026-09-22
+
+- Added `packages/repo-assessor`: a local, versioned agent that assesses a
+  repository against the standard and files one GitHub issue per gap, using the
+  Remediation Issue Contract. Unlike `apple-hig-review`, it needs the operator's
+  own `gh` write access to file issues; it never opens a pull request, and never
+  writes `.github/conformance.yml` itself, because assessing and recording stay
+  separate acts. See
+  [decision 0021](docs/decisions/0021-a-local-assessor-files-issues-and-never-the-record.md).
+- Released as minor: a package was added, and no recorded result can change.
+
 ## 1.21.0 - 2026-09-22
 
 - Restored the obligation [1.20.0](#1200---2026-09-21) removed: a public
