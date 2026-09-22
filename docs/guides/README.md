@@ -14,6 +14,7 @@ file is not evidence until the repository has it and it works there.
 | [`P03`](../repository-quality-standard.md#p03), [`P12`](../repository-quality-standard.md#p12), [`S05`](../repository-quality-standard.md#s05), [`B16`](../repository-quality-standard.md#b16), [`S09`](../repository-quality-standard.md#s09) | [Repository security settings](repository-security-settings.md) |
 | [`P13`](../repository-quality-standard.md#p13) | [CodeQL](codeql.md) |
 | [`I01`](../repository-quality-standard.md#i01)-[`I06`](../repository-quality-standard.md#i06) | [The product-identity skill](../../skills/product-identity/SKILL.md), which reads what the artifact embeds and where it comes from |
+| [`Y01`](../repository-quality-standard.md#y01)-[`Y06`](../repository-quality-standard.md#y06) | [The privacy-disclosure skill](../../skills/privacy-disclosure/SKILL.md), which finds what the product contacts and stores |
 | Any private repository, and [`R09`](../repository-quality-standard.md#r09) | [Private repositories](private-repositories.md), the [account's capabilities](../account-capabilities.md), and the [local gate](../../templates/local-gate/README.md) |
 | A public application's site: [`W01`](../repository-quality-standard.md#w01)-[`W09`](../repository-quality-standard.md#w09) | [Site design](site-design.md) |
 | [`S08`](../repository-quality-standard.md#s08), [`P12`](../repository-quality-standard.md#p12) | [Dependabot version updates](dependabot.md) |
