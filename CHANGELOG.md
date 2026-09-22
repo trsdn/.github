@@ -6,6 +6,16 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.25.0 - 2026-09-22
+
+- Added `packages/doc-staleness-reviewer`: a local, credential-free agent that
+  finds documentation stale past `T05`'s six-month cadence and unmarked, or
+  restated in a way that now disagrees with its home under `B13`. It applies
+  the standard's own definitions rather than a general sense of "this reads
+  old," and reports findings without rewriting anything — deciding the
+  correction needs current facts the reviewer does not have.
+- Released as minor: a package was added, and no recorded result can change.
+
 ## 1.24.0 - 2026-09-22
 
 - Added `S14`: a repository with a performance-sensitive path states which
