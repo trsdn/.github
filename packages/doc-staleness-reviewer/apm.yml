@@ -1,0 +1,3 @@
+name: doc-staleness-reviewer
+version: 1.0.0
+description: A read-only reviewer that finds documentation stale past T05's cadence or restated in a way that disagrees with its home under B13, run locally.

@@ -36,9 +36,10 @@ and read its README first. Each kit says which criteria its files serve.
 | [`templates/local-gate/`](../../templates/local-gate/README.md) | The release gate for a repository without automation |
 
 Versioned agent packages are under [`packages/`](../../packages/apple-hig-review/README.md),
-run locally and pinned to a tag: the Apple HIG review agent for a macOS app,
-[a performance reviewer](../../packages/performance-review/README.md) for any
-language, and [the repository assessor](../../packages/repo-assessor/README.md),
+run locally and pinned to a tag: the Apple HIG review agent for a macOS app, a
+[performance reviewer](../../packages/performance-review/README.md) for any
+language, a [documentation staleness reviewer](../../packages/doc-staleness-reviewer/README.md)
+for `T05`/`B13`, and [the repository assessor](../../packages/repo-assessor/README.md),
 which files a remediation issue per gap and needs the operator's own `gh` write
 access to do it.
 
