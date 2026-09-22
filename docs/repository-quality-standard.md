@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.20.0
+- Version: 1.21.0
 - Last reviewed: 2026-09-21
 - Review cadence: every six months, even when nothing changes
 
@@ -131,7 +131,7 @@ Apply the baseline to every active repository, then add every matching profile.
 | Deployable | The maintainer operates a standing deployment of it: a service on a server, container, or cloud environment, or an installation on a workstation that runs or is scheduled without the maintainer starting it. Software that users download or build and install, and a script or tool run by hand, is not Deployable. [Deployable Repositories](#deployable-repositories) decides the cases |
 | Package | It publishes a package, binary, image, or release artifact |
 | Documentation | Its primary product is documentation, research, content, or templates |
-| Published Site | It publishes a website |
+| Published Site | It publishes a website, or it is public and ships an application, tool, or game that a non-developer audience installs or runs |
 | Archived | Development has intentionally ended and GitHub marks it archived |
 
 ## Private Repositories
@@ -1121,21 +1121,34 @@ A repository is read by contributors. A site is read by everyone else. The two
 audiences want different things, and serving the second one from a README is why
 READMEs grow until nobody reads them.
 
-This profile applies when a repository publishes a website. A repository that
-ships something people use without ever needing the repository, such as an
-application, a tool or a game, and publishes no site, has no site to assess. It
-records `W01`-`W09` as `Not applicable` with the sentence "no site is published",
-and its README serves that audience under `B02` and `P05`. Whether such a product
-should have a site is the maintainer's choice, and the standard does not require
-one. A repository that does publish a site is held to every criterion below.
+This profile applies when a repository publishes a website, or when it is public
+and ships a product a non-developer installs or runs by name: a downloaded
+application, a menu-bar or windowed app, a game, or a command-line tool a user
+installs to run directly, whatever platform it targets. The test is whether a
+reasonable audience wants the product and not the source, the same test the
+Package profile does not ask: a repository can publish installable artifacts and
+still have no such audience, for a library packaged for other code to depend on,
+or a tool packaged for a pipeline to call.
 
-It does not apply when every reader is working inside a repository. A library, an
-internal tool, a template, and a specification are all consumed *in* repositories
-by people who are already there — a page in front of them adds a surface to
+It does not apply to a private repository shipping such a product, because nobody
+outside the account could reach a site for it. `W01`-`W09` are `Not applicable`
+there, with the reason.
+
+It does not apply when every reader is working inside a repository or composing
+it into other software. A library, an MCP server or agent tool that other
+software or developers configure rather than install by name, an internal tool, a
+template, and a specification are consumed *in* repositories or by tooling, by
+people or programs already there — a page in front of them adds a surface to
 maintain and answers nothing they were asking. This document is the example: it
 is a definition that maintainers and agents apply to repositories, so it is
 assessed as `Documentation` and not here. The repositories it is applied *to* are
-a different matter, and many of them do ship a product.
+a different matter, and many of them do ship a product with exactly this
+audience.
+
+A public repository matching the trigger that has not yet published a site
+records `W01`-`W09` at their ordinary results, most of them `Fail` until the site
+exists: the profile does not excuse a product from having one, and building it is
+the remediation.
 
 Record the rationale rather than leaving the profile unclaimed.
 
