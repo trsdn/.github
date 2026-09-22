@@ -6,6 +6,19 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.21.0 - 2026-09-22
+
+- Restored the obligation [1.20.0](#1200---2026-09-21) removed: a public
+  repository that ships an application, game, or command-line tool a
+  non-developer installs or runs by name must publish a site, whether or not it
+  already does. `W01`-`W09` are `Fail` for most of them until it does, not `Not
+  applicable`. The profile still excludes a library, an MCP server or agent tool
+  configured rather than installed by name, and anything a private repository
+  ships. See [decision 0020](docs/decisions/0020-public-applications-need-a-site.md).
+- Released as minor: applicability widens for some repositories and narrows for
+  none, and no recorded `Pass` can weaken; repositories newly matching the
+  trigger are due for reassessment.
+
 ## 1.20.0 - 2026-09-21
 
 Found by bringing three real repositories to the standard, as a pilot of the
