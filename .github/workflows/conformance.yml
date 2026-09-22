@@ -5,7 +5,7 @@ name: Conformance
 #
 #   jobs:
 #     conformance:
-#       uses: trsdn/.github/.github/workflows/conformance.yml@main
+#       uses: trsdn/.github/.github/workflows/conformance.yml@<full-commit-sha>
 
 on:
   workflow_call:
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the calling repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: repository
 
@@ -57,7 +57,7 @@ jobs:
       # the checker are taken from that exact tag. Validating against the moving
       # default branch would silently change what a recorded result means.
       - name: Check out the standard at the recorded version
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: trsdn/.github
           ref: ${{ steps.record.outputs.ref }}
