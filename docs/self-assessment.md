@@ -1,7 +1,7 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.27.0
-- Assessed on: 2026-09-21
+- Standard version: 1.28.0
+- Assessed on: 2026-09-22
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
 
@@ -137,11 +137,10 @@ builds, no translations to trace.
 from a fork therefore never executes in a run that can read repository secrets,
 and there is no trigger to constrain.
 
-**`S14`.** The validation scripts run once per assessment or CI run, not on
-every frame, request, or keystroke; none sits in a path a user waits on at
-startup; none scales with unbounded user-supplied content; and no issue or
-note treats any of them as performance-sensitive. No performance-sensitive
-path exists.
+**`S14`.** Retired at 1.28.0 and restated as `REC-01`, so there is nothing to
+assess. The recommendation is worth following here and is not recorded: the
+validation scripts and the link checker walk whatever tree they are pointed at,
+which is the one place in this repository where cost follows input size.
 
 **`R01`, `R05`, `R08`.** Releases carry a document, not a package. There is no
 package manifest to complete, no installable artifact for a smoke kit to check,
