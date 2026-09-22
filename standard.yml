@@ -21,6 +21,16 @@ prefixes:
   X: "Accessibility"
   Y: "Data Protection And Privacy"
 
+# The criteria the standard names critical. A record holding a failing one
+# is `At risk`, which scripts/conformance.py derives rather than accepts.
+critical:
+  - "B04"
+  - "D01"
+  - "D02"
+  - "D03"
+  - "D06"
+  - "D04"
+
 criteria:
   - id: "B01"
     section: "Baseline"

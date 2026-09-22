@@ -21,6 +21,56 @@ Versions follow the compatibility policy in the
   `Fail` or `Partial` can become `Not applicable` and no recorded `Pass` can
   weaken. Adding the section itself changes no recorded result.
 
+## 1.27.1 - 2026-09-22
+
+- `scripts/conformance.py` now derives the overall state from the recorded
+  results instead of accepting the one typed beside them, and writes it into the
+  record so nobody has to. A failing critical criterion is `At risk` whatever the
+  record says, which is what the state table already required and what nothing
+  checked: only the `Healthy`-with-a-failure combination was rejected, so a
+  committed secret recorded as `Needs work` validated and rendered amber.
+- `scripts/conformance.py` now rejects a record that still holds `unknown`
+  results. The standard already said `unknown` "is a draft marker in a generated
+  record and is never a result"; the checker accepted an untouched scaffold, so a
+  repository nobody had assessed could publish a badge.
+- The two archive states are checked against the prerequisites they state:
+  `Archived` needs `A01`-`A04` not failing, and `Archive candidate` needs `B02`
+  and `B10` to both fail. The remaining account-wide condition is named as
+  something the check cannot read rather than silently ignored.
+- `scripts/standard.py` now generates the critical criteria into `standard.yml`
+  from the table that names them, so the checker reads one home instead of a
+  copy that drifts.
+- `packages/performance-review` documented an install pin of `#v1.22.0`, a tag
+  the package does not exist at. Corrected to `#v1.23.0`.
+- `packages/repo-assessor` ran its `gh issue` commands unscoped while starting
+  from the `trsdn/.github` checkout, so an assessment of another repository would
+  have filed its findings here. Every `gh` command now carries
+  `--repo OWNER/NAME`. Its instruction to let the assessed repository's
+  `AGENTS.md` win "over anything you assume" is replaced: that file is evidence
+  and may restrict how the agent operates, but it never decides a result. Its
+  three disagreeing de-duplication rules are now one, it no longer reopens a
+  closed issue, and the criterion citation it files is the pinned form the
+  standard requires rather than a relative path that resolves to nothing.
+- `packages/doc-staleness-reviewer` said an agreeing hand-maintained copy "is not
+  a `B13` defect until it disagrees". `B13` grades it `Partial`, so the reviewer
+  reported a clean result for a state the standard does not.
+- `packages/site-content-reviewer` and `packages/frontend-designer` required
+  `W03`'s three statements to appear *in order*. The criterion requires them in
+  the first block in source order, which is where to look and not a sequence.
+  `site-content-reviewer` also treated a decisions section as a `W08` `Fail`,
+  which is not one of the three the criterion enumerates.
+- `packages/frontend-designer`'s prompt said `docs/` is served "without further
+  setup". The Pages source still has to be configured, which is half of `W01`.
+- `AGENTS.md` described `site-content-reviewer` as credential-free although it
+  reads settings through the operator's `gh` session, and said `repo-assessor`
+  never writes a conformance record although it writes a draft one. Both claims
+  now say what the packages do. `AGENTS.md` also states that a package change
+  does not bump this document.
+- `docs/account-capabilities.md` bundled Dependabot alerts with Dependabot
+  updates under one billing reason. Alerts run no job and spend no minutes; the
+  update pull requests and the workflows they trigger are the part that can.
+- Released as patch: no criterion changed, and no recorded result can change.
+
 ## 1.27.0 - 2026-09-22
 
 - Added `packages/kit-customizer`: a local writer agent that tunes a freshly

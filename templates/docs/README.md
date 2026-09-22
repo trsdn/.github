@@ -12,6 +12,7 @@ automatically.
 | `.github/workflows/links.yml` | Fails when a relative link between files in the repository is broken. External links are not checked. |
 | `.github/workflows/secret-scan.yml` | Calls the shared secret scan on push, pull request, and weekly. |
 | `.github/dependabot.yml` | Version updates for `github-actions`, the only ecosystem a prose repository has. |
+| `README.template.md` | A README skeleton carrying the five things `T01` asks to be visible: scope, audience, navigation, status, and freshness. Copy it to `README.md` and resolve every `TODO(...)` and `EDIT:` marker. |
 
 The Markdown workflow is a copy, not a call, because the workflow in the shared
 repository is not published as a reusable one.
@@ -23,15 +24,20 @@ repository is not published as a reusable one.
    relax, with a reason next to each.
 2. Copy `links.yml`.
 3. Copy `secret-scan.yml` and `dependabot.yml`.
-4. CodeQL has nothing to analyse in prose, so `P13` is not applicable unless the
+4. Copy `README.template.md` to `README.md` and work through its markers. Do
+   this last, so the checks it promises already exist: a README claiming a link
+   check that nobody copied is the restatement problem `B13` is about, not a
+   documentation improvement.
+5. CodeQL has nothing to analyse in prose, so `P13` is not applicable unless the
    repository holds code. If it holds scripts, follow the
    [CodeQL guide](../../docs/guides/codeql.md).
-5. Write a [first conformance record](../conformance-first-record.md).
+6. Write a [first conformance record](../conformance-first-record.md).
 
 ## Criteria this kit serves
 
 | Criterion | Where |
 |---|---|
+| [`T01`](../../docs/repository-quality-standard.md#t01) | `README.template.md` carries scope, audience, navigation, status, and freshness as headings, so they are answered by filling them in rather than by remembering they exist. |
 | [`S02`](../../docs/repository-quality-standard.md#s02) | The link check is a check that fails. The [tests and lint guide](../../docs/guides/tests-and-lint.md) shows a failure-path check for a content repository. |
 | [`S03`](../../docs/repository-quality-standard.md#s03) | `markdown.yml`. |
 | [`S05`](../../docs/repository-quality-standard.md#s05) | `secret-scan.yml`. See the [secret scanning guide](../../docs/guides/secret-scanning.md). |

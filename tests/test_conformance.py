@@ -13,9 +13,34 @@ import subprocess
 import sys
 import unittest
 
-from support import ROOT, SCRIPTS, ScriptTestCase
+from support import MINIMAL_STANDARD, ROOT, SCRIPTS, ScriptTestCase
 
 STALE_AFTER_DAYS = 183
+
+# `B02` is the criterion the test standard names critical, and `S01` is an
+# ordinary one. A record's state follows its results, so a test that wants a
+# state has to record the results that produce it.
+CRITICAL_FAILURE = {"B01": "pass", "B02": "fail", "S01": "pass"}
+ORDINARY_FAILURE = {"B01": "pass", "B02": "pass", "S01": "fail"}
+
+# A standard with an Archived section, for the states whose prerequisites name
+# criteria the minimal standard does not have.
+ARCHIVE_STANDARD = MINIMAL_STANDARD.replace(
+    "| B | Baseline |",
+    "| A | Archived |\n| B | Baseline |",
+).replace(
+    "## Conformance Records",
+    """## Archived
+
+| ID | Requirement | Expected evidence |
+|---|---|---|
+| <a id="a01"></a>A01 | First archive requirement | Some evidence |
+| <a id="a02"></a>A02 | Second archive requirement | Some evidence |
+| <a id="a03"></a>A03 | Third archive requirement | Some evidence |
+| <a id="a04"></a>A04 | Fourth archive requirement | Some evidence |
+
+## Conformance Records""",
+)
 
 
 def record(
@@ -55,6 +80,9 @@ class ConformanceTests(ScriptTestCase):
     def badge(self):
         return self.repository / ".github" / "badges" / "conformance.svg"
 
+    def record_path(self):
+        return self.repository / ".github" / "conformance.yml"
+
     def generate_badge(self) -> None:
         self.assertAccepts(self.run_script("conformance.py"))
 
@@ -68,7 +96,7 @@ class ConformanceTests(ScriptTestCase):
         self.assertIn("badge in sync", result.stdout)
 
     def test_badge_carries_the_state_and_its_colour(self) -> None:
-        self.write_record(record(state="At risk"))
+        self.write_record(record(state="At risk", criteria=CRITICAL_FAILURE))
         self.generate_badge()
         svg = self.badge().read_text()
         self.assertIn("At risk", svg)
@@ -88,7 +116,7 @@ class ConformanceTests(ScriptTestCase):
         self.assertRejects(self.check(), "badge is missing")
 
     def test_rejects_a_hand_edited_badge(self) -> None:
-        self.write_record(record(state="Needs work"))
+        self.write_record(record(state="Needs work", criteria=ORDINARY_FAILURE))
         self.generate_badge()
         self.badge().write_text(self.badge().read_text().replace("Needs work", "Healthy"))
         self.assertRejects(self.check(), "badge does not match the record")
@@ -103,7 +131,7 @@ class ConformanceTests(ScriptTestCase):
     def test_badge_follows_the_record_when_the_record_changes(self) -> None:
         self.write_record(record(state="Healthy"))
         self.generate_badge()
-        self.write_record(record(state="At risk"))
+        self.write_record(record(state="At risk", criteria=CRITICAL_FAILURE))
         self.assertRejects(self.check(), "badge does not match the record")
         self.generate_badge()
         self.assertAccepts(self.check())
@@ -147,6 +175,63 @@ class ConformanceTests(ScriptTestCase):
         )
         self.generate_badge()
         self.assertAccepts(self.check())
+
+    # The state follows the results -----------------------------------------
+
+    def test_rejects_a_draft_record(self) -> None:
+        """An untouched scaffold is not an assessment, whatever state it names."""
+        self.write_record(
+            record(state="Needs work", criteria={"B01": "unknown", "B02": "pass", "S01": "pass"})
+        )
+        self.assertRejects(self.check(), "1 criteria are still `unknown`")
+
+    def test_rejects_a_critical_failure_recorded_as_needs_work(self) -> None:
+        """`B02` is critical in the test standard, so its failure is `At risk`."""
+        self.write_record(record(state="Needs work", criteria=CRITICAL_FAILURE))
+        self.assertRejects(self.check(), "they support `At risk` because B02 is critical")
+
+    def test_rejects_healthy_results_recorded_as_needs_work(self) -> None:
+        """The disagreement is rejected in both directions, not only the flattering one."""
+        self.write_record(record(state="Needs work"))
+        self.assertRejects(self.check(), "they support `Healthy`")
+
+    def test_accepts_a_critical_failure_recorded_as_at_risk(self) -> None:
+        self.write_record(record(state="At risk", criteria=CRITICAL_FAILURE))
+        self.generate_badge()
+        self.assertAccepts(self.check())
+
+    def test_writes_the_state_the_results_support(self) -> None:
+        """Generating the badge settles the state, so nobody has to type it."""
+        self.write_record(record(state="Healthy", criteria=CRITICAL_FAILURE))
+        self.generate_badge()
+        self.assertIn('state: "At risk"', self.record_path().read_text())
+        self.assertAccepts(self.check())
+
+    def test_does_not_write_a_state_over_a_draft(self) -> None:
+        """A record nobody has assessed gets no state written into it."""
+        draft = record(
+            state="Needs work", criteria={"B01": "unknown", "B02": "pass", "S01": "pass"}
+        )
+        self.write_record(draft)
+        self.run_script("conformance.py")
+        self.assertIn('state: "Needs work"', self.record_path().read_text())
+
+    def test_rejects_archived_when_an_archive_criterion_fails(self) -> None:
+        self.write_standard(ARCHIVE_STANDARD)
+        self.generate_catalog()
+        self.write_record(
+            record(
+                state="Archived",
+                criteria={"A01": "fail", "A02": "pass", "A03": "pass", "A04": "pass"},
+            )
+        )
+        self.assertRejects(self.check(), "state `Archived` requires `A01`-`A04` to be met")
+
+    def test_rejects_archive_candidate_without_its_stated_failures(self) -> None:
+        self.write_record(record(state="Archive candidate"))
+        self.assertRejects(
+            self.check(), "state `Archive candidate` requires `B02` and `B10` to both fail"
+        )
 
     # Version pinning -------------------------------------------------------
 
@@ -260,6 +345,7 @@ class ConformanceTests(ScriptTestCase):
         self.assertAccepts(self.init())
         path = self.repository / ".github" / "conformance.yml"
         filled = path.read_text().replace("YYYY-MM-DD", dt.date.today().isoformat())
+        filled = filled.replace('state: "Needs work"', 'state: "Healthy"')
         path.write_text(filled.replace(": unknown", ": pass"))
         self.generate_badge()
         self.assertAccepts(self.check())
