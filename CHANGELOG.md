@@ -6,6 +6,21 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.28.0 - 2026-09-22
+
+- Added [Recommendations](docs/repository-quality-standard.md#recommendations):
+  practice this account believes in and does not assess. A recommendation
+  produces no result, appears in no conformance record, changes no overall
+  state, and may never be a reason for a result. They are numbered `REC-01`
+  onwards so one can never be mistaken for a criterion.
+- Retired `S14`, and restated it as `REC-01`. Whether a path is
+  performance-sensitive was a judgement no fixed line decided consistently, so
+  the criterion measured whether a sentence existed rather than whether the
+  practice did. The advice was worth keeping; the result was not.
+- Released as minor: `S14`'s applicability narrows to nothing, so a recorded
+  `Fail` or `Partial` can become `Not applicable` and no recorded `Pass` can
+  weaken. Adding the section itself changes no recorded result.
+
 ## 1.27.1 - 2026-09-22
 
 - `scripts/conformance.py` now derives the overall state from the recorded

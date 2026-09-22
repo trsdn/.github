@@ -109,6 +109,14 @@ the suite goes red. A test that passes either way is not coverage.
   one silently invalidates those citations.
 - **Claim the prefix.** A new section claims its letter in the prefix register in
   the same change.
+- **Prefer a recommendation to a criterion.** Before adding a criterion, ask
+  whether the thing is a property a repository either has or lacks, or advice.
+  Advice belongs in
+  [Recommendations](docs/repository-quality-standard.md#recommendations), which
+  costs nothing to carry: a recommendation produces no result, so it is never
+  assessed, never recorded, and never a reason to lower one. A criterion is
+  applied to every repository it reaches at every assessment, so it should earn
+  that. `REC-01` exists because `S14` did not.
 - **Classify a criterion that needs a runner.** A new or changed criterion whose
   evidence names a workflow run is placed against
   [Automation Availability](docs/repository-quality-standard.md#automation-availability)

@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.27.1
+- Version: 1.28.0
 - Last reviewed: 2026-09-21
 - Review cadence: every six months, even when nothing changes
 
@@ -530,7 +530,7 @@ instead.
 | <a id="s11"></a>S11 | Workflow token permissions are declared and no broader than the work requires | A `permissions` block on every workflow or on each of its jobs |
 | <a id="s12"></a>S12 | An executable reference in a workflow cannot change underneath the repository | Action and reusable-workflow references |
 | <a id="s13"></a>S13 | A workflow triggered by an untrusted contribution cannot read repository secrets | Workflow triggers and secret usage, or an explicit not-applicable result |
-| <a id="s14"></a>S14 | A repository with a performance-sensitive path states which path and how it is reviewed or measured | README, `AGENTS.md`, `docs/`, or an ADR naming the path and the practice |
+| <a id="s14"></a>S14 | Retired 2026-09-22 (standard 1.28.0) — naming a performance practice is advice, not a measurable property, and is now [`REC-01`](#recommendations) | None — retired |
 
 `S01` is decided by reading the lockfile or manifest and the documented commands;
 running them is not required. A library that declares dependency ranges in its
@@ -671,25 +671,6 @@ One that lets contributor-controlled content run in a job that can read a
 repository secret fails. The result does not improve because the workflow is
 guarded by a label, an approval, or a maintainer's attention. What the
 workflow's own token may write is decided by `S11`, not here.
-
-`S14` asks whether a practice exists, not whether performance is good: the
-latter is a judgement no fixed line can decide consistently, which is why it is
-not asked here. A path is *performance-sensitive* when at least one holds: it
-runs on every frame, request, or keystroke; it sits in a startup or launch
-sequence a user waits on; its cost scales with the size of user-supplied
-content or input, with no fixed bound; or a past issue, benchmark, or profiling
-note in the repository already treats it as one. A repository with no such
-path is `Not applicable`, recorded with what was looked for.
-
-Where such a path exists, naming it and stating the practice is a `Pass`: a
-comment in the code, a line in `AGENTS.md` or the README, or an ADR, saying
-which path and how it is reviewed or measured, whether that is a benchmark
-suite, a profiling routine run before a release, or a documented review pass —
-[a performance-review agent](../packages/performance-review/README.md) run
-before merging a change to that path is one way to meet "reviewed," not the
-only one. Naming the path without stating a practice, or stating a practice
-without naming which path it covers, is a `Partial`. A performance-sensitive
-path with neither is a `Fail`.
 
 ## Deployable Repositories
 
@@ -2053,6 +2034,47 @@ unreproducible releases (`S01`, `R03`, `R04`). Their failure gives `Needs work`
 like any other, and
 [Deciding Without The Maintainer](#deciding-without-the-maintainer) explains why
 intent does not change it.
+
+## Recommendations
+
+Not every good idea should become a criterion. A criterion is applied to every
+repository it reaches, by an assessor, at every assessment, and recorded in a
+record somebody has to keep true. That cost is worth paying for a property whose
+absence matters. It is not worth paying for advice.
+
+A **recommendation** is practice this account believes in and does not assess.
+
+**A recommendation produces no result.** It is never `Pass`, `Partial`, `Fail`,
+or `Not applicable`, because those are results and a recommendation has none. It
+appears in no conformance record, changes no overall state, and is named in no
+badge. A repository that follows none of the recommendations below is not worse
+conformant than one that follows all of them; the standard has not measured it.
+
+**An assessor never lowers a result for one.** Where a repository would meet a
+criterion but ignores a recommendation, the result is what the criterion says. An
+assessment that records otherwise is wrong, and this sentence is the one to cite
+when correcting it. A recommendation may be mentioned in linked evidence as an
+observation; it may not appear as a reason for a result.
+
+**Recommendations are numbered separately** as `REC-01`, `REC-02`, and so on, so
+that a recommendation can never be mistaken for a criterion in an issue, a
+record, or a conversation. The numbers are append-only like criterion
+identifiers, and a withdrawn recommendation keeps its number and says so.
+
+**Adding one is not a compatibility event.** Because no recorded result can
+change, adding, changing, or withdrawing a recommendation is a patch under
+[Versioning And Compatibility](#versioning-and-compatibility). Moving a criterion
+*to* a recommendation is not: that narrows applicability to nothing and is minor,
+exactly as a retirement is.
+
+This section exists because the alternative is worse in both directions. Without
+it, every practice worth writing down has to become a criterion, which is how a
+standard grows until nobody can finish an assessment; or it stays unwritten,
+which is how the same decision gets made differently in every repository.
+
+| | Recommendation |
+|---|---|
+| <a id="rec-01"></a>REC-01 | Name the performance-sensitive paths a change should be reviewed against, and how they are measured — a benchmark, a profiling routine, or a documented review pass. This was criterion `S14` until 1.28.0. It is worth doing and it is not worth assessing: whether a path is performance-sensitive is a judgement no fixed line decided consistently, so the criterion measured whether a sentence existed rather than whether the practice did. [A performance-review agent](../packages/performance-review/README.md) is one way to run such a review. |
 
 ## Changing This Standard
 
