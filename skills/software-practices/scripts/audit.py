@@ -35,6 +35,7 @@ SKIP_DIRS = {
     "__pycache__",
     ".next",
     "target",
+    ".worktrees",
 }
 
 CODE_SUFFIXES = {
@@ -115,6 +116,16 @@ ARCHITECTURE_WORDS = (
 )
 
 PLACEHOLDER_EMAILS = ("example.com", "example.org", "noreply", "users.noreply.github.com")
+
+# X04: colour and decoration in terminal output. ANSI escapes are fine when the
+# program also honours a way to turn them off; box-drawing and symbols are fine
+# when they are not the only thing carrying the meaning.
+ANSI = re.compile(r"\\033\[|\\x1b\[|\\u001b\[|\\e\[|chalk\.|colorama|termcolor|ANSIColor")
+NO_COLOUR = re.compile(r"(?i)NO_COLOR|isatty|is_a_tty|supportsColor|FORCE_COLOR|--no-color")
+DECORATION = re.compile(
+    "[\u2500-\u257f\u2580-\u259f\u2190-\u21ff\u2600-\u27bf"
+    "\U0001f300-\U0001faff\u2713\u2714\u2717\u2718]"
+)
 
 
 def files(root: pathlib.Path, limit: int = 4000) -> list[pathlib.Path]:
@@ -296,6 +307,55 @@ def check_s10(root: pathlib.Path) -> dict:
     )
 
 
+def check_x04(root: pathlib.Path, paths: list[pathlib.Path]) -> dict:
+    colour: list[str] = []
+    decoration: list[str] = []
+    escape_hatch: list[str] = []
+    for path in paths:
+        if path.suffix.lower() not in CODE_SUFFIXES:
+            continue
+        try:
+            text = path.read_text(errors="replace")
+        except OSError:
+            continue
+        relative = str(path.relative_to(root))
+        for number, line in enumerate(text.splitlines(), start=1):
+            where = f"{relative}:{number}"
+            if NO_COLOUR.search(line):
+                escape_hatch.append(where)
+            elif ANSI.search(line):
+                colour.append(where)
+            elif DECORATION.search(line) and ('"' in line or "'" in line):
+                decoration.append(f"{where}  {line.strip()[:70]}")
+    if not colour and not decoration:
+        return finding(
+            "unknown",
+            "no colour or decorated output was found",
+            "X04 is Not applicable where the product has no terminal output; say what you "
+            "looked for",
+        )
+    if colour and not escape_hatch:
+        return finding(
+            "gap",
+            f"{len(colour)} site(s) emit colour and nothing was seen turning it off",
+            "honour NO_COLOR, or check isatty, so piped and redirected output stays readable",
+            evidence=colour[:5],
+        )
+    if decoration:
+        return finding(
+            "judgement",
+            f"{len(decoration)} line(s) put box-drawing or symbols in output"
+            + (f"; colour has an off switch at {escape_hatch[0]}" if escape_hatch else ""),
+            "check the meaning survives without them: a tick that is the only signal of success "
+            "is the failure X04 names",
+            evidence=decoration[:5],
+        )
+    return finding(
+        "met",
+        f"{len(colour)} colour site(s), with an off switch at {escape_hatch[0]}",
+    )
+
+
 def audit(root: pathlib.Path) -> dict:
     paths = files(root)
     return {
@@ -305,6 +365,7 @@ def audit(root: pathlib.Path) -> dict:
             "S06": check_s06(root, paths),
             "S07": check_s07(root, paths),
             "S10": check_s10(root),
+            "X04": check_x04(root, paths),
         },
     }
 

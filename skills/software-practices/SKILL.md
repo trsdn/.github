@@ -1,6 +1,6 @@
 ---
 name: "software-practices"
-description: "Reads a repository for the software practices that can be read rather than run: reproducible setup, environment-driven configuration with no exposed defaults, logs and errors that are actionable without leaking credentials, and documented architecture. Covers S01, S06, S07 and S10 of the trsdn Repository Quality Standard. Use before a release, when adopting the standard, or when an assessment reports one of those gaps."
+description: "Reads a repository for the software practices that can be read rather than run: reproducible setup, environment-driven configuration with no exposed defaults, logs and errors that are actionable without leaking credentials, documented architecture, and terminal output that survives without colour. Covers S01, S06, S07, S10 and X04 of the trsdn Repository Quality Standard. Use before a release, when adopting the standard, or when an assessment reports one of those gaps."
 ---
 
 <!-- markdownlint-disable MD041 -->
@@ -57,6 +57,13 @@ question the criterion actually asks: *what could a new contributor break withou
 knowing it?* A required ordering, an external service, a compatibility floor. If
 the answer is not written anywhere, that is the gap, whatever else the document
 covers.
+
+**`X04` output without colour.** A command's output is read through a pipe, in a
+log, and by a screen reader as often as it is read in a colourful terminal. Two
+failures: colour with no way to turn it off, and meaning carried only by a symbol.
+A green tick that is the *only* signal of success disappears the moment the output
+is piped; a tick beside the word "passed" is decoration and is fine. The audit
+cannot tell those apart, which is why it reports the lines and asks.
 
 ## Rules
 
