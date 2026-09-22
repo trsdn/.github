@@ -30,7 +30,7 @@ def run(command: list[str], dry_run: bool) -> bool:
     result = subprocess.run(command, capture_output=True, text=True, check=False)
     if result.returncode != 0:
         message = (result.stderr or result.stdout).strip()
-        print(f"baseline: failed: {' '.join(command)}\n  {message}", file=sys.stderr)
+        print(f"repo-setup: failed: {' '.join(command)}\n  {message}", file=sys.stderr)
         return False
     return True
 
@@ -56,16 +56,16 @@ def main() -> int:
     arguments = parser.parse_args()
 
     if not shutil.which("gh"):
-        print("baseline: gh is not on PATH", file=sys.stderr)
+        print("repo-setup: gh is not on PATH", file=sys.stderr)
         return 1
 
     if arguments.description is None and arguments.topics is None and arguments.homepage is None:
-        print("baseline: nothing to apply; pass --description, --topics, or --homepage")
+        print("repo-setup: nothing to apply; pass --description, --topics, or --homepage")
         return 1
 
     if arguments.description is not None and len(arguments.description) > MAX_DESCRIPTION:
         print(
-            f"baseline: description is {len(arguments.description)} characters, "
+            f"repo-setup: description is {len(arguments.description)} characters, "
             f"longer than GitHub's {MAX_DESCRIPTION}",
             file=sys.stderr,
         )
@@ -77,14 +77,15 @@ def main() -> int:
         invalid = [t for t in topics if not valid_topic(t)]
         if invalid:
             print(
-                "baseline: these are not valid GitHub topics (lowercase, alphanumeric "
+                "repo-setup: these are not valid GitHub topics (lowercase, alphanumeric "
                 f"and hyphens, starting alphanumeric): {', '.join(invalid)}",
                 file=sys.stderr,
             )
             return 1
         if len(topics) > MAX_TOPICS:
             print(
-                f"baseline: {len(topics)} topics, more than GitHub's {MAX_TOPICS}", file=sys.stderr
+                f"repo-setup: {len(topics)} topics, more than GitHub's {MAX_TOPICS}",
+                file=sys.stderr,
             )
             return 1
 
@@ -123,7 +124,7 @@ def main() -> int:
 
     if not ok:
         return 1
-    print("baseline: applied" if not arguments.dry_run else "baseline: dry run only")
+    print("repo-setup: applied" if not arguments.dry_run else "repo-setup: dry run only")
     return 0
 
 
