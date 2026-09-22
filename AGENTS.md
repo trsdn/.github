@@ -37,7 +37,7 @@ statistics cards.
 | `docs/decisions/` | Architectural decision records. |
 | `docs/guides/` | How to meet the criteria, with worked examples; `README.md` indexes them by criterion. |
 | `templates/AGENTS.md` | Starting point published for other repositories. |
-| `packages/` | Versioned agent packages other repositories install with APM and pin to a tag of this repository. Keep them free of per-repository content. `apple-hig-review`, `performance-review`, `doc-staleness-reviewer` and `site-content-reviewer` are credential-free and read-only; `frontend-designer` and `kit-customizer` write files but never commit; `repo-assessor` needs the operator's own `gh` write access to file issues and never writes a conformance record itself. |
+| `packages/` | Versioned agent packages other repositories install with APM and pin to a tag of this repository. Keep them free of per-repository content. `apple-hig-review`, `performance-review` and `doc-staleness-reviewer` are credential-free and read-only; `site-content-reviewer` is read-only but reads repository settings through the operator's own `gh` session; `frontend-designer` and `kit-customizer` write files but never commit; `repo-assessor` needs the operator's own `gh` write access to file issues, and writes only a draft record under `draft/`, never the repository's own `.github/conformance.yml`. |
 | `skills/` | Skills that carry out a criterion as well as assess it: instructions for the judgement, and the scripts the skill runs for the parts that must not be guessed. A criterion is only finished when something here, in `templates/`, or in `docs/guides/` supplies the means to meet it. Scripts stay standard-library-only and change nothing without a value the caller supplied. |
 | `docs/fleet-rollout.md` | The procedure agents follow to bring an account's repositories to the standard. |
 | `docs/account-capabilities.md` | What GitHub provides to this account's private repositories. Hand-written from what the API reports; the private repositories rules cite it. |
@@ -127,6 +127,15 @@ the suite goes red. A test that passes either way is not coverage.
   [Versioning And Compatibility](docs/repository-quality-standard.md#versioning-and-compatibility),
   which is the only place the rules are stated. The check enforces that the
   document version matches the newest changelog entry.
+- **A package is not the standard, and does not bump it.** Adding, changing, or
+  fixing anything under `packages/` changes no criterion and no recorded result,
+  so it is not a version of this document. Record it in the changelog under the
+  version that carries the next standard change, or under a patch if one is
+  being cut anyway, and never bump the standard for it alone. The reason is the
+  cost: a bump obliges a full reassessment of this repository, and a
+  reassessment that reads no new evidence produces a record whose `assessed_on`
+  is a date nobody assessed anything on. Six package releases in one day is how
+  that date came to be older than the version it names.
 - **A version bump reassesses this repository too.** The version is named by this
   repository's own record, so bumping it without reassessing leaves the record
   citing a version it was not assessed against, and `scripts/conformance.py

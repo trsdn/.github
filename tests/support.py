@@ -51,6 +51,14 @@ Trailing text.
 | ID | Requirement | Expected evidence |
 |---|---|---|
 | <a id="s01"></a>S01 | First software requirement | More evidence |
+
+## Conformance Records
+
+The critical criteria are the ones whose failure means a committed secret:
+
+| Criterion | Why its failure is critical |
+|---|---|
+| `B02` | A secret is committed to the repository |
 """
 
 MINIMAL_CHANGELOG = """\

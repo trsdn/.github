@@ -34,7 +34,8 @@ the README, `AGENTS.md`, the contributing guide, and `docs/`. A fact stated on
 one of those and linked to from elsewhere is not a restatement; only a second
 hand-written copy is. Where two copies of the same fact exist, compare them
 literally — a version number, a command's exact flags, a stated response time —
-and report only where they disagree. Generated or templated restatement (a
+and report both outcomes: copies that disagree are a `B13` `Fail`, and copies
+that agree are a `B13` `Partial`. Generated or templated restatement (a
 badge, a generated table) does not count.
 
 ## What is not a finding
@@ -42,8 +43,6 @@ badge, a generated table) does not count.
 - A passage that is old but still accurate. Age alone is not staleness.
 - A passage marked as historical, superseded, or archived — that is the
   standard's own escape hatch, not a gap.
-- A restatement that still agrees with its home. It may be worth simplifying to
-  a link, but it is not a `B13` defect until it disagrees.
 - A fact whose currency you cannot verify against something concrete in the
   repository. Report only what you checked, and say what you could not check
   rather than guessing.

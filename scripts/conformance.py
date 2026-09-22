@@ -56,7 +56,28 @@ STALE_COLOUR = "#8250df"
 SCALAR = re.compile(r'^(?P<key>[a-z_]+):\s*"?(?P<value>[^"]*)"?\s*$')
 ENTRY = re.compile(r'^  (?P<key>[A-Z]\d{2}):\s*"?(?P<value>[a-z]+)"?\s*$')
 CATALOG_ID = re.compile(r'^  - id: "([A-Z]\d{2})"\s*$', re.M)
+CATALOG_CRITICAL = re.compile(r'^  - "([A-Z]\d{2})"\s*$', re.M)
 CATALOG_VERSION = re.compile(r'^version: "(?P<version>[^"]+)"\s*$', re.M)
+
+ACTIVE_STATES = ("Healthy", "Needs work", "At risk")
+
+
+def derive_state(criteria: dict[str, str], critical: set[str]) -> str | None:
+    """Return the active state these results support, or None when the catalog is silent.
+
+    The rule is the state table's, not a new one: a failing critical criterion is
+    `At risk`, any other failure is `Needs work`, and no failure is `Healthy`. A
+    catalog without a critical set predates this check and cannot decide `At risk`,
+    so nothing is derived from it.
+    """
+    if not critical:
+        return None
+    failed = {identifier for identifier, result in criteria.items() if result == "fail"}
+    if failed & critical:
+        return "At risk"
+    if failed:
+        return "Needs work"
+    return "Healthy"
 
 
 SCAFFOLD = """\
@@ -199,7 +220,74 @@ def validate(
             "state `Healthy` is not consistent with failing criteria: " + ", ".join(failed)
         )
 
+    drafts = sorted(i for i, r in criteria.items() if r == "unknown")
+    if drafts:
+        shown = ", ".join(drafts[:6])
+        if len(drafts) > 6:
+            shown += f" and {len(drafts) - 6} more"
+        errors.append(
+            f"{len(drafts)} criteria are still `unknown`, which is a draft marker and "
+            f"never a result: {shown}. Assess them, or this record claims an "
+            "assessment nobody made"
+        )
+
+    critical = set(CATALOG_CRITICAL.findall(catalog_text))
+    derived = derive_state(criteria, critical)
+    if derived and not drafts and state in ACTIVE_STATES and state != derived:
+        failing_critical = sorted(i for i, r in criteria.items() if r == "fail" and i in critical)
+        detail = f" because {', '.join(failing_critical)} is critical" if failing_critical else ""
+        errors.append(
+            f"state `{state}` is not the state these results support: they support "
+            f"`{derived}`{detail}. The state is decided by the results, not typed beside them"
+        )
+
+    if state == "Archived":
+        broken = sorted(i for i in ("A01", "A02", "A03", "A04") if criteria.get(i) == "fail")
+        if broken:
+            errors.append(
+                "state `Archived` requires `A01`-`A04` to be met, and these fail: "
+                + ", ".join(broken)
+            )
+
+    if state == "Archive candidate":
+        stated = [i for i in ("B02", "B10") if criteria.get(i) != "fail"]
+        if stated:
+            errors.append(
+                "state `Archive candidate` requires `B02` and `B10` to both fail, and "
+                + ", ".join(stated)
+                + " does not. Its remaining condition, that no other repository in the "
+                "account references this one, is an account-wide fact this check cannot read"
+            )
+
     return errors, stale
+
+
+def write_state(
+    record_path: pathlib.Path,
+    scalars: dict,
+    criteria: dict[str, str],
+    catalog: pathlib.Path,
+) -> dict:
+    """Put the state the results support into the record, so nobody types it.
+
+    The assessment is the criteria. The state is a reading of them, and a reading
+    a script can take is one a maintainer should not have to take twice.
+    """
+    critical = set(CATALOG_CRITICAL.findall(catalog.read_text()))
+    if any(result == "unknown" for result in criteria.values()):
+        return scalars
+    derived = derive_state(criteria, critical)
+    current = scalars.get("state", "")
+    if not derived or current not in ACTIVE_STATES or current == derived:
+        return scalars
+
+    text = record_path.read_text()
+    updated, count = re.subn(r"^state:.*$", f'state: "{derived}"', text, count=1, flags=re.M)
+    if not count:
+        return scalars
+    record_path.write_text(updated)
+    print(f"conformance: the results support `{derived}`, so the record now says so")
+    return {**scalars, "state": derived}
 
 
 def render(scalars: dict, stale: bool) -> str:
@@ -307,6 +395,10 @@ def main() -> int:
         return 0
 
     scalars, criteria, errors = parse_record(record_path.read_text())
+
+    if not errors and not arguments.check:
+        scalars = write_state(record_path, scalars, criteria, catalog_path)
+
     if not errors:
         validation_errors, stale = validate(scalars, criteria, catalog_path, published_tags)
         errors.extend(validation_errors)
