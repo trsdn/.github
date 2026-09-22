@@ -10,6 +10,7 @@ file is not evidence until the repository has it and it works there.
 
 | Criteria | Read |
 |---|---|
+| The Baseline: [`B01`](../repository-quality-standard.md#b01)-[`B04`](../repository-quality-standard.md#b04), [`B06`](../repository-quality-standard.md#b06)-[`B10`](../repository-quality-standard.md#b10) | [The baseline-setup skill](../../skills/baseline-setup/SKILL.md), which audits them and applies the mechanical ones |
 | [`P03`](../repository-quality-standard.md#p03), [`P12`](../repository-quality-standard.md#p12), [`S05`](../repository-quality-standard.md#s05), [`B16`](../repository-quality-standard.md#b16), [`S09`](../repository-quality-standard.md#s09) | [Repository security settings](repository-security-settings.md) |
 | [`P13`](../repository-quality-standard.md#p13) | [CodeQL](codeql.md) |
 | Any private repository, and [`R09`](../repository-quality-standard.md#r09) | [Private repositories](private-repositories.md), the [account's capabilities](../account-capabilities.md), and the [local gate](../../templates/local-gate/README.md) |
