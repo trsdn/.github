@@ -1,6 +1,6 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.22.0
+- Standard version: 1.23.0
 - Assessed on: 2026-09-21
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)

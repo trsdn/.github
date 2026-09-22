@@ -37,7 +37,7 @@ statistics cards.
 | `docs/decisions/` | Architectural decision records. |
 | `docs/guides/` | How to meet the criteria, with worked examples; `README.md` indexes them by criterion. |
 | `templates/AGENTS.md` | Starting point published for other repositories. |
-| `packages/` | Versioned agent packages other repositories install with APM and pin to a tag of this repository. Keep them free of per-repository content. `apple-hig-review` is credential-free; `repo-assessor` needs the operator's own `gh` write access to file issues, and never writes a conformance record itself. |
+| `packages/` | Versioned agent packages other repositories install with APM and pin to a tag of this repository. Keep them free of per-repository content. `apple-hig-review` and `performance-review` are credential-free; `repo-assessor` needs the operator's own `gh` write access to file issues, and never writes a conformance record itself. |
 | `docs/fleet-rollout.md` | The procedure agents follow to bring an account's repositories to the standard. |
 | `docs/account-capabilities.md` | What GitHub provides to this account's private repositories. Hand-written from what the API reports; the private repositories rules cite it. |
 | `templates/python/`, `node/`, `dotnet/`, `docs/`, `macos-app/`, `local-gate/` | Starter kits for other repositories, including the macOS agent and instruction files. Write them for any repository, never about this one. |

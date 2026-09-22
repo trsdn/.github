@@ -26,3 +26,4 @@ future reader can see why it is the way it is before changing it.
 | [0020](0020-public-applications-need-a-site.md) | Public applications need a site, with the test two pilots lacked | Accepted |
 | [0019](0019-agent-reviewers-run-locally-as-versioned-packages.md) | Agent reviewers run locally as versioned packages, not as workflows | Accepted |
 | [0021](0021-a-local-assessor-files-issues-and-never-the-record.md) | A local repo-assessor package files remediation issues, and never writes the conformance record | Accepted |
+| [0022](0022-a-performance-agent-reviews-not-only-benchmarks.md) | A performance agent reviews code like a senior engineer, not only a benchmark against a baseline | Accepted |
