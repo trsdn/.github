@@ -6,6 +6,17 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.27.0 - 2026-09-22
+
+- Added `packages/kit-customizer`: a local writer agent that tunes a freshly
+  copied starter kit to the repository it landed in, resolving every
+  `TODO(...)` and `# EDIT: ...` marker against the repository's own manifest
+  and, wherever a command exists to check the answer, by running it — a lint
+  pass, a build, a test suite — rather than by reading code and guessing. Wired
+  into [the fleet-rollout procedure](docs/fleet-rollout.md)'s pipeline step.
+  See [decision 0025](docs/decisions/0025-a-customizer-verifies-a-kits-markers-by-running-them.md).
+- Released as minor: a package was added, and no recorded result can change.
+
 ## 1.26.0 - 2026-09-22
 
 - Added `packages/frontend-designer`, a local writer agent that researches a
