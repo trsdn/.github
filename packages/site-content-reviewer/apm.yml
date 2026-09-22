@@ -1,0 +1,3 @@
+name: site-content-reviewer
+version: 1.0.0
+description: A read-only reviewer that checks a published site against W01-W04, W07, W08 and W09's mechanical Fail cases, run locally.

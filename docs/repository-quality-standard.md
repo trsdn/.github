@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.25.0
+- Version: 1.26.0
 - Last reviewed: 2026-09-21
 - Review cadence: every six months, even when nothing changes
 
@@ -1297,6 +1297,11 @@ versions of this standard required every site to vendor (`W05`, `W06`; both
 retired — see [decision 0013](decisions/0013-sites-are-designed-not-templated.md)).
 A site is not penalised for still using it: nothing here forbids vendoring it
 where it genuinely fits, only the requirement that every site do so by default.
+
+[The site design guide](guides/site-design.md) walks through building one, with
+a designer agent that researches the specific product before writing anything
+and a reviewer that checks the mechanical parts and holds the line that design
+taste is out of scope here, the way this section does.
 
 ## Content Boundaries
 

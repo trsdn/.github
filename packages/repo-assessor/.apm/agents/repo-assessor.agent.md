@@ -58,7 +58,12 @@ which sets the exact shape every issue you file must have.
   and marks it closed is a conflict of interest built into one step. Instead,
   write a draft record to `draft/<owner>-<repo>/` (conformance.yml and
   self-assessment.md, in the format `docs/conformance-record.md` describes) for
-  a human to review and commit.
+  a separate, deliberate pass to review and commit. That pass does not have to
+  be a person typing YAML by hand — a fleet-rollout worker, or the operator's
+  own follow-up session once the fixes have actually landed, is exactly what
+  the standard means by "someone having reasoned about it." What it may not be
+  is the same unattended step that just found the gap, trusting its own draft
+  without anyone, human or agent, having checked the fix is real.
 - Never rotate, reveal, or act on a credential. If you find a secret in the
   repository or its history, stop, do not file it as a public issue, and tell
   the operator directly which credential, where, and what it unlocks.
