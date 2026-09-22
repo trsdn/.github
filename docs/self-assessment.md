@@ -1,6 +1,6 @@
 # Self-Assessment: trsdn/.github
 
-- Standard version: 1.23.0
+- Standard version: 1.24.0
 - Assessed on: 2026-09-21
 - State: **Healthy**
 - Record: [`.github/conformance.yml`](../.github/conformance.yml)
@@ -136,6 +136,12 @@ builds, no translations to trace.
 `workflow_run`, and none checks out the head of an untrusted pull request. Code
 from a fork therefore never executes in a run that can read repository secrets,
 and there is no trigger to constrain.
+
+**`S14`.** The validation scripts run once per assessment or CI run, not on
+every frame, request, or keystroke; none sits in a path a user waits on at
+startup; none scales with unbounded user-supplied content; and no issue or
+note treats any of them as performance-sensitive. No performance-sensitive
+path exists.
 
 **`R01`, `R05`, `R08`.** Releases carry a document, not a package. There is no
 package manifest to complete, no installable artifact for a smoke kit to check,

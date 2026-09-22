@@ -6,6 +6,18 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.24.0 - 2026-09-22
+
+- Added `S14`: a repository with a performance-sensitive path states which
+  path and how it is reviewed or measured. "Performance-sensitive" is a fixed
+  test (per-frame/request/keystroke, a path a user waits on at startup, cost
+  that scales with unbounded user input, or one already treated as such by an
+  existing issue or note), not a judgement, and a repository with no such path
+  is `Not applicable`. `packages/performance-review` is cited as one acceptable
+  practice, not the only one. See
+  [decision 0023](docs/decisions/0023-s14-performance-practice-not-performance-quality.md).
+- Released as minor: a criterion was added, and no recorded result can change.
+
 ## 1.23.0 - 2026-09-22
 
 - Added `packages/performance-review`: a local, credential-free agent that
