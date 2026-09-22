@@ -6,6 +6,18 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.23.0 - 2026-09-22
+
+- Added `packages/performance-review`: a local, credential-free agent that
+  reviews code for performance defects the way a senior engineer reviews
+  architecture — complexity, placement, threading, allocation, I/O,
+  concurrency — from reading the diff, not from comparing a number against a
+  stored baseline. It may run a repository's own documented measurement command
+  to support a finding, never one it invents. See
+  [decision 0022](docs/decisions/0022-a-performance-agent-reviews-not-only-benchmarks.md),
+  which also records why a baseline-and-threshold shape was set aside for now.
+- Released as minor: a package was added, and no recorded result can change.
+
 ## 1.22.0 - 2026-09-22
 
 - Added `packages/repo-assessor`: a local, versioned agent that assesses a

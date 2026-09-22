@@ -1,0 +1,3 @@
+name: performance-review
+version: 1.0.0
+description: A read-only reviewer that judges whether code's performance characteristics are sound, the way a senior engineer reviews architecture, run locally and free to measure.
