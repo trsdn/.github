@@ -32,10 +32,10 @@ and `docs/` for a command, a version or supported runtime, or a policy (such as
 security reporting, contribution process, or licence terms) written out in more
 than one of those places by hand. A mention that links to the fact's one home is
 not a restatement. Where two hand-written copies exist, check whether they
-still agree. Copies that disagree are the finding; copies that still agree are
-worth noting but are not themselves a defect — the standard's own text still
-prefers one home, but disagreement is what makes it a stale-content finding
-rather than a style preference.
+still agree. Copies that disagree are a `B13` `Fail`; copies that still agree
+are a `B13` `Partial`, because the standard grades one home and a link as the
+only `Pass`. Report both, and label them that way: an agreeing copy is a smaller
+finding than a disagreeing one, and it is not a clean result.
 
 ## How you report
 

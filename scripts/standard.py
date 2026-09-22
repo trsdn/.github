@@ -33,6 +33,10 @@ VERSION_LINE = re.compile(r"^- Version: (?P<version>\d+\.\d+\.\d+)\s*$", re.M)
 REVIEWED_LINE = re.compile(r"^- Last reviewed: (?P<date>\d{4}-\d{2}-\d{2})\s*$", re.M)
 PREFIX_ROW = re.compile(r"^\| ([A-Z]) \| (.+?) \|\s*$", re.M)
 CHANGELOG_HEADING = re.compile(r"^## (?P<version>\d+\.\d+\.\d+) - ", re.M)
+CRITICAL_INTRO = "The critical criteria are the ones whose failure means"
+TABLE_ROW = re.compile(r"^\| (?P<subject>.+?) \| (?P<reason>.+?) \|\s*$")
+SEPARATOR_ROW = re.compile(r"^\|[\s\-:|]+\|\s*$")
+IDENTIFIER = re.compile(r"`([A-Z]\d{2})`")
 
 
 def fail(message: str) -> None:
@@ -48,6 +52,39 @@ def group_by_prefix(criteria: list[dict]) -> dict[str, list[str]]:
     for criterion in criteria:
         grouped.setdefault(criterion["id"][0], []).append(criterion["id"])
     return grouped
+
+
+def parse_critical(text: str) -> tuple[list[str], list[str]]:
+    """Read the criteria the standard names critical, from the table that names them."""
+    errors: list[str] = []
+    if CRITICAL_INTRO not in text:
+        errors.append("the sentence naming the critical criteria is missing")
+        return [], errors
+
+    block = text.split(CRITICAL_INTRO, 1)[1]
+    critical: list[str] = []
+    started = False
+    for line in block.splitlines():
+        if SEPARATOR_ROW.match(line):
+            continue
+        row = TABLE_ROW.match(line)
+        if not row:
+            if started:
+                break
+            continue
+        subject = row.group("subject")
+        found = IDENTIFIER.findall(subject)
+        if not found:
+            if started:
+                break
+            started = True
+            continue
+        started = True
+        critical.extend(found)
+
+    if not critical:
+        errors.append("the critical criteria table names no criterion")
+    return critical, errors
 
 
 def parse(repository: pathlib.Path) -> tuple[dict, list[str]]:
@@ -110,6 +147,13 @@ def parse(repository: pathlib.Path) -> tuple[dict, list[str]]:
         if numbers != list(range(1, len(numbers) + 1)):
             errors.append(f"prefix `{prefix}` is not contiguous from 01: found {numbers}")
 
+    critical, critical_errors = parse_critical(text)
+    errors.extend(critical_errors)
+    known = {criterion["id"] for criterion in criteria}
+    for identifier in critical:
+        if identifier not in known:
+            errors.append(f"critical criterion `{identifier}` is not a criterion in the document")
+
     document_version = version_match.group("version") if version_match else "0.0.0"
     changelog_text = (repository / CHANGELOG).read_text()
     changelog_match = CHANGELOG_HEADING.search(changelog_text)
@@ -125,6 +169,7 @@ def parse(repository: pathlib.Path) -> tuple[dict, list[str]]:
         "version": document_version,
         "last_reviewed": reviewed_match.group("date") if reviewed_match else "",
         "prefixes": claimed,
+        "critical": critical,
         "criteria": criteria,
     }
     return catalog, errors
@@ -144,6 +189,12 @@ def render(catalog: dict) -> str:
     ]
     for prefix, section in sorted(catalog["prefixes"].items()):
         lines.append(f'  {prefix}: "{escape(section)}"')
+    lines.append("")
+    lines.append("# The criteria the standard names critical. A record holding a failing one")
+    lines.append("# is `At risk`, which scripts/conformance.py derives rather than accepts.")
+    lines.append("critical:")
+    for identifier in catalog["critical"]:
+        lines.append(f'  - "{identifier}"')
     lines.append("")
     lines.append("criteria:")
     for criterion in catalog["criteria"]:

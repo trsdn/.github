@@ -41,8 +41,9 @@ Every one needs real content, not a placeholder:
 ## The landing order (W03)
 
 Before any content but navigation: what the project is, who it is for, and its
-status. In that order, in the page's source order — not merely visible, in the
-markup, so `W03`'s test (reading the source) finds it.
+status. In the page's source order — not merely visible, in the
+markup, so `W03`'s test (reading the source) finds it. The three may appear in
+any order within that first block.
 
 ## Design constraints, not a template
 

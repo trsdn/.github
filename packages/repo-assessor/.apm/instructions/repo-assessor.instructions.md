@@ -14,8 +14,12 @@ every issue.
 - **Title**: the criterion ID(s) and the gap in one line, for example "I02/I03:
   published v1.2.0 artifact is missing repository and licence metadata". A
   reader searching by criterion ID must find it.
-- **Criterion**: link each criterion ID to its anchor in the standard
-  (`docs/repository-quality-standard.md#i02`), and state the observed gap in
+- **Criterion**: link each criterion ID to its anchor in the standard, in the
+  pinned form the standard requires — `https://github.com/trsdn/.github/blob/v<assessed
+  version>/docs/repository-quality-standard.md#i02`, naming the version you
+  assessed against. A relative path resolves to nothing in another repository's
+  issue, and a link to the default branch changes underneath the citation. State
+  the observed gap in
   concrete terms: what you read, in which file or setting, and how it disagrees
   with the requirement. Quote the actual content where that is the clearest
   evidence, not a paraphrase of the rule.
@@ -61,12 +65,16 @@ criterion is about, recorded with what you looked for.
 
 ## De-duplication
 
-Before filing, search: `gh issue list --search "<criterion ID> in:title,body"
---state all --limit 20`. An open issue citing the same criterion ID is not
+Before filing, search: `gh issue list --repo OWNER/NAME --search "<criterion ID>
+in:title,body" --state all --limit 20`. Every `gh` command carries
+`--repo OWNER/NAME`, because you are running from the `trsdn/.github` checkout
+and an unscoped command would act on that repository instead. An open issue
+citing the same criterion ID is not
 duplicated — read it, and comment only if your assessment found something the
 issue does not already say. A closed issue citing the criterion ID that the
-current assessment still finds failing is reopened with a comment explaining
-what changed, not refiled as new.
+current assessment still finds failing is neither reopened nor refiled: a
+maintainer closed it, and reversing that is their decision, not yours. Record it
+and give the operator the number.
 
 ## What stays out of an issue
 

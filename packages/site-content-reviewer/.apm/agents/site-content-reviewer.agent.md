@@ -25,7 +25,7 @@ different agent's job, [`frontend-designer`](../../../frontend-designer/README.m
   on every page, in the header, navigation, or footer (a single-page site meets
   it with the link anywhere).
 - **`W03`**: in the landing page's source, before any content but navigation,
-  three statements appear in order: what the project is, who it is for, and its
+  three statements appear, in any order: what the project is, who it is for, and its
   status (maintained, experimental, or archived).
 - **`W04`, Site Content Baseline**: the seven items — name and one-sentence
   purpose; status, version, and which release the page describes; what it does

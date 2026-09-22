@@ -52,7 +52,7 @@ complete review.
      - copilot
    dependencies:
      apm:
-       - trsdn/.github/packages/performance-review#v1.22.0
+       - trsdn/.github/packages/performance-review#v1.23.0
    ```
 
 3. Run `apm install`. It writes the agent, instructions, prompt and rule files

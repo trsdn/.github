@@ -32,7 +32,9 @@ One direction is `Partial`.
 Read the landing page's HTML source in order. Before any content other than
 navigation, three things must appear: a statement of what the project is, who
 it uses it (its audience), and a status word (maintained, experimental,
-archived). All three in order is `Pass`.
+archived). All three present in that first block is `Pass`, in any order: the
+criterion says the three appear in the first visible content *in source order*,
+which is where to look, not a sequence the three must be written in.
 
 ## W04 — Site Content Baseline
 
@@ -64,9 +66,11 @@ found is `Pass`.
 
 ## W08 — no restatement
 
-A section titled or clearly about contributing, architecture, decisions, or a
+A section titled or clearly about contributing, architecture, or a
 full changelog is a `Fail` outright — that content belongs in the repository,
-not on the site. Separately, check any command, version number, or policy
+not on the site. Those three are the whole list the criterion gives: anything
+else, a decisions page included, is judged by the restatement test below and is
+not a `Fail` on its own. Separately, check any command, version number, or policy
 statement that also appears in the README or `docs/`: if the site version links
 to that source rather than restating it, it is fine; if it restates without a
 link, it is a `Partial` regardless of whether the two copies currently agree —

@@ -6,8 +6,10 @@ cases, run on your own machine. It ships as a versioned
 [Agent Package Manager](https://github.com/microsoft/apm) package, the same way
 as the account's other packages.
 
-It runs locally and needs no CI, no token, no minutes, and no repository
-setting. It edits nothing, and it does not judge design taste: `W09` itself
+It runs locally and needs no CI, no minutes, no dedicated token, and no
+repository setting. It reads the homepage field and the Pages configuration
+through your own already-authenticated `gh` session, which `W01` and `W02`
+cannot be checked without. It edits nothing, and it does not judge design taste: `W09` itself
 says whether a design is good is outside what the criterion decides, and this
 package holds that line — it reports only the three mechanical cases the
 standard actually names as a `Fail` (no stylesheet, an unmodified framework
