@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.23.0
+- Version: 1.24.0
 - Last reviewed: 2026-09-21
 - Review cadence: every six months, even when nothing changes
 
@@ -530,6 +530,7 @@ instead.
 | <a id="s11"></a>S11 | Workflow token permissions are declared and no broader than the work requires | A `permissions` block on every workflow or on each of its jobs |
 | <a id="s12"></a>S12 | An executable reference in a workflow cannot change underneath the repository | Action and reusable-workflow references |
 | <a id="s13"></a>S13 | A workflow triggered by an untrusted contribution cannot read repository secrets | Workflow triggers and secret usage, or an explicit not-applicable result |
+| <a id="s14"></a>S14 | A repository with a performance-sensitive path states which path and how it is reviewed or measured | README, `AGENTS.md`, `docs/`, or an ADR naming the path and the practice |
 
 `S01` is decided by reading the lockfile or manifest and the documented commands;
 running them is not required. A library that declares dependency ranges in its
@@ -670,6 +671,25 @@ One that lets contributor-controlled content run in a job that can read a
 repository secret fails. The result does not improve because the workflow is
 guarded by a label, an approval, or a maintainer's attention. What the
 workflow's own token may write is decided by `S11`, not here.
+
+`S14` asks whether a practice exists, not whether performance is good: the
+latter is a judgement no fixed line can decide consistently, which is why it is
+not asked here. A path is *performance-sensitive* when at least one holds: it
+runs on every frame, request, or keystroke; it sits in a startup or launch
+sequence a user waits on; its cost scales with the size of user-supplied
+content or input, with no fixed bound; or a past issue, benchmark, or profiling
+note in the repository already treats it as one. A repository with no such
+path is `Not applicable`, recorded with what was looked for.
+
+Where such a path exists, naming it and stating the practice is a `Pass`: a
+comment in the code, a line in `AGENTS.md` or the README, or an ADR, saying
+which path and how it is reviewed or measured, whether that is a benchmark
+suite, a profiling routine run before a release, or a documented review pass —
+[a performance-review agent](../packages/performance-review/README.md) run
+before merging a change to that path is one way to meet "reviewed," not the
+only one. Naming the path without stating a practice, or stating a practice
+without naming which path it covers, is a `Partial`. A performance-sensitive
+path with neither is a `Fail`.
 
 ## Deployable Repositories
 
