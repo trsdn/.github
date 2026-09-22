@@ -29,3 +29,4 @@ future reader can see why it is the way it is before changing it.
 | [0022](0022-a-performance-agent-reviews-not-only-benchmarks.md) | A performance agent reviews code like a senior engineer, not only a benchmark against a baseline | Accepted |
 | [0023](0023-s14-performance-practice-not-performance-quality.md) | `S14` asks whether a performance practice exists and is named, not whether performance is good | Accepted |
 | [0024](0024-a-site-designer-researches-before-it-writes.md) | A site designer researches the specific product first, and a separate reviewer never judges taste | Accepted |
+| [0025](0025-a-customizer-verifies-a-kits-markers-by-running-them.md) | A kit customizer resolves TODO/EDIT markers by running what it configures, not by guessing | Accepted |

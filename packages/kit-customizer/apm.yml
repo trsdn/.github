@@ -1,0 +1,3 @@
+name: kit-customizer
+version: 1.0.0
+description: Tunes a freshly copied trsdn/.github starter kit to the actual repository — fills every TODO(...) and EDIT marker with verified values, run locally.

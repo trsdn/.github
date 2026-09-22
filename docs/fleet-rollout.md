@@ -41,8 +41,10 @@ a working checkout, because another session may have it on a branch of its own.
    The gaps that remain are the work. A gap with a reason from the closed list is
    recorded and left.
 4. **Fix.** Take the kit for the repository's language family from
-   [the templates](../templates/) and change only what a gap needs. Prefer the
-   reusable workflows to copies. In a private repository add no workflow that needs
+   [the templates](../templates/), run
+   [`kit-customizer`](../packages/kit-customizer/README.md) to resolve its
+   markers against the real code, then change only what a gap still needs.
+   Prefer the reusable workflows to copies. In a private repository add no workflow that needs
    minutes: the [local gate](../templates/local-gate/README.md) and the documented
    validation command take their place.
 5. **Verify.** Run the repository's documented validation command, skipping any
