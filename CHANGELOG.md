@@ -6,6 +6,28 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.26.0 - 2026-09-22
+
+- Added `packages/frontend-designer`, a local writer agent that researches a
+  repository and its product before designing and writing a site made
+  specifically for it, and `packages/site-content-reviewer`, a local read-only
+  agent that checks `W01`-`W04`, `W07`, `W08`, and `W09`'s three enumerated
+  Fail cases without judging design taste. Added [the site design
+  guide](docs/guides/site-design.md) tying them together. See
+  [decision 0024](docs/decisions/0024-a-site-designer-researches-before-it-writes.md).
+- `frontend-designer` is this account's first writer package: it edits files in
+  the working tree and, unlike every reviewer package so far, never commits or
+  opens a pull request itself.
+- Clarified `repo-assessor`'s own wording: the "separate, deliberate pass" that
+  reviews and commits its draft record does not have to be a person typing
+  YAML by hand. A fleet-rollout worker, or the operator's own follow-up
+  session once fixes have landed, already is what decision 0021 meant by
+  "someone having reasoned about it" — the package's agent file said "a
+  human," which was narrower than the decision it implements. No behaviour
+  changes; `packages/repo-assessor` moves to 1.0.1.
+- Released as minor: two packages and a guide were added, and no recorded
+  result can change.
+
 ## 1.25.0 - 2026-09-22
 
 - Added `packages/doc-staleness-reviewer`: a local, credential-free agent that

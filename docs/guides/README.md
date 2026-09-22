@@ -13,6 +13,7 @@ file is not evidence until the repository has it and it works there.
 | [`P03`](../repository-quality-standard.md#p03), [`P12`](../repository-quality-standard.md#p12), [`S05`](../repository-quality-standard.md#s05), [`B16`](../repository-quality-standard.md#b16), [`S09`](../repository-quality-standard.md#s09) | [Repository security settings](repository-security-settings.md) |
 | [`P13`](../repository-quality-standard.md#p13) | [CodeQL](codeql.md) |
 | Any private repository, and [`R09`](../repository-quality-standard.md#r09) | [Private repositories](private-repositories.md), the [account's capabilities](../account-capabilities.md), and the [local gate](../../templates/local-gate/README.md) |
+| A public application's site: [`W01`](../repository-quality-standard.md#w01)-[`W09`](../repository-quality-standard.md#w09) | [Site design](site-design.md) |
 | [`S08`](../repository-quality-standard.md#s08), [`P12`](../repository-quality-standard.md#p12) | [Dependabot version updates](dependabot.md) |
 | [`S05`](../repository-quality-standard.md#s05) | [Secret scanning](secret-scanning.md) |
 | [`S11`](../repository-quality-standard.md#s11), [`S12`](../repository-quality-standard.md#s12), [`S13`](../repository-quality-standard.md#s13) | [Workflow permissions and pinning](workflow-permissions-and-pinning.md) |
@@ -39,9 +40,11 @@ Versioned agent packages are under [`packages/`](../../packages/apple-hig-review
 run locally and pinned to a tag: the Apple HIG review agent for a macOS app, a
 [performance reviewer](../../packages/performance-review/README.md) for any
 language, a [documentation staleness reviewer](../../packages/doc-staleness-reviewer/README.md)
-for `T05`/`B13`, and [the repository assessor](../../packages/repo-assessor/README.md),
-which files a remediation issue per gap and needs the operator's own `gh` write
-access to do it.
+for `T05`/`B13`, a [frontend designer](../../packages/frontend-designer/README.md)
+and a [site content reviewer](../../packages/site-content-reviewer/README.md) for
+`W01`-`W09` (see the [site design guide](site-design.md)), and [the repository
+assessor](../../packages/repo-assessor/README.md), which files a remediation
+issue per gap and needs the operator's own `gh` write access to do it.
 
 Older single-purpose templates remain:
 [`templates/AGENTS.md`](../../templates/AGENTS.md),
