@@ -6,6 +6,16 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.28.2 - 2026-09-25
+
+- `REC-02` now says to take the release assets as the authority for the count,
+  which was in the original proposal and was lost when it moved sections.
+- [Status Badges](docs/repository-quality-standard.md#status-badges) points at
+  `REC-02`, so the badge is findable where a reader is already thinking about
+  badges rather than only in the recommendations table.
+- Released as patch: a recommendation produces no result, and a cross-reference
+  changes none either.
+
 ## 1.28.1 - 2026-09-25
 
 - Added `REC-02`: a live total-download badge for repositories that publish
