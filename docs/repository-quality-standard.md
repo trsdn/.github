@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.28.0
+- Version: 1.28.1
 - Last reviewed: 2026-09-21
 - Review cadence: every six months, even when nothing changes
 
@@ -2075,6 +2075,7 @@ which is how the same decision gets made differently in every repository.
 | | Recommendation |
 |---|---|
 | <a id="rec-01"></a>REC-01 | Name the performance-sensitive paths a change should be reviewed against, and how they are measured — a benchmark, a profiling routine, or a documented review pass. This was criterion `S14` until 1.28.0. It is worth doing and it is not worth assessing: whether a path is performance-sensitive is a judgement no fixed line decided consistently, so the criterion measured whether a sentence existed rather than whether the practice did. [A performance-review agent](../packages/performance-review/README.md) is one way to run such a review. |
+| <a id="rec-02"></a>REC-02 | Where a repository publishes downloadable release assets, show a live total-download count and link it to the releases page: `[![Downloads](https://img.shields.io/github/downloads/OWNER/REPOSITORY/total?label=downloads)](https://github.com/OWNER/REPOSITORY/releases)`. It is not part of the badge block `P08` requires and adds no condition to it. GitHub counts asset downloads rather than unique users or installations, and checksum downloads are included in the total, so read it as a direction and not a figure. |
 
 ## Changing This Standard
 
