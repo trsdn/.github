@@ -6,6 +6,16 @@ recorded here.
 Versions follow the compatibility policy in the
 [Repository Quality Standard](docs/repository-quality-standard.md).
 
+## 1.28.1 - 2026-09-25
+
+- Added `REC-02`: a live total-download badge for repositories that publish
+  downloadable release assets, linked to the releases page. It is a
+  recommendation, so it is not part of the badge block `P08` requires and adds
+  no condition to it.
+- Released as patch: a recommendation produces no result, so no recorded result
+  can change. This is the first change to use the rule
+  [Recommendations](docs/repository-quality-standard.md#recommendations) states.
+
 ## 1.28.0 - 2026-09-22
 
 - Added [Recommendations](docs/repository-quality-standard.md#recommendations):
