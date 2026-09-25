@@ -1,6 +1,6 @@
 # Repository Quality Standard
 
-- Version: 1.28.1
+- Version: 1.28.2
 - Last reviewed: 2026-09-21
 - Review cadence: every six months, even when nothing changes
 
@@ -1762,6 +1762,11 @@ Rules:
 A hardcoded `Swift 5.9` badge beside a manifest that has moved to 6.0 is the
 failure this section exists to prevent.
 
+A repository that publishes downloadable release assets may also show a live
+total-download count. That badge is [`REC-02`](#recommendations) and not part of
+the block this criterion requires, so it adds no condition to `P08` and its
+absence is not a gap.
+
 Badge hosting is not a privacy question on GitHub. Markdown rendered on
 `github.com` loads every external image through GitHub's proxy, so the image host
 observes the proxy and not the reader. The `Y02` argument applies where that
@@ -2075,7 +2080,7 @@ which is how the same decision gets made differently in every repository.
 | | Recommendation |
 |---|---|
 | <a id="rec-01"></a>REC-01 | Name the performance-sensitive paths a change should be reviewed against, and how they are measured — a benchmark, a profiling routine, or a documented review pass. This was criterion `S14` until 1.28.0. It is worth doing and it is not worth assessing: whether a path is performance-sensitive is a judgement no fixed line decided consistently, so the criterion measured whether a sentence existed rather than whether the practice did. [A performance-review agent](../packages/performance-review/README.md) is one way to run such a review. |
-| <a id="rec-02"></a>REC-02 | Where a repository publishes downloadable release assets, show a live total-download count and link it to the releases page: `[![Downloads](https://img.shields.io/github/downloads/OWNER/REPOSITORY/total?label=downloads)](https://github.com/OWNER/REPOSITORY/releases)`. It is not part of the badge block `P08` requires and adds no condition to it. GitHub counts asset downloads rather than unique users or installations, and checksum downloads are included in the total, so read it as a direction and not a figure. |
+| <a id="rec-02"></a>REC-02 | Where a repository publishes downloadable release assets, show a live total-download count, taking the release assets as the authority and linking the badge to the releases page: `[![Downloads](https://img.shields.io/github/downloads/OWNER/REPOSITORY/total?label=downloads)](https://github.com/OWNER/REPOSITORY/releases)`. It is not part of the badge block `P08` requires and adds no condition to it. GitHub counts asset downloads rather than unique users or installations, and checksum downloads are included in the total, so read it as a direction and not a figure. |
 
 ## Changing This Standard
 
